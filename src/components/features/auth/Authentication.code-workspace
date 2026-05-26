@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../../.."
+		},
+		{
+			"path": "../../../../../../../../mnt/e/NextJsWorkDir/authv5-test/components"
+		}
+	],
+	"settings": {
+		"prisma.pinToPrisma6": true
+	}
+}

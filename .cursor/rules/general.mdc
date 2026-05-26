@@ -1,0 +1,47 @@
+---
+description: mailform-test プロジェクト全体のコーディング規則
+alwaysApply: true
+---
+
+# 基本コーディング規則
+
+- 読みやすく保守しやすいコードを書く
+- 暗黙的な表現より明示的な表現を優先する。マジックバリューは避け、名前付き定数を使う
+- 関数は小さく保ち、単一の責務に集中させる
+- ユーザー入力はクライアントとサーバーの両方でバリデーションする
+
+## コーディングスタイル
+
+- `let` より `const` を優先する。`var` は使用しない
+- Promise チェーンではなく async/await を使う
+- import の順序: 外部ライブラリ → 内部モジュール → 型定義
+
+## ファイル・フォルダ構成（Next.js 16）
+
+公式の [プロジェクト構造](https://nextjsjp.org/docs/app/getting-started/project-structure) および [`src` フォルダ](https://nextjsjp.org/docs/app/api-reference/file-conventions/src-folder) に従う。
+
+| ディレクトリ | 役割 |
+| --- | --- |
+| `app/` | App Router（ルート・レイアウト・`page`・Route Handler 等） |
+| `pages/` | Pages Router（App Router とは別ルーター。公式でも継続サポート。本プロジェクトは App Router を主とし、必要時のみ `src/pages` を検討） |
+| `public/` | 提供される静的アセット。`src` を使う場合も **`public` はプロジェクトルートに置く**（`src` 内に移さない） |
+| `src/` | オプションのアプリケーションソースフォルダ。使用時は `app` / `pages` を `src/app` / `src/pages` に置く |
+
+本プロジェクトは **`src/` を使用する**前提とする。ルートに `app`（または `pages`）と **`src/app`（または `src/pages`）を同時に置かない**（どちらか一方のみ）。
+
+- `src/app/` — App Router（`layout.tsx` / `page.tsx` / `loading.tsx` 等）
+- `src/app/api/` — Route Handlers（`route.ts`）
+- `src/pages/` — Pages Router を使う場合のみ（通常は作成しない）
+- `public/` — プロジェクトルート直下の静的ファイル
+- `src/components/` — UI コンポーネント（必要に応じて `ui/` 等で細分化）
+- `src/lib/` — 共通ユーティリティ・ヘルパー（DB・メール等のサーバー処理もここに寄せる）
+- `src/types/` — TypeScript 型定義
+- `proxy.ts` — [Proxy](https://nextjsjp.org/docs/app/getting-started/proxy) 規約に従い、`app` / `pages` と同階層（リポジトリルートまたは `src` 内）。プロジェクトあたり1ファイル。従来の `middleware` からの移行はアップグレードガイド参照
+- `.env.example` — 必要な環境変数を記載する（実際の値は含めない）
+
+## コメント
+
+- コメントは非自明な意図やトレードオフの説明にのみ使う
+- コードの動作をそのまま説明するコメントは書かない
+- `// TODO: implement this` のようなプレースホルダーコメントを残さない
+- TODO を残す場合は担当者や Issue への参照を必ず記載する

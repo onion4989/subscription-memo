@@ -1,0 +1,80 @@
+---
+description: プロジェクト共通のテクニカルスタックと Next.js 16 準拠ルール
+alwaysApply: true
+---
+
+# 参照ドキュメント（Next.js 16）
+
+- 一次情報として [Next.js 16 日本語ドキュメント（nextjsjp.org）](https://nextjsjp.org/docs) に従う
+- 不足・英語のみの記述が必要な場合は [nextjs.org/docs](https://nextjs.org/docs) を補助的に参照する
+
+# ルール参照マップ（入口）
+
+- 認証実装（Auth.js v5 / Credentials + OAuth / `proxy.ts` 保護 / `/success` 遷移）は `auth-nextjs16.mdc` を参照する
+- フォーム処理（送信バリデーション / UX / Server Actions）は `form-handling.mdc` を参照する
+- メール送信（SMTP / 本文サニタイズ / 失敗ハンドリング）は `email-smtp.mdc` を参照する
+- 共通セキュリティ（XSS / CSRF / レートリミット / HTTPS）は `security.mdc` を参照する
+
+# テクニカルスタック
+
+- Framework: Next.js 16（App Router）
+- Runtime: Node.js — 開発ではリポジトリ直下の `.nvmrc` を指定し `nvm use` すること（現在 **24.15.0 / Latest LTS**）。Next.js 16 の最低要件は **20.9 以上**（[要件](https://nextjs.org/docs/app/guides/upgrading/version-16#nodejs-runtime-and-browser-support)）
+- Database: Prisma with Neon
+- Styling: Tailwind CSS
+- UI プリミティブ: shadcn/ui（レジストリ経由でソースをプロジェクトに取り込む方式）
+- Language: TypeScript 5.1 以上（Strict）
+
+# バージョン方針（共通）
+
+- Node.js は `.nvmrc` を正とし、開発・CI・本番で同一メジャーを維持する
+- 認証実装の Prisma バージョン方針は `auth-nextjs16.mdc` を参照する
+
+# UI（shadcn/ui）
+
+- コンポーネントは **必要になったときだけ** `npx shadcn@latest add <コンポーネント名>` で追加する。見込みで大量インストールしない
+- まず既存の `src/components/ui/` を確認し、足りないものだけ CLI で追加する
+- アプリ固有の合成 UI は `src/components/features/` やルート近傍に置き、`ui/` は shadcn 由来の再利用パーツに寄せる
+
+# Next.js 16 のビルド・設定
+
+- Turbopack が `next dev` / `next build` の既定。`package.json` のスクリプトに `--turbopack` は不要（旧設定があれば削除）
+- 設定ファイルは `next.config.ts` を推奨。`turbopack` オプションは `experimental` ではなく `nextConfig` のトップレベルに記述する
+- カスタム `webpack()` がある場合は Turbopack でビルドできない。移行するか、必要なら `next build --webpack` で Webpack を明示選択する
+- Lint は `next lint` ではなく ESLint を CLI で直接実行する（公式ガイド・codemod に従う）
+
+# Async Request APIs（必須）
+
+Next.js 16 では同期アクセスは削除済み。以下は常に `await` する。
+
+- `cookies()` / `headers()` / `draftMode()`
+- `page`・`layout`・`route` の `params`、`page` の `searchParams`
+- メタデータ用画像 (`opengraph-image` 等) や `sitemap` のジェネレータで渡される Promise 型は公式ドキュメントのシグネチャに従う
+
+型移行には `npx next typegen` で生成される `PageProps` / `LayoutProps` / `RouteContext` 等の利用を推奨する。
+
+# コンポーネント・データ取得
+
+- Server Components を既定とし、DOM API・イベント・クライアント状態が必要な場合のみ `'use client'` を付与する
+- （任意）React Compiler: `next.config` で `reactCompiler: true` と `babel-plugin-react-compiler` で有効化可能（ビルド時間増の可能性あり）
+- （任意）Cache Components: `cacheComponents: true` と `use cache` / `cacheLife` / `cacheTag` は要件に応じて公式ドキュメントに沿って導入する
+
+# キャッシュ無効化
+
+- `revalidateTag` は第2引数に `cacheLife` プロファイルが必須（例: `revalidateTag('posts', 'max')`）。1引数形式は非推奨
+- Server Actions 内で同一リクエストですぐ反映させたい場合は `updateTag` を検討する
+
+# ルーティング境界（middleware / proxy）
+
+- ネットワーク境界は [Proxy（nextjsjp）](https://nextjsjp.org/docs/app/getting-started/proxy) の規約に従う。`proxy.ts`（または `.js`）をプロジェクトルートまたは `src` 内に、`app` / `pages` と同階層で1ファイル配置する
+- 新規は `export function proxy` を用いる。従来の `middleware` からの移行・Edge 要件は [アップグレード（nextjsjp）](https://nextjsjp.org/docs/app/getting-started/upgrading) および [Upgrading: Version 16（英語）](https://nextjs.org/docs/app/guides/upgrading/version-16) に従う
+- `next.config` のリネーム（例: `skipMiddlewareUrlNormalize` → `skipProxyUrlNormalize`）はアップグレードガイドを参照する
+
+# 基本指針
+
+- 型定義は明示的に行い、`any` を禁止する
+
+# エージェント動作
+
+- **管理者承認前の変更禁止**: AI によるリポジトリ内のあらゆる修正（ファイルの作成・編集・削除、コマンドによる変更の適用を含む）は、**プロジェクト管理者の明示的な承認があるまで行わないこと**。承認内容（スコープ・方針）を受け取った後にのみ、該当範囲の修正を実施する
+- **設計と承認の流れ**: 実装前に必ず「Plan Mode」等で設計案・変更案を提示し、管理者の承認を得てから着手する
+- **セキュリティ**: 脆弱性（APIキーの露出等）を検知した場合は、修正を勝手に進めず即座に停止し、事実を報告する

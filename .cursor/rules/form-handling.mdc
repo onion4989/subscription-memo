@@ -1,0 +1,19 @@
+---
+description: メールフォームコンポーネントのフォーム処理・UX規則
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# フォーム処理
+
+- 送信前に全フィールドをバリデーションする（必須項目・メール形式・最大文字数）
+- エラーメッセージは該当フィールドの近くに、わかりやすく表示する
+- 送信中は送信ボタンを無効化し、二重送信を防ぐ
+- 送信後は成功・失敗のいずれかの状態を明示的に表示する
+
+## Next.js 16 での実装
+
+詳細は [フォーム（Server Actions）— nextjsjp](https://nextjsjp.org/docs/app/guides/forms) に従う。
+
+- 送信処理は Server Actions（`'use server'`）を優先し、`<form action={...}>` とネイティブの段階的強化を意識する
+- Server Action 内でもサーバー側バリデーションを必ず行う（クライアントのみに依存しない）。必要に応じて `useActionState` / `useFormStatus` で pending・エラー表示を行う
