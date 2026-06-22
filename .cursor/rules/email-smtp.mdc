@@ -12,7 +12,7 @@ alwaysApply: false
 
 # このプロジェクトで使う送信手段
 
-- 本番・開発とも **Resend API** を使う（`resend` パッケージ）
+- 本番・開発とも **Xserver SMTP**（`nodemailer`）を使う（portfolio と同様）
 - パスワード再設定メールと、**メールアドレス確認メール**の 2 種類がある
 - 認証フロー全体のルール（いつ送るか・ログイン可否）は `auth-nextjs16.mdc` を参照する
 
@@ -20,11 +20,13 @@ alwaysApply: false
 
 | 変数 | 用途 |
 | --- | --- |
-| `RESEND_API_KEY` | Resend の API キー |
-| `EMAIL_FROM` | 送信元アドレス（例: `noreply@your-domain.com`） |
+| `SMTP_HOST` | Xserver SMTP ホスト（例: `sv1234.xserver.jp`） |
+| `SMTP_PORT` | SMTP ポート（通常 `465`） |
+| `MY_EMAIL` | 送信元アドレス兼 SMTP 認証ユーザー |
+| `MY_PASSWORD` | Xserver メールパスワード |
 | `AUTH_URL` | メール内リンクのベース URL（例: `http://localhost:3000`） |
 
-`.env.local` に設定する。Git にはコミットしない。
+`.env` に設定する。Git にはコミットしない。本番は Dokploy の環境変数のみ。
 
 # メールアドレス確認メール
 
@@ -77,7 +79,8 @@ alwaysApply: false
 
 | ファイル | 役割 |
 | --- | --- |
-| `src/lib/email-verification/send.ts` | Resend で本文送信 |
+| `src/lib/email/smtp.ts` | Xserver SMTP で本文送信（共通） |
+| `src/lib/email-verification/send.ts` | 確認メール送信 |
 | `src/lib/email-verification/issue-and-send.ts` | トークン作成 + 送信 + レート制限 |
 | `src/lib/email-verification/tokens.ts` | トークン作成・検証 |
 | `src/lib/email-verification/constants.ts` | 期限・上限・画面文言 |

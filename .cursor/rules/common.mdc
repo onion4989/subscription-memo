@@ -12,7 +12,7 @@ alwaysApply: true
 
 - 認証実装（Auth.js v5 / Credentials + OAuth / メール確認 / `proxy.ts` 保護 / `/success` 遷移）は `auth-nextjs16.mdc` を参照する
 - フォーム処理（送信バリデーション / UX / Server Actions）は `form-handling.mdc` を参照する
-- メール送信（確認メール・再送・Resend / 本文サニタイズ / 失敗ハンドリング）は `email-smtp.mdc` を参照する
+- メール送信（確認メール・再送・Xserver SMTP / 本文サニタイズ / 失敗ハンドリング）は `email-smtp.mdc` を参照する
 - 共通セキュリティ（XSS / CSRF / レートリミット / HTTPS）は `security.mdc` を参照する
 - React/Next.js のパフォーマンス最適化・レビュー時は Agent Skill `vercel-react-best-practices`（`.agents/skills/vercel-react-best-practices`）を参照する
 
@@ -20,7 +20,7 @@ alwaysApply: true
 
 - Framework: Next.js 16（App Router）
 - Runtime: Node.js — 開発ではリポジトリ直下の `.nvmrc` を指定し `nvm use` すること（現在 **24.15.0 / Latest LTS**）。Next.js 16 の最低要件は **20.9 以上**（[要件](https://nextjs.org/docs/app/guides/upgrading/version-16#nodejs-runtime-and-browser-support)）
-- Database: Prisma with Neon
+- Database: Prisma with PostgreSQL（本番: Dokploy Postgres / ローカル: docker compose）
 - Styling: Tailwind CSS
 - UI プリミティブ: shadcn/ui（レジストリ経由でソースをプロジェクトに取り込む方式）
 - Language: TypeScript 5.1 以上（Strict）
