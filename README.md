@@ -1,8 +1,10 @@
 # subscription-memo（SubscMemo）
 
-`Authentication` をベースにした本番向けアプリです。Next.js 16（App Router）+ Auth.js v5 + Prisma + Resend で認証まわりを実装しています。アプリのパス定義は `src/lib/routes.ts` を単一の情報源とし、Proxy は `src/proxy.ts` に置いています。
+`Authentication` をベースにした本番向けアプリです。Next.js 16（App Router）+ Auth.js v5 + Prisma + Xserver SMTP で認証まわりを実装しています。アプリのパス定義は `src/lib/routes.ts` を単一の情報源とし、Proxy は `src/proxy.ts` に置いています。
 
-開発用 DB は Phase 2 で Docker Postgres を用意します。本番 URL 予定: `https://subscmemo.see-u-soon.design`
+- **本番 URL**: `https://subscmemo.see-u-soon.design`
+- **本番 DB**: Dokploy Postgres（VPS 6GB / Ubuntu 24.04 + Dokploy）
+- **ローカル DB**: `docker compose up -d`（`docker-compose.yml`）
 
 
 ## 認証のしくみ（初心者向け）
@@ -174,8 +176,18 @@ npx prisma generate
 - `AUTH_GOOGLE_SECRET`
 - `AUTH_GITHUB_ID`
 - `AUTH_GITHUB_SECRET`
-- `RESEND_API_KEY`
-- `EMAIL_FROM`
+- `SMTP_HOST`
+- `SMTP_PORT`（通常 `465`）
+- `MY_EMAIL`
+- `MY_PASSWORD`
+
+ローカル DB を使う場合:
+
+```bash
+docker compose up -d
+```
+
+`DATABASE_URL` の例: `postgresql://postgres:postgres@localhost:5432/subscription_memo_dev`
 
 ## 開発コマンド
 
@@ -185,6 +197,14 @@ npm run lint
 npm run build
 ```
 
+## 本番デプロイ
+
+GitHub Actions で Docker イメージをビルドし、GHCR 経由で Dokploy（**Works > Subscription MEMO**）へデプロイします。詳細は `.cursor/rules/manual/deployment-ci-cd.md` を参照してください。
+
+- イメージ: `ghcr.io/onion4989/subscription-memo:latest`
+- トリガー: `main` ブランチへの push
+- SSL: Dokploy（Let's Encrypt）
+
 ## ルール参照
 
 - 共通: `.cursor/rules/common.mdc`
@@ -192,3 +212,4 @@ npm run build
 - セキュリティ: `.cursor/rules/security.mdc`
 - フォーム: `.cursor/rules/form-handling.mdc`
 - メール: `.cursor/rules/email-smtp.mdc`
+- デプロイ: `.cursor/rules/manual/deployment-ci-cd.md`

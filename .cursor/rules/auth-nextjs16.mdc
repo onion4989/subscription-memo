@@ -9,7 +9,7 @@ alwaysApply: false
 - プロジェクト共通方針（Next.js 16 全体、Async Request APIs、Proxy 規約）は `common.mdc` を参照する
 - 共通セキュリティ（XSS / CSRF / レートリミット / HTTPS）は `security.mdc` を参照する
 - フォーム UX と Server Actions 運用は `form-handling.mdc` を参照する
-- メール送信運用（確認メール・再送・Resend / 本文サニタイズ）は `email-smtp.mdc` を参照する
+- メール送信運用（確認メール・再送・Xserver SMTP / 本文サニタイズ）は `email-smtp.mdc` を参照する
 
 # バージョン方針（認証）
 
