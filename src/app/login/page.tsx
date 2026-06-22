@@ -7,7 +7,7 @@ import {
   LOGIN_OAUTH_NOT_LINKED_QUERY,
   resolveOAuthAccountNotLinkedMessageFromQuery,
 } from "@/lib/oauth-account-not-linked";
-import { AUTH_ERROR_QUERY } from "@/lib/routes";
+import { AUTH_ERROR_QUERY, LOGIN_VERIFIED_QUERY } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 type LoginPageProps = {
@@ -16,6 +16,7 @@ type LoginPageProps = {
     callbackUrl?: string;
     linkedProviders?: string;
     credentialLogin?: string;
+    verified?: string;
   }>;
 };
 
@@ -41,12 +42,30 @@ function resolveLoginErrorMessage(
   return ERROR_MESSAGES[error] ?? ERROR_MESSAGES.Default;
 }
 
+function resolveVerifiedMessage(verified: string | undefined): string | null {
+  if (verified === "1") {
+    return "メールアドレスの確認が完了しました。ログインしてください。";
+  }
+  return null;
+}
+
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const sp = await searchParams;
   const errorMessage = resolveLoginErrorMessage(sp.error, sp);
+  const verifiedMessage = resolveVerifiedMessage(sp[LOGIN_VERIFIED_QUERY]);
 
   return (
     <main className={AUTH_PAGE_MAIN_CLASS}>
+      {verifiedMessage ? (
+        <div
+          className={cn(
+            "mb-4 rounded-md border border-green-200 bg-green-50 p-3",
+            AUTH_CARD_MAX_WIDTH_CLASS
+          )}
+        >
+          <p className="text-sm text-green-800">{verifiedMessage}</p>
+        </div>
+      ) : null}
       {errorMessage ? (
         <div
           className={cn(

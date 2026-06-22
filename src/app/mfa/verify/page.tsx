@@ -37,7 +37,7 @@ export default function MfaVerifyPage() {
     setPending(false);
 
     if (result.success) {
-      router.push(ROUTES.success);
+      router.push(ROUTES.subscriptions);
     }
   }
 

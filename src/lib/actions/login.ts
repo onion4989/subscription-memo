@@ -1,8 +1,11 @@
 "use server";
 
+import { compare } from "bcryptjs";
 import { signIn } from "@/lib/auth";
 import { normalizeEmail } from "@/lib/email";
-import { ROUTES } from "@/lib/routes";
+import { LOGIN_UNVERIFIED_MESSAGE } from "@/lib/email-verification/constants";
+import { prisma } from "@/lib/prisma";
+import { DEFAULT_LOGIN_REDIRECT } from "@/lib/routes";
 import {
   loginFormFieldErrorsFromZod,
   loginFormSchema,
@@ -15,6 +18,8 @@ const CREDENTIALS_ERROR_MESSAGE =
 
 export type LoginState = {
   success: boolean;
+  /** パスワードは正しいがメール未確認のとき true */
+  emailNotVerified?: boolean;
   fieldErrors?: LoginFormFieldErrors;
   values?: {
     email?: string;
@@ -41,20 +46,36 @@ export async function login(
     };
   }
 
+  const email = normalizeEmail(parsed.data.email);
+  const { password } = parsed.data;
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: { accounts: true },
+  });
+
+  if (user?.passwordHash) {
+    const isValid = await compare(password, user.passwordHash);
+    if (isValid && !user.emailVerified) {
+      return {
+        success: false,
+        emailNotVerified: true,
+        fieldErrors: {
+          password: LOGIN_UNVERIFIED_MESSAGE,
+        },
+        values: { email },
+      };
+    }
+  }
+
   try {
-    console.log("[login action] signIn attempt", {
-      email: normalizeEmail(parsed.data.email),
-    });
     await signIn("credentials", {
-      email: normalizeEmail(parsed.data.email),
-      password: parsed.data.password,
-      redirectTo: ROUTES.success,
+      email,
+      password,
+      redirectTo: DEFAULT_LOGIN_REDIRECT,
     });
     return { success: true };
   } catch (error) {
-    console.log("[login action] signIn error", {
-      type: error instanceof AuthError ? error.type : "unknown",
-    });
     if (error instanceof AuthError) {
       if (error.type === "CredentialsSignin") {
         return {
@@ -62,9 +83,7 @@ export async function login(
           fieldErrors: {
             password: CREDENTIALS_ERROR_MESSAGE,
           },
-          values: {
-            email: normalizeEmail(parsed.data.email),
-          },
+          values: { email },
         };
       }
     }

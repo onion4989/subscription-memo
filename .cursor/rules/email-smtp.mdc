@@ -9,3 +9,78 @@ alwaysApply: false
 - SMTP 認証情報は環境変数（`.env`）にのみ保存し、コードにハードコードしない
 - メール送信失敗は適切にハンドリングし、エラーをユーザーに伝える
 - メール本文に含めるユーザー入力は必ずサニタイズする
+
+# このプロジェクトで使う送信手段
+
+- 本番・開発とも **Resend API** を使う（`resend` パッケージ）
+- パスワード再設定メールと、**メールアドレス確認メール**の 2 種類がある
+- 認証フロー全体のルール（いつ送るか・ログイン可否）は `auth-nextjs16.mdc` を参照する
+
+# 必要な環境変数
+
+| 変数 | 用途 |
+| --- | --- |
+| `RESEND_API_KEY` | Resend の API キー |
+| `EMAIL_FROM` | 送信元アドレス（例: `noreply@your-domain.com`） |
+| `AUTH_URL` | メール内リンクのベース URL（例: `http://localhost:3000`） |
+
+`.env.local` に設定する。Git にはコミットしない。
+
+# メールアドレス確認メール
+
+## いつ送るか
+
+- 新規登録（`/signup`）が成功したとき
+- 未確認ユーザーが再送（`/resend-verification` または未確認のまま再サインアップ）したとき
+
+## 送らないとき
+
+- すでに `emailVerified` が入っている（確認済み）ユーザー
+- レートリミット超過時（メールは送らず、ログに記録）
+
+## リンクの形
+
+- `/verify-email?token=...`（パスは `src/lib/routes.ts` の `ROUTES.verifyEmail`）
+- トークンの有効期限は **1 時間**（`EMAIL_VERIFICATION_TOKEN_EXPIRY_MS`）
+
+## トークンの保存
+
+- DB の `VerificationToken` テーブルを使う
+- URL に載せる生のトークンは DB に平文で保存しない（bcrypt ハッシュ。パスワードリセットと同じ考え方）
+- 新しいトークンを発行するときは、同じメール（`identifier`）の古いトークンは削除する
+
+## 送信失敗時
+
+- 新規登録で送信に失敗したら、作成した `User` を削除してロールバックする
+- 再送で失敗したらトークン状態を整合させ、エラーはサーバーログに残す
+- 送信は最大 3 回リトライする（`MAX_SEND_RETRIES`）
+
+# レートリミット（再送・登録時の送信）
+
+スパムやメール爆撃を防ぐ。
+
+| 単位 | 上限（1 時間あたり） |
+| --- | --- |
+| 同一メール（ハッシュ） | 5 回 |
+| 同一 IP | 10 回 |
+
+- 実装: `src/lib/email-verification/rate-limit.ts`（開発向けインメモリ）
+- 本番でサーバーが複数台になる場合は Redis 等への移行を検討する
+
+# 監査ログ
+
+- 送信成功・失敗、リンク検証失敗、レート制限は **構造化ログ**（JSON 風の 1 行）で残す
+- 実装: `src/lib/email-verification/audit-log.ts`
+- ログに **平文メール・トークン・パスワード** を出さない（メールは SHA-256 の先頭 16 文字などハッシュで識別）
+
+# 実装ファイル一覧（メール送信まわり）
+
+| ファイル | 役割 |
+| --- | --- |
+| `src/lib/email-verification/send.ts` | Resend で本文送信 |
+| `src/lib/email-verification/issue-and-send.ts` | トークン作成 + 送信 + レート制限 |
+| `src/lib/email-verification/tokens.ts` | トークン作成・検証 |
+| `src/lib/email-verification/constants.ts` | 期限・上限・画面文言 |
+| `src/lib/actions/forgot-password.ts` | パスワード再設定メール（別フロー） |
+
+メール仕様を変えるときは、まず `constants.ts` と `auth-nextjs16.mdc` を整合させる。

@@ -9,7 +9,7 @@ alwaysApply: false
 - プロジェクト共通方針（Next.js 16 全体、Async Request APIs、Proxy 規約）は `common.mdc` を参照する
 - 共通セキュリティ（XSS / CSRF / レートリミット / HTTPS）は `security.mdc` を参照する
 - フォーム UX と Server Actions 運用は `form-handling.mdc` を参照する
-- メール送信運用（SMTP / 本文サニタイズ）は `email-smtp.mdc` を参照する
+- メール送信運用（確認メール・再送・Resend / 本文サニタイズ）は `email-smtp.mdc` を参照する
 
 # バージョン方針（認証）
 
@@ -37,6 +37,64 @@ alwaysApply: false
 - 無限リダイレクトを防ぐため、`/login` は保護対象から除外する
 - 静的ファイル（`/_next`、`/public` 配下）を保護対象から除外する
 - Auth.js のコールバック干渉を避けるため、`/api/auth/*` を保護対象から除外する
+- メール確認用の `/verify-email` と再送用の `/resend-verification` も認証不要の公開パスに含める（定義は `src/lib/routes.ts` の `PROXY_PUBLIC_PATH_PREFIXES` を正とする）
+
+# メールアドレス確認（Credentials 登録）
+
+メールとパスワードで登録した人だけ、「本当にそのメールの持ち主か」を確認してからログインできるようにする。
+
+## ざっくり流れ
+
+1. `/signup` で登録 → DB に `User` を作成（この時点では `emailVerified` は空）
+2. 確認メールを送る（リンクの有効期限は **1 時間**）
+3. ユーザーがメール内のリンク（`/verify-email?token=...`）を開く → `emailVerified` に日時が入る
+4. その後、初めて `/login` でログインできる
+
+## 誰に確認が必要か
+
+| 登録・ログイン方法 | 確認メール |
+| --- | --- |
+| メール + パスワード（Credentials） | **必要**（リンクを踏むまでログイン不可） |
+| Google / GitHub（OAuth） | **不要**（プロバイダ側でメールが保証される想定） |
+
+## ログイン拒否のルール
+
+- Credentials ログイン時、`User.emailVerified` が空ならログインさせない
+- **既に登録済みの未確認ユーザー**も同じ（バックフィルで確認済みにしない）
+- 拒否は二重で行う
+  - `src/lib/actions/login.ts` … パスワード一致後に「メール確認が完了していません」と表示（`emailNotVerified: true`）
+  - `src/lib/auth.ts` の `authorize` … 未確認なら `null` を返して Auth.js 側でも拒否
+
+## 登録・再送の画面ルール
+
+- 登録成功後は「メールを確認してください」と案内する（すぐログインさせない）
+- **未確認のメールで再度サインアップ**した場合は、新しい `User` を作らず **確認メールを再送**する（列挙対策のため画面メッセージは共通化）
+- **確認済みのメール**でサインアップした場合は「既に登録されています」と表示
+- `/resend-verification` で再送。確認済みメールの場合は「すでに確認済みです」と表示し、メールは送らない
+- 未登録メールへの再送は、登録有無が分からないよう **汎用メッセージ**のままにする
+
+## ログイン画面の UX
+
+- 「確認メールを再送」リンクは、**ログイン失敗かつ未確認**（`LoginState.emailNotVerified === true`）のときだけ表示する
+- メール確認完了後は `/login?verified=1` で成功メッセージを出せる（`LOGIN_VERIFIED_QUERY`）
+
+## パスワードリセットとの関係
+
+- **メール未確認の Credentials ユーザー**には、パスワードリセットメールを送らない（先にメール確認を完了させる）
+- 確認メールのリンク自体が「メールの所有確認」になる
+
+## 実装の置き場（変更時はここを見る）
+
+| 役割 | 場所 |
+| --- | --- |
+| パス定義 | `src/lib/routes.ts`（`verifyEmail`, `resendVerification`） |
+| 確認メール共通処理 | `src/lib/email-verification/` |
+| 登録 | `src/lib/actions/signup.ts` |
+| 再送 | `src/lib/actions/resend-verification.ts` |
+| リンク検証 | `src/app/verify-email/page.tsx`, `src/lib/email-verification/verify-token.ts` |
+| 定数・文言 | `src/lib/email-verification/constants.ts` |
+
+DB は `User.emailVerified` と `VerificationToken` テーブルを使う（スキーマ追加は不要）。
 
 # ログイン成功・失敗時の挙動
 
@@ -48,7 +106,8 @@ alwaysApply: false
 # パスワードリセット
 
 - パスワードリセット機能を必須とする
-- リセット要求時は登録有無に関わらず共通メッセージ（例: 「リセット手順を送りました」）を返す
+- リセット要求時は登録有無に関わらず共通メッセージ（例: 「リセット手順を送りました」）を返す（列挙対策）
+- **メール未確認**（`emailVerified` が空）の Credentials ユーザーにはリセットトークンを発行しない
 - OAuth 専用ユーザーには、外部サービス連携アカウントである旨を通知する運用を定義する
 
 # MFA 最小要件

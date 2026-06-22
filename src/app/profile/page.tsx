@@ -31,7 +31,7 @@ export default async function ProfilePage() {
         </div>
       </dl>
       <Link
-        href={ROUTES.success}
+        href={ROUTES.subscriptions}
         className="text-sm text-primary underline-offset-4 hover:underline"
       >
         トップへ戻る

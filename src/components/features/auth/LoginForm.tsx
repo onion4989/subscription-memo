@@ -14,12 +14,15 @@ const initialState: LoginState = { success: false };
 
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(login, initialState);
+  const showResendVerificationLink = state.emailNotVerified === true;
 
   return (
     <CardWrapper
       headerLabel="ようこそ"
       backButtonLabel="アカウントはまだですか?"
       backButtonHref={ROUTES.signup}
+      secondaryBackButtonLabel="トップへ戻る"
+      secondaryBackButtonHref={ROUTES.home}
       showSocial
     >
       <div className="space-y-4">
@@ -77,6 +80,19 @@ export function LoginForm() {
             >
               <Link href={ROUTES.forgotPassword}>パスワードをお忘れですか？</Link>
             </Button>
+            {showResendVerificationLink ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="link"
+                asChild
+                className="h-auto block px-0 py-0 font-normal"
+              >
+                <Link href={ROUTES.resendVerification}>
+                  確認メールを再送
+                </Link>
+              </Button>
+            ) : null}
           </div>
 
           <Button type="submit" disabled={pending} className="w-full">

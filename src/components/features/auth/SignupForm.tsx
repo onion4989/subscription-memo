@@ -24,10 +24,14 @@ export function SignupForm() {
       >
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            アカウントを作成しました。ログインしてください。
+            {state.message ??
+              "入力内容を受け付けました。メールをご確認ください。"}
           </p>
-          <Button asChild className="w-full">
-            <Link href={ROUTES.login}>ログインページへ</Link>
+          <p className="text-xs text-muted-foreground">
+            リンクの有効期限は1時間です。届かない場合は迷惑メールフォルダもご確認ください。
+          </p>
+          <Button asChild className="w-full" variant="outline">
+            <Link href={ROUTES.resendVerification}>確認メールを再送</Link>
           </Button>
         </div>
       </CardWrapper>

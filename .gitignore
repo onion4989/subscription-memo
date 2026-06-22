@@ -13,3 +13,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# TypeScript
+tsconfig.tsbuildinfo
+
+# Local notes / agent artifacts
+cursor_.md
+.cursor/test-reports/
+
+# OS / tooling
+.DS_Store
+*.pem
+.vercel

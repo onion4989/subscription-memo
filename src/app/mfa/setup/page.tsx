@@ -60,7 +60,7 @@ export default function MfaSetupPage() {
             </div>
             </div>
             <Button asChild className="w-full">
-              <a href={ROUTES.success}>完了</a>
+              <a href={ROUTES.subscriptions}>完了</a>
             </Button>
           </CardContent>
         </Card>
