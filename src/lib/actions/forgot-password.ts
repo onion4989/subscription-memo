@@ -93,7 +93,11 @@ export async function forgotPassword(
   if (user) {
     const hasPassword = !!user.passwordHash;
 
-    if (hasPassword) {
+    if (hasPassword && !user.emailVerified) {
+      console.info("[forgot-password] skipped reset for unverified user", {
+        userId: user.id,
+      });
+    } else if (hasPassword) {
       const rawToken = randomBytes(32).toString("hex");
       const tokenHash = await hash(rawToken, 10);
       const expires = new Date(Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);

@@ -51,5 +51,7 @@ export function proxy(request: NextRequest) {
 
 // Next.js は `config.matcher` をビルド時に静的解析するため、外部定数にできない
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|avif)$).*)",
+  ],
 };
