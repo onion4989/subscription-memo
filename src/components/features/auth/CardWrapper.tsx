@@ -9,6 +9,7 @@ import { BackButton } from "./BackButton";
 
 interface CardWrapperProps {
   children: React.ReactNode;
+  headerTitle?: string;
   headerLabel: string;
   backButtonLabel?: string;
   backButtonHref?: string;
@@ -19,6 +20,7 @@ interface CardWrapperProps {
 
 export const CardWrapper = ({
   children,
+  headerTitle = "ログイン認証",
   headerLabel,
   backButtonLabel,
   backButtonHref,
@@ -29,12 +31,12 @@ export const CardWrapper = ({
   return (
     <Card
       className={cn(
-        "mx-auto min-w-0 shadow-[0_0_24px_rgba(255,255,255,0.45)] sm:min-w-[360px]",
+        "mx-auto min-w-0 sm:min-w-[360px]",
         AUTH_CARD_MAX_WIDTH_CLASS
       )}
     >
       <CardHeader>
-        <Header label={headerLabel} />
+        <Header title={headerTitle} label={headerLabel} />
       </CardHeader>
       <CardContent>{children}</CardContent>
       {showSocial && (
