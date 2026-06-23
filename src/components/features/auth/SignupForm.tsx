@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { signup, type SignupState } from "@/lib/actions/signup";
 import Link from "next/link";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,8 +15,11 @@ const initialState: SignupState = { success: false };
 
 export function SignupForm() {
   const [state, formAction, pending] = useActionState(signup, initialState);
+  const hydrated = useHydrated();
+  const viewState = hydrated ? state : initialState;
+  const isPending = hydrated && pending;
 
-  if (state.success) {
+  if (hydrated && state.success) {
     return (
       <CardWrapper
         headerLabel="登録完了"
@@ -40,6 +44,7 @@ export function SignupForm() {
 
   return (
     <CardWrapper
+      headerTitle="サインアップ"
       headerLabel="アカウント作成"
       backButtonLabel="既にアカウントをお持ちですか?"
       backButtonHref={ROUTES.login}
@@ -61,12 +66,12 @@ export function SignupForm() {
               type="email"
               autoComplete="email"
               placeholder="example@mail.com"
-              defaultValue={state.values?.email ?? ""}
-              aria-invalid={state.fieldErrors?.email ? true : undefined}
+              defaultValue={viewState.values?.email ?? ""}
+              aria-invalid={viewState.fieldErrors?.email ? true : undefined}
             />
-            {state.fieldErrors?.email ? (
+            {viewState.fieldErrors?.email ? (
               <p className="text-[10px] text-red-600" role="alert">
-                {state.fieldErrors.email}
+                {viewState.fieldErrors.email}
               </p>
             ) : null}
           </div>
@@ -82,17 +87,17 @@ export function SignupForm() {
               type="password"
               autoComplete="new-password"
               placeholder="••••••••"
-              aria-invalid={state.fieldErrors?.password ? true : undefined}
+              aria-invalid={viewState.fieldErrors?.password ? true : undefined}
             />
-            {state.fieldErrors?.password ? (
+            {viewState.fieldErrors?.password ? (
               <p className="text-[10px] text-red-600" role="alert">
-                {state.fieldErrors.password}
+                {viewState.fieldErrors.password}
               </p>
             ) : null}
           </div>
           
-          <Button type="submit" disabled={pending} className="w-full mt-8">
-            {pending ? "登録中..." : "アカウント作成"}
+          <Button type="submit" disabled={isPending} className="w-full mt-8">
+            {isPending ? "登録中..." : "アカウント作成"}
           </Button>
         </form>
       </div>
