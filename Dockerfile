@@ -20,6 +20,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/build_dummy"
 RUN npm run build
 
+# migrate deploy 専用（Prisma CLI と全依存を隔離して保持）
+FROM base AS prisma
+RUN apk add --no-cache libc6-compat
+WORKDIR /prisma-cli
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+COPY prisma ./prisma
+COPY scripts/prisma.docker.config.ts ./prisma.config.ts
+
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
@@ -31,11 +40,7 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
-COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=deps /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+COPY --from=prisma /prisma-cli /prisma-cli
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 

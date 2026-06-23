@@ -2,7 +2,8 @@
 set -e
 
 if [ -n "$DATABASE_URL" ]; then
-  ./node_modules/.bin/prisma migrate deploy
+  cd /prisma-cli
+  node ./node_modules/prisma/build/index.js migrate deploy
 fi
 
 exec "$@"
