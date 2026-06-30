@@ -2,11 +2,27 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+import { shouldBlockSearchIndexing } from "@/lib/search-indexing";
+
 const inter = Inter({ subsets: ["latin"] });
+
+const blockSearchIndexing = shouldBlockSearchIndexing();
 
 export const metadata: Metadata = {
   title: "Authentication",
   description: "Authentication starter with Next.js 16",
+  ...(blockSearchIndexing
+    ? {
+        robots: {
+          index: false,
+          follow: false,
+          googleBot: {
+            index: false,
+            follow: false,
+          },
+        },
+      }
+    : {}),
 };
 
 type RootLayoutProps = Readonly<{
