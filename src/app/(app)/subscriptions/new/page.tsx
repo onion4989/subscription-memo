@@ -16,7 +16,7 @@ export default async function SubscriptionsNewPage() {
   return (
     <div className="flex w-full min-w-0 flex-col gap-8">
       <div className="flex flex-col gap-4">
-        <h1 className="text-4xl font-semibold text-white">
+        <h1 className="sr-only">
           サブスクリプション登録・変更
         </h1>
         <p className="text-base text-white/90">

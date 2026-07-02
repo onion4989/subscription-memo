@@ -15,6 +15,7 @@ alwaysApply: true
 - メール送信（確認メール・再送・Xserver SMTP / 本文サニタイズ / 失敗ハンドリング）は `email-smtp.mdc` を参照する
 - 共通セキュリティ（XSS / CSRF / レートリミット / HTTPS）は `security.mdc` を参照する
 - React/Next.js のパフォーマンス最適化・レビュー時は Agent Skill `vercel-react-best-practices`（`.agents/skills/vercel-react-best-practices`）を参照する
+- `useEffect` の使用方針は本ファイルの「useEffect の方針」を参照する
 
 # テクニカルスタック
 
@@ -58,6 +59,19 @@ Next.js 16 では同期アクセスは削除済み。以下は常に `await` す
 - Server Components を既定とし、DOM API・イベント・クライアント状態が必要な場合のみ `'use client'` を付与する
 - （任意）React Compiler: `next.config` で `reactCompiler: true` と `babel-plugin-react-compiler` で有効化可能（ビルド時間増の可能性あり）
 - （任意）Cache Components: `cacheComponents: true` と `use cache` / `cacheLife` / `cacheTag` は要件に応じて公式ドキュメントに沿って導入する
+
+## useEffect の方針
+
+- `useEffect` は**極力使わない**。新規実装・リファクタ時は、まず代替手段を検討する
+- データ取得は Server Component で `await` し、クライアントには必要な props だけ渡す（例: MFA setup の `initMfaSetup`）
+- フォーム送信・サーバー更新は `useActionState` + Server Actions を優先する
+- ユーザー操作に伴う処理は event handler に置く（state + effect で副作用を再現しない）
+- ブラウザ API の購読が必要な場合は `useSyncExternalStore` を検討する（例: `use-hydrated.ts`）
+- **例外として `useEffect` を許容する例**
+  - `window` / `document` のイベント購読（例: bfcache の `pageshow` — `use-bfcache-remount-key.ts`）
+  - 外部ライブラリが effect 前提の API を提供している場合
+  - 上記代替で同等の動作・保守性を満たせない場合（採用理由を PR / コメントで簡潔に残す）
+- 詳細なパフォーマンス・レビュー時は Agent Skill `vercel-react-best-practices` も参照する
 
 # キャッシュ無効化
 

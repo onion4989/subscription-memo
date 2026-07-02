@@ -17,7 +17,7 @@ export default async function SubscriptionsPage() {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-8">
-      <h1 className="text-4xl font-semibold text-white">サブスクリプション一覧</h1>
+      <h1 className="sr-only">サブスクリプション一覧</h1>
       {hasSubscriptions ? (
         <SubscriptionListTable subscriptions={subscriptions} />
       ) : (

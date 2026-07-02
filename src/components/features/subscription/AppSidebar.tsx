@@ -5,11 +5,11 @@ import {
   FaArrowRightFromBracket,
   FaBook,
   FaCirclePlus,
+  FaGear,
   FaListUl,
   FaPenToSquare,
   FaRegCircleUser,
   FaShieldHalved,
-  FaUserGear,
 } from "react-icons/fa6";
 import { signOut } from "next-auth/react";
 import { ROUTES } from "@/lib/routes";
@@ -197,7 +197,7 @@ export function AppSidebar({ userLabel, pathname, expanded }: AppSidebarProps) {
           />
           <SidebarItem
             expanded={expanded}
-            icon={<FaUserGear aria-hidden="true" />}
+            icon={<FaGear aria-hidden="true" />}
             label="アカウント"
           />
           <SidebarItem
