@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { SubscriptionDeleteConfirmModal } from "@/components/features/subscription/SubscriptionDeleteConfirmModal";
+import { SubscriptionTableSection } from "@/components/features/subscription/SubscriptionTableSection";
 import {
   SUBSCRIPTION_DELETE_TABLE_COLUMNS,
   SUBSCRIPTION_DELETE_TABLE_GRID_CLASS,
@@ -10,7 +11,6 @@ import {
 } from "@/components/features/subscription/subscription-table-shared";
 import { deleteSubscription } from "@/lib/actions/subscription-delete";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
-import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
 
 type SubscriptionDeleteFormProps = {
   initialSaved: SavedSubscriptionRow[];
@@ -67,27 +67,33 @@ export function SubscriptionDeleteForm({
     });
   };
 
-  if (rows.length === 0) {
-    return (
-      <p className="text-base text-white/90">登録されたデータはありません。</p>
-    );
-  }
-
   return (
     <>
-      <div className={APP_SCROLLBAR_X_CLASS}>
-        <div className={SUBSCRIPTION_DELETE_TABLE_GRID_CLASS}>
-          <SubscriptionTableHeader columns={SUBSCRIPTION_DELETE_TABLE_COLUMNS} />
+      <SubscriptionTableSection
+        description={
+          <p className="text-base text-white/90">
+            登録済みのサブスクリプションを削除できます。
+          </p>
+        }
+      >
+        {rows.length === 0 ? (
+          <h2 className="text-[36px] font-bold text-white">
+            登録されたデータはありません。
+          </h2>
+        ) : (
+          <div className={SUBSCRIPTION_DELETE_TABLE_GRID_CLASS}>
+            <SubscriptionTableHeader columns={SUBSCRIPTION_DELETE_TABLE_COLUMNS} />
 
-          {rows.map((row) => (
-            <SubscriptionTableRow
-              key={row.id}
-              row={row}
-              onDelete={openDeleteModal}
-            />
-          ))}
-        </div>
-      </div>
+            {rows.map((row) => (
+              <SubscriptionTableRow
+                key={row.id}
+                row={row}
+                onDelete={openDeleteModal}
+              />
+            ))}
+          </div>
+        )}
+      </SubscriptionTableSection>
 
       <SubscriptionDeleteConfirmModal
         open={modalOpen}

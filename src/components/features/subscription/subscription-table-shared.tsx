@@ -9,10 +9,10 @@ export const SUBSCRIPTION_LIST_TABLE_GRID_CLASS =
   "grid w-max grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px] gap-x-2 gap-y-3";
 
 export const SUBSCRIPTION_REGISTER_TABLE_GRID_CLASS =
-  "grid w-max min-w-full grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px_80px] gap-x-2 gap-y-3";
+  "grid w-max grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px_80px] gap-x-2 gap-y-3";
 
 export const SUBSCRIPTION_DELETE_TABLE_GRID_CLASS =
-  "grid w-max min-w-full grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px_100px] gap-x-2 gap-y-3";
+  "grid w-max grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px_80px] gap-x-2 gap-y-3";
 
 export const SUBSCRIPTION_LIST_TABLE_COLUMNS = [
   { label: "サブスクリプション名", centered: false },
@@ -124,9 +124,9 @@ export function SubscriptionTableRow({
           <Button
             type="button"
             onClick={() => onDelete(row.id)}
-            className="h-9 w-[88px] bg-[#9B1343] px-0 font-bold text-white hover:bg-[#851039]"
+            className="h-9 w-[72px] bg-[#9B1343] px-0 font-bold text-white hover:bg-[#851039]"
           >
-            削除する
+            削除
           </Button>
         </div>
       ) : null}
