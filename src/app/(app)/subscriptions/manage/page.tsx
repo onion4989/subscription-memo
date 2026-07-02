@@ -15,18 +15,22 @@ export default async function SubscriptionsManagePage() {
   const hasSubscriptions = subscriptions.length > 0;
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-8">
+    <div className="flex w-full min-w-0 flex-col">
       <div className="flex flex-col gap-4">
-        <h1 className="text-4xl font-semibold text-white">サブスクリプション削除</h1>
-        <p className="text-base text-white/90">
-          登録済みのサブスクリプションを削除できます。
-        </p>
+        <h1 className="sr-only">サブスクリプション削除</h1>
       </div>
 
       {hasSubscriptions ? (
         <SubscriptionDeleteForm initialSaved={subscriptions} />
       ) : (
-        <p className="text-base text-white/90">登録されたデータはありません。</p>
+        <div className="space-y-4">
+          <h2 className="text-[36px] font-bold text-white">
+            登録されたデータはありません。
+          </h2>
+          <p className="text-base text-white/90">
+            登録済みのサブスクリプションを削除できます。
+          </p>
+        </div>
       )}
     </div>
   );

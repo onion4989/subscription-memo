@@ -51,8 +51,8 @@ export function GuideStepCardContent({
       </p>
       <div
         className={cn(
-          "flex aspect-4/3 w-full items-center justify-center overflow-hidden rounded-[10px] bg-white p-2.5",
-          !image && "bg-slate-300"
+          "flex w-full items-center justify-center overflow-hidden rounded-[10px]",
+          !image && "aspect-4/3 bg-slate-300"
         )}
         aria-hidden={image ? undefined : true}
       >
