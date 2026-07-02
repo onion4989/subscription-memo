@@ -119,7 +119,7 @@ export function SubscriptionRegistrationForm({
     <>
       <SubscriptionTableSection
         description={
-          <p className="text-base text-white/90">
+          <p className="text-base text-white/90 py-8">
             契約中のサブスクリプションを登録・変更できます。
           </p>
         }
