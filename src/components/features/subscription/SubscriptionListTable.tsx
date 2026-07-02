@@ -17,7 +17,7 @@ export function SubscriptionListTable({
 }: SubscriptionListTableProps) {
   return (
     <div className={APP_SCROLLBAR_X_CLASS}>
-      <div className="mx-auto flex w-max flex-col items-center gap-4">
+      <div className="mx-auto flex w-max flex-col items-center gap-14">
         <SubscriptionSummaryCards subscriptions={subscriptions} />
 
         <div className={SUBSCRIPTION_LIST_TABLE_GRID_CLASS}>

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { SubscriptionFormModal } from "@/components/features/subscription/SubscriptionFormModal";
+import { SubscriptionTableSection } from "@/components/features/subscription/SubscriptionTableSection";
 import {
   SUBSCRIPTION_REGISTER_TABLE_COLUMNS,
   SUBSCRIPTION_REGISTER_TABLE_GRID_CLASS,
@@ -21,7 +22,6 @@ import {
   type SubscriptionRegisterFieldErrors,
   type SubscriptionRegisterFormValues,
 } from "@/schemas/subscription";
-import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
 
 type SubscriptionRegistrationFormProps = {
   initialSaved: SavedSubscriptionRow[];
@@ -116,8 +116,14 @@ export function SubscriptionRegistrationForm({
   };
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4">
-      <div className={APP_SCROLLBAR_X_CLASS}>
+    <>
+      <SubscriptionTableSection
+        description={
+          <p className="text-base text-white/90">
+            契約中のサブスクリプションを登録・変更できます。
+          </p>
+        }
+      >
         <div className={SUBSCRIPTION_REGISTER_TABLE_GRID_CLASS}>
           <SubscriptionTableHeader columns={SUBSCRIPTION_REGISTER_TABLE_COLUMNS} />
 
@@ -125,17 +131,19 @@ export function SubscriptionRegistrationForm({
             <SubscriptionTableRow key={row.id} row={row} onEdit={openEditModal} />
           ))}
         </div>
-      </div>
 
-      <button
-        type="button"
-        onClick={openCreateModal}
-        disabled={!canAddRow}
-        className="inline-flex items-center gap-2 self-start text-sm font-medium text-white transition-opacity enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        <FaPlus aria-hidden="true" />
-        追加
-      </button>
+        <div className="flex w-full justify-center">
+          <button
+            type="button"
+            onClick={openCreateModal}
+            disabled={!canAddRow}
+            className="inline-flex items-center gap-2 text-sm font-medium text-white transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <FaPlus aria-hidden="true" />
+            追加
+          </button>
+        </div>
+      </SubscriptionTableSection>
 
       <SubscriptionFormModal
         open={modalOpen}
@@ -148,6 +156,6 @@ export function SubscriptionRegistrationForm({
         onChange={handleFormChange}
         onSubmit={handleSubmit}
       />
-    </div>
+    </>
   );
 }

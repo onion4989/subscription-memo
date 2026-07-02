@@ -14,15 +14,8 @@ export default async function SubscriptionsNewPage() {
   const savedSubscriptions = await getUserSubscriptions(userId);
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-8">
-      <div className="flex flex-col gap-4">
-        <h1 className="sr-only">
-          サブスクリプション登録・変更
-        </h1>
-        <p className="text-base text-white/90">
-          契約中のサブスクリプションを登録・変更できます。
-        </p>
-      </div>
+    <div className="flex w-full min-w-0 flex-col">
+      <h1 className="sr-only">サブスクリプション登録・変更</h1>
       <SubscriptionRegistrationForm initialSaved={savedSubscriptions} />
     </div>
   );
