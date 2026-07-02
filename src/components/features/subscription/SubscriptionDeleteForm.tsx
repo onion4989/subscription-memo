@@ -69,18 +69,23 @@ export function SubscriptionDeleteForm({
 
   return (
     <>
-      <SubscriptionTableSection
-        description={
-          <p className="text-base text-white/90 py-8">
+      {rows.length === 0 ? (
+        <div className="flex w-full flex-col space-y-4">
+          <p className="py-6 text-base text-white/90">
             登録済みのサブスクリプションを削除できます。
           </p>
-        }
-      >
-        {rows.length === 0 ? (
           <h2 className="text-[36px] font-bold text-white">
             登録されたデータはありません。
           </h2>
-        ) : (
+        </div>
+      ) : (
+        <SubscriptionTableSection
+          description={
+            <p className="py-8 text-base text-white/90">
+              登録済みのサブスクリプションを削除できます。
+            </p>
+          }
+        >
           <div className={SUBSCRIPTION_DELETE_TABLE_GRID_CLASS}>
             <SubscriptionTableHeader columns={SUBSCRIPTION_DELETE_TABLE_COLUMNS} />
 
@@ -92,8 +97,8 @@ export function SubscriptionDeleteForm({
               />
             ))}
           </div>
-        )}
-      </SubscriptionTableSection>
+        </SubscriptionTableSection>
+      )}
 
       <SubscriptionDeleteConfirmModal
         open={modalOpen}

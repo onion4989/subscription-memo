@@ -119,9 +119,10 @@ export function SubscriptionRegistrationForm({
     <>
       <SubscriptionTableSection
         description={
-          <p className="text-base text-white/90 py-8">
-            契約中のサブスクリプションを登録・変更できます。
-          </p>
+          <div className="py-8 text-base text-white/90">
+            <p>下記の追加ボタンからデータを入力してください。</p>
+            <p>+追加ボタン からデータを入力してください。</p>
+          </div>
         }
       >
         <div className={SUBSCRIPTION_REGISTER_TABLE_GRID_CLASS}>
