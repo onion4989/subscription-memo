@@ -10,16 +10,11 @@ import {
   type NotificationSettingsFieldErrors,
 } from "@/schemas/notification-settings";
 
-export type UpdateNotificationSettingsState =
-  | {
-      success: true;
-      message: string;
-    }
-  | {
-      success: false;
-      fieldErrors?: NotificationSettingsFieldErrors;
-      message?: string;
-    };
+export type UpdateNotificationSettingsState = {
+  success: boolean;
+  message?: string;
+  fieldErrors?: NotificationSettingsFieldErrors;
+};
 
 export async function updateNotificationSettings(
   _prevState: UpdateNotificationSettingsState,
