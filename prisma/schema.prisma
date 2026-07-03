@@ -24,6 +24,15 @@ model User {
   loginAttempts   LoginAttempt[]
   subscriptions   Subscription[]
 
+  /// 国内携帯番号（例: 09011112222）。SMS 通知用。アカウント画面で登録。
+  phoneNumber            String?
+  /// 固定アバター ID（1〜10）。`public/avatars/Avatar_N.jpg`
+  avatarId               Int?
+  notifyLeadDays         NotifyLeadDays   @default(FIVE_DAYS)
+  notifyChannel          NotifyChannel    @default(EMAIL)
+  /// true のときお知らせを全停止（サブスク単位の notifyEnabled は維持）
+  notifyDeliveryPaused   Boolean          @default(false)
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -105,6 +114,17 @@ enum PaymentPlan {
   YEARLY
 }
 
+enum NotifyLeadDays {
+  THREE_DAYS
+  FIVE_DAYS
+  SEVEN_DAYS
+}
+
+enum NotifyChannel {
+  EMAIL
+  SMS
+}
+
 model Subscription {
   id              String      @id @default(cuid())
   userId          String
@@ -119,8 +139,21 @@ model Subscription {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                      User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  renewalNotificationLogs   RenewalNotificationLog[]
 
   @@unique([userId, name, planName])
   @@index([userId])
+}
+
+model RenewalNotificationLog {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  renewalDate    DateTime @db.Date
+  sentAt         DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriptionId, renewalDate])
+  @@index([subscriptionId])
 }

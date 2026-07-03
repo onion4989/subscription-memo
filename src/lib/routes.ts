@@ -6,8 +6,10 @@ export const ROUTES = {
   home: "/",
   login: "/login",
   signup: "/signup",
-  /** ユーザー情報・ニックネーム編集（ページは未実装。認証必須パス） */
-  profile: "/profile",
+  /** アカウント（ニックネーム・メール・電話・パスワード・アバター） */
+  account: "/account",
+  /** 各種設定（お知らせ・MFA 導線） */
+  settings: "/settings",
   /** ログイン後の互換リダイレクト用（実体は subscriptions） */
   success: "/success",
   subscriptions: "/subscriptions",
@@ -21,6 +23,8 @@ export const ROUTES = {
   mfaSetup: "/mfa/setup",
   mfaVerify: "/mfa/verify",
   apiAuth: "/api/auth",
+  /** 日次お知らせジョブ（RENEWAL_JOB_SECRET で保護） */
+  apiCron: "/api/cron",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
@@ -59,6 +63,7 @@ export const PROXY_PUBLIC_PATH_PREFIXES: readonly string[] = [
   ROUTES.resetPassword,
   ROUTES.mfaVerify,
   ROUTES.apiAuth,
+  ROUTES.apiCron,
 ];
 
 /** `_next`・favicon 等。proxy の `config.matcher` は Next.js の静的解析要件のため `src/proxy.ts` に同一除外パターンをリテラルで記述する */

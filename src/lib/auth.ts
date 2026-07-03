@@ -15,6 +15,10 @@ import {
   ROUTES,
   loginUrlWithSearchParams,
 } from "@/lib/routes";
+import {
+  isOAuthProvider,
+  markOAuthEmailVerifiedIfNeeded,
+} from "@/lib/auth/mark-oauth-email-verified";
 import { loginSchema } from "@/lib/validations/auth";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -33,6 +37,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       });
     },
     async signIn({ user, account, isNewUser }) {
+      if (user.id && isOAuthProvider(account?.provider)) {
+        await markOAuthEmailVerifiedIfNeeded(user.id);
+      }
+
       console.log("[auth:events] signIn", {
         userId: user.id,
         email: user.email,

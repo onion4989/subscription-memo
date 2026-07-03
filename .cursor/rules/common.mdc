@@ -13,6 +13,7 @@ alwaysApply: true
 - 認証実装（Auth.js v5 / Credentials + OAuth / メール確認 / `proxy.ts` 保護 / `/success` 遷移）は `auth-nextjs16.mdc` を参照する
 - フォーム処理（送信バリデーション / UX / Server Actions）は `form-handling.mdc` を参照する
 - メール送信（確認メール・再送・Xserver SMTP / 本文サニタイズ / 失敗ハンドリング）は `email-smtp.mdc` を参照する
+- サブスク更新日・お知らせ（更新リマインダー）は `subscription-renewal-notify.mdc` を参照する
 - 共通セキュリティ（XSS / CSRF / レートリミット / HTTPS）は `security.mdc` を参照する
 - React/Next.js のパフォーマンス最適化・レビュー時は Agent Skill `vercel-react-best-practices`（`.agents/skills/vercel-react-best-practices`）を参照する
 - `useEffect` の使用方針は本ファイルの「useEffect の方針」を参照する

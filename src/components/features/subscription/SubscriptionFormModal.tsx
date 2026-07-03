@@ -29,7 +29,10 @@ import {
   syncAnnualFromMonthly,
   syncMonthlyFromAnnual,
 } from "@/lib/subscription/amount-sync";
-import { computeNextRenewalDateYmd } from "@/lib/subscription/renewal-date";
+import {
+  computeNextRenewalDateYmd,
+  todayYmdInJst,
+} from "@/lib/subscription/renewal-date";
 import { cn } from "@/lib/utils";
 import type {
   SubscriptionRegisterFieldErrors,
@@ -77,7 +80,11 @@ function getNextRenewalPreview(values: SubscriptionRegisterFormValues): string {
   }
 
   return formatContractDateYmd(
-    computeNextRenewalDateYmd(values.contractDate, values.paymentPlan)
+    computeNextRenewalDateYmd(
+      values.contractDate,
+      values.paymentPlan,
+      todayYmdInJst()
+    )
   );
 }
 
@@ -241,7 +248,7 @@ export function SubscriptionFormModal({
           </div>
 
           <div>
-            <Label className="mb-2 text-white">次回契約更新日</Label>
+            <Label className="mb-2 text-white">次回更新日</Label>
             <p className="flex min-h-9 items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm text-white/90">
               {nextRenewalPreview}
             </p>
