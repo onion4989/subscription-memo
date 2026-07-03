@@ -9,7 +9,6 @@ import {
   FaListUl,
   FaPenToSquare,
   FaRegCircleUser,
-  FaShieldHalved,
 } from "react-icons/fa6";
 import { signOut } from "next-auth/react";
 import { ROUTES } from "@/lib/routes";
@@ -195,15 +194,19 @@ export function AppSidebar({ userLabel, pathname, expanded }: AppSidebarProps) {
             icon={<FaRegCircleUser aria-hidden="true" />}
             label={userLabel}
           />
-          <SidebarItem
+          <SidebarLink
+            href={ROUTES.account}
+            pathname={pathname}
             expanded={expanded}
-            icon={<FaGear aria-hidden="true" />}
+            icon={<FaRegCircleUser aria-hidden="true" />}
             label="アカウント"
           />
-          <SidebarItem
+          <SidebarLink
+            href={ROUTES.settings}
+            pathname={pathname}
             expanded={expanded}
-            icon={<FaShieldHalved aria-hidden="true" />}
-            label="セキュリティ"
+            icon={<FaGear aria-hidden="true" />}
+            label="各種設定"
           />
           {expanded ? (
             signOutButton

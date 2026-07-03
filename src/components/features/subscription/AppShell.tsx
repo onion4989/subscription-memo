@@ -16,6 +16,8 @@ const PAGE_TITLES: Record<string, string> = {
   [ROUTES.subscriptionsNew]: "サブスクリプション登録・変更",
   [ROUTES.subscriptionsManage]: "サブスクリプション削除",
   [ROUTES.guide]: "使い方",
+  [ROUTES.account]: "アカウント",
+  [ROUTES.settings]: "各種設定",
 };
 
 function getPageTitle(pathname: string): string {

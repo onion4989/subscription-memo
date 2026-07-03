@@ -8,6 +8,7 @@ import { ROUTES } from "@/lib/routes";
 import { checkSubscriptionRegisterRateLimit } from "@/lib/subscription/rate-limit";
 import {
   computeNextRenewalDateYmd,
+  todayYmdInJst,
   ymdToUtcDate,
 } from "@/lib/subscription/renewal-date";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
@@ -108,9 +109,11 @@ export async function registerSubscription(
   }
 
   const data = parsed.data;
+  const asOfYmd = todayYmdInJst();
   const nextRenewalDateYmd = computeNextRenewalDateYmd(
     data.contractDate,
-    data.paymentPlan
+    data.paymentPlan,
+    asOfYmd
   );
 
   try {
@@ -182,9 +185,11 @@ export async function updateSubscription(
   }
 
   const data = parsed.data;
+  const asOfYmd = todayYmdInJst();
   const nextRenewalDateYmd = computeNextRenewalDateYmd(
     data.contractDate,
-    data.paymentPlan
+    data.paymentPlan,
+    asOfYmd
   );
 
   try {
