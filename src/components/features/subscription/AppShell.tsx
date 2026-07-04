@@ -8,7 +8,8 @@ import { ROUTES } from "@/lib/routes";
 
 type AppShellProps = {
   children: React.ReactNode;
-  userLabel: string;
+  displayName: string;
+  avatarId: number | null;
 };
 
 const PAGE_TITLES: Record<string, string> = {
@@ -24,7 +25,7 @@ function getPageTitle(pathname: string): string {
   return PAGE_TITLES[pathname] ?? "";
 }
 
-export function AppShell({ children, userLabel }: AppShellProps) {
+export function AppShell({ children, displayName, avatarId }: AppShellProps) {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(false);
   const pageTitle = useMemo(() => getPageTitle(pathname), [pathname]);
@@ -32,7 +33,12 @@ export function AppShell({ children, userLabel }: AppShellProps) {
   return (
     <div className="flex min-h-screen w-full min-w-0 p-[10px]">
       <div className="flex min-h-[calc(100vh-20px)] w-full min-w-0 gap-4">
-        <AppSidebar pathname={pathname} userLabel={userLabel} expanded={expanded} />
+        <AppSidebar
+          pathname={pathname}
+          displayName={displayName}
+          avatarId={avatarId}
+          expanded={expanded}
+        />
 
         <section className="flex min-w-0 flex-1 flex-col">
           <div className="mb-4 flex h-10 items-center gap-3 text-white">
