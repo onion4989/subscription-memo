@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   FaArrowRightFromBracket,
   FaBook,
@@ -12,6 +13,7 @@ import {
 } from "react-icons/fa6";
 import { signOut } from "next-auth/react";
 import { ROUTES } from "@/lib/routes";
+import { avatarImagePath, isAvatarId } from "@/lib/user/avatar";
 import {
   Tooltip,
   TooltipContent,
@@ -23,7 +25,8 @@ import { cn } from "@/lib/utils";
 type AppSidebarProps = {
   expanded: boolean;
   pathname: string;
-  userLabel: string;
+  displayName: string;
+  avatarId: number | null;
 };
 
 type NavItem = {
@@ -126,7 +129,7 @@ function SidebarItem({ icon, label, expanded }: SidebarItemProps) {
   const content = (
     <div
       className={cn(
-        "flex h-9 items-center rounded-md text-sm text-slate-800",
+        "flex h-[46px] items-center rounded-md text-sm text-slate-800",
         expanded ? "justify-start gap-2 px-2" : "justify-center px-0"
       )}
       aria-label={label}
@@ -148,7 +151,28 @@ function SidebarItem({ icon, label, expanded }: SidebarItemProps) {
   );
 }
 
-export function AppSidebar({ userLabel, pathname, expanded }: AppSidebarProps) {
+function UserAvatarIcon({ avatarId }: { avatarId: number | null }) {
+  if (avatarId && isAvatarId(avatarId)) {
+    return (
+      <Image
+        src={avatarImagePath(avatarId)}
+        alt=""
+        width={46}
+        height={46}
+        className="size-[46px] shrink-0 rounded-full object-cover"
+      />
+    );
+  }
+
+  return <FaRegCircleUser aria-hidden="true" />;
+}
+
+export function AppSidebar({
+  displayName,
+  avatarId,
+  pathname,
+  expanded,
+}: AppSidebarProps) {
   const signOutButton = (
     <button
       type="button"
@@ -191,8 +215,8 @@ export function AppSidebar({ userLabel, pathname, expanded }: AppSidebarProps) {
         <div className={cn("mt-auto flex flex-col gap-2", !expanded && "items-center")}>
           <SidebarItem
             expanded={expanded}
-            icon={<FaRegCircleUser aria-hidden="true" />}
-            label={userLabel}
+            icon={<UserAvatarIcon avatarId={avatarId} />}
+            label={displayName}
           />
           <SidebarLink
             href={ROUTES.account}

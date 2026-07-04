@@ -28,8 +28,14 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-8">
-      <h1 className="sr-only">各種設定</h1>
+    <div className="flex w-full min-w-0 flex-col gap-6 text-white">
+      <div>
+        <h1 className="text-2xl font-bold">一般設定</h1>
+        <p className="mt-2 text-sm text-white/80">
+          お知らせの送信方法や二段階認証の設定を行えます。
+        </p>
+      </div>
+
       <NotificationSettingsForm
         initialValues={toNotificationSettingsFormValues({
           notifyLeadDays: user.notifyLeadDays,
