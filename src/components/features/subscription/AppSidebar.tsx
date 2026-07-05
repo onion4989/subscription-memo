@@ -11,6 +11,7 @@ import {
   FaPenToSquare,
   FaRegCircleUser,
 } from "react-icons/fa6";
+import { GoPerson } from "react-icons/go";
 import { signOut } from "next-auth/react";
 import { ROUTES } from "@/lib/routes";
 import { avatarImagePath, isAvatarId } from "@/lib/user/avatar";
@@ -164,7 +165,14 @@ function UserAvatarIcon({ avatarId }: { avatarId: number | null }) {
     );
   }
 
-  return <FaRegCircleUser aria-hidden="true" />;
+  return (
+    <span
+      className="flex size-[46px] shrink-0 items-center justify-center rounded-full bg-black text-white"
+      aria-hidden="true"
+    >
+      <GoPerson className="size-5" />
+    </span>
+  );
 }
 
 export function AppSidebar({

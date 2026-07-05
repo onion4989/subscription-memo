@@ -9,6 +9,7 @@ import { getAuthenticatedUserId } from "@/lib/auth/get-user-id";
 import { isOAuthProvider } from "@/lib/auth/mark-oauth-email-verified";
 import { prisma } from "@/lib/prisma";
 import { ROUTES } from "@/lib/routes";
+import { SMS_NOTIFICATION_UI_ENABLED } from "@/lib/renewal-notification/constants";
 import {
   profileFieldErrorsFromZod,
   profileUpdateSchema,
@@ -27,6 +28,46 @@ function revalidateAppLayout() {
   revalidatePath(ROUTES.account, "layout");
   revalidatePath(ROUTES.subscriptions, "layout");
   revalidatePath(ROUTES.settings, "layout");
+}
+
+function isPhoneReadonly(): boolean {
+  return !SMS_NOTIFICATION_UI_ENABLED;
+}
+
+function phoneNumberFromForm(
+  user: { phoneNumber: string | null },
+  formData: FormData
+): string {
+  if (isPhoneReadonly()) {
+    return user.phoneNumber ?? "";
+  }
+
+  return String(formData.get("phoneNumber") ?? "");
+}
+
+function buildProfileFormValues(
+  user: {
+    phoneNumber: string | null;
+    avatarId: number | null;
+  },
+  params: {
+    emailReadonly: boolean;
+    hasPassword: boolean;
+    name: string;
+    email: string;
+    phoneNumber: string;
+    avatarId: number | null;
+  }
+): ProfileFormValues {
+  return {
+    name: params.name,
+    email: params.email,
+    phoneNumber: params.phoneNumber,
+    avatarId: params.avatarId ?? user.avatarId,
+    emailReadonly: params.emailReadonly,
+    phoneReadonly: isPhoneReadonly(),
+    hasPassword: params.hasPassword,
+  };
 }
 
 export async function updateProfile(
@@ -58,7 +99,7 @@ export async function updateProfile(
     email: emailReadonly
       ? (user.email ?? "")
       : String(formData.get("email") ?? ""),
-    phoneNumber: String(formData.get("phoneNumber") ?? ""),
+    phoneNumber: phoneNumberFromForm(user, formData),
     avatarId: String(formData.get("avatarId") ?? ""),
     currentPassword: String(formData.get("currentPassword") ?? ""),
     newPassword: String(formData.get("newPassword") ?? ""),
@@ -72,16 +113,16 @@ export async function updateProfile(
     return {
       success: false,
       fieldErrors: profileFieldErrorsFromZod(parsed.error),
-      values: {
+      values: buildProfileFormValues(user, {
+        emailReadonly,
+        hasPassword,
         name: raw.name,
         email: raw.email,
         phoneNumber: raw.phoneNumber,
         avatarId: Number.isFinite(Number(raw.avatarId))
           ? Number(raw.avatarId)
           : user.avatarId,
-        emailReadonly,
-        hasPassword,
-      },
+      }),
     };
   }
 
@@ -89,6 +130,15 @@ export async function updateProfile(
   const normalizedEmail = normalizeEmail(data.email);
   const emailChanged =
     !emailReadonly && normalizeEmail(user.email ?? "") !== normalizedEmail;
+
+  const responseBase = {
+    emailReadonly,
+    hasPassword,
+    name: data.name,
+    email: data.email,
+    phoneNumber: data.phoneNumber ?? "",
+    avatarId: data.avatarId,
+  };
 
   if (emailChanged) {
     const existing = await prisma.user.findUnique({
@@ -100,14 +150,7 @@ export async function updateProfile(
       return {
         success: false,
         fieldErrors: { email: "このメールアドレスは既に使用されています。" },
-        values: {
-          name: data.name,
-          email: data.email,
-          phoneNumber: data.phoneNumber ?? "",
-          avatarId: data.avatarId,
-          emailReadonly,
-          hasPassword,
-        },
+        values: buildProfileFormValues(user, responseBase),
       };
     }
   }
@@ -118,14 +161,7 @@ export async function updateProfile(
       return {
         success: false,
         fieldErrors: { currentPassword: "現在のパスワードが正しくありません。" },
-        values: {
-          name: data.name,
-          email: data.email,
-          phoneNumber: data.phoneNumber ?? "",
-          avatarId: data.avatarId,
-          emailReadonly,
-          hasPassword,
-        },
+        values: buildProfileFormValues(user, responseBase),
       };
     }
   }
@@ -165,14 +201,7 @@ export async function updateProfile(
         success: true,
         message:
           "プロフィールを保存しました。メールアドレスが変更されたため、確認メールの送信に失敗しました。各種設定画面から再送してください。",
-        values: {
-          name: data.name,
-          email: data.email,
-          phoneNumber: data.phoneNumber ?? "",
-          avatarId: data.avatarId,
-          emailReadonly,
-          hasPassword,
-        },
+        values: buildProfileFormValues(user, responseBase),
       };
     }
 
@@ -180,14 +209,7 @@ export async function updateProfile(
       success: true,
       message:
         "プロフィールを保存しました。新しいメールアドレス宛に確認メールを送信しました。",
-      values: {
-        name: data.name,
-        email: data.email,
-        phoneNumber: data.phoneNumber ?? "",
-        avatarId: data.avatarId,
-        emailReadonly,
-        hasPassword,
-      },
+      values: buildProfileFormValues(user, responseBase),
     };
   }
 
@@ -196,13 +218,6 @@ export async function updateProfile(
   return {
     success: true,
     message: "プロフィールを保存しました。",
-    values: {
-      name: data.name,
-      email: data.email,
-      phoneNumber: data.phoneNumber ?? "",
-      avatarId: data.avatarId,
-      emailReadonly,
-      hasPassword,
-    },
+    values: buildProfileFormValues(user, responseBase),
   };
 }

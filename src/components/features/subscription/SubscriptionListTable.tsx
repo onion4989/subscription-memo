@@ -5,6 +5,7 @@ import {
   SubscriptionTableRow,
 } from "@/components/features/subscription/subscription-table-shared";
 import { SubscriptionSummaryCards } from "@/components/features/subscription/SubscriptionSummaryCards";
+import { SUBSCRIPTION_TABLE_BLOCK_CLASS } from "@/components/features/subscription/SubscriptionTableSection";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
 
@@ -17,7 +18,7 @@ export function SubscriptionListTable({
 }: SubscriptionListTableProps) {
   return (
     <div className={APP_SCROLLBAR_X_CLASS}>
-      <div className="mx-auto flex w-max flex-col items-center gap-14">
+      <div className={`${SUBSCRIPTION_TABLE_BLOCK_CLASS} gap-14`}>
         <SubscriptionSummaryCards subscriptions={subscriptions} />
 
         <div className={SUBSCRIPTION_LIST_TABLE_GRID_CLASS}>

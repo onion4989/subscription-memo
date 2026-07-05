@@ -5,7 +5,7 @@ import { signIn } from "@/lib/auth";
 import { normalizeEmail } from "@/lib/email";
 import { LOGIN_UNVERIFIED_MESSAGE } from "@/lib/email-verification/constants";
 import { prisma } from "@/lib/prisma";
-import { DEFAULT_LOGIN_REDIRECT } from "@/lib/routes";
+import { DEFAULT_LOGIN_REDIRECT, ROUTES } from "@/lib/routes";
 import {
   loginFormFieldErrorsFromZod,
   loginFormSchema,
@@ -68,11 +68,14 @@ export async function login(
     }
   }
 
+  const redirectTo =
+    user?.totpEnabled === true ? ROUTES.mfaVerify : DEFAULT_LOGIN_REDIRECT;
+
   try {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: DEFAULT_LOGIN_REDIRECT,
+      redirectTo,
     });
     return { success: true };
   } catch (error) {

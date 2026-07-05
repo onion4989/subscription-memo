@@ -129,12 +129,19 @@ export function ProfileForm({ initialValues }: ProfileFormProps) {
               autoComplete="tel"
               placeholder="09011112222"
               defaultValue={values.phoneNumber}
+              readOnly={values.phoneReadonly}
+              disabled={values.phoneReadonly}
               aria-invalid={viewState.fieldErrors?.phoneNumber ? true : undefined}
-              className={INPUT_CLASS}
+              className={cn(
+                INPUT_CLASS,
+                values.phoneReadonly && "cursor-not-allowed opacity-70"
+              )}
             />
             <FieldError message={viewState.fieldErrors?.phoneNumber} />
             <p className={FORM_FIELD_HINT_CLASS}>
-              電話番号を設定しておくと、各種設定の「電話のショートメッセージに送信する」を選択している場合にお知らせを受け取ることができます。
+              {values.phoneReadonly
+                ? "ショートメッセージでのお知らせは現在ご利用いただけません。"
+                : "電話番号を設定しておくと、各種設定の「電話のショートメッセージに送信する」を選択している場合にお知らせを受け取ることができます。"}
             </p>
           </div>
 

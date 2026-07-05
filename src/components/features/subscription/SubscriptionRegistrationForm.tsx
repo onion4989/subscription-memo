@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { SubscriptionFormModal } from "@/components/features/subscription/SubscriptionFormModal";
-import { SubscriptionTableSection } from "@/components/features/subscription/SubscriptionTableSection";
 import {
   SUBSCRIPTION_REGISTER_TABLE_COLUMNS,
   SUBSCRIPTION_REGISTER_TABLE_GRID_CLASS,
@@ -22,6 +21,11 @@ import {
   type SubscriptionRegisterFieldErrors,
   type SubscriptionRegisterFormValues,
 } from "@/schemas/subscription";
+import {
+  SUBSCRIPTION_PAGE_CONTENT_CLASS,
+  SUBSCRIPTION_TABLE_BLOCK_CLASS,
+} from "@/components/features/subscription/SubscriptionTableSection";
+import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
 
 type SubscriptionRegistrationFormProps = {
   initialSaved: SavedSubscriptionRow[];
@@ -117,34 +121,34 @@ export function SubscriptionRegistrationForm({
 
   return (
     <>
-      <SubscriptionTableSection
-        description={
-          <div className="py-8 text-base text-white/90">
+      <div className={APP_SCROLLBAR_X_CLASS}>
+        <div className={SUBSCRIPTION_PAGE_CONTENT_CLASS}>
+          <div className="py-6 text-base text-white/90">
             <p>下記の追加ボタンからデータを入力してください。</p>
             <p>+追加ボタン からデータを入力してください。</p>
           </div>
-        }
-      >
-        <div className={SUBSCRIPTION_REGISTER_TABLE_GRID_CLASS}>
-          <SubscriptionTableHeader columns={SUBSCRIPTION_REGISTER_TABLE_COLUMNS} />
 
-          {rows.map((row) => (
-            <SubscriptionTableRow key={row.id} row={row} onEdit={openEditModal} />
-          ))}
-        </div>
+          <div className={`${SUBSCRIPTION_TABLE_BLOCK_CLASS} gap-4`}>
+            <div className={SUBSCRIPTION_REGISTER_TABLE_GRID_CLASS}>
+              <SubscriptionTableHeader columns={SUBSCRIPTION_REGISTER_TABLE_COLUMNS} />
 
-        <div className="flex w-full justify-center">
-          <button
-            type="button"
-            onClick={openCreateModal}
-            disabled={!canAddRow}
-            className="inline-flex items-center gap-2 text-sm font-medium text-white transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <FaPlus aria-hidden="true" />
-            追加
-          </button>
+              {rows.map((row) => (
+                <SubscriptionTableRow key={row.id} row={row} onEdit={openEditModal} />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={openCreateModal}
+              disabled={!canAddRow}
+              className="inline-flex items-center gap-2 text-sm font-medium text-white transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <FaPlus aria-hidden="true" />
+              追加
+            </button>
+          </div>
         </div>
-      </SubscriptionTableSection>
+      </div>
 
       <SubscriptionFormModal
         open={modalOpen}
