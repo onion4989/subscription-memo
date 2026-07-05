@@ -19,6 +19,16 @@ export const NOTIFY_CHANNEL_OPTIONS = [
   label: string;
 }>;
 
+/**
+ * false のとき電話番号・SMS チャネル UI は read-only。
+ * DB カラムは維持し、Server Action でも変更を受け付けない。
+ * SMS 送信実装・プロバイダ契約後に true へ切り替える。
+ */
+export const SMS_NOTIFICATION_UI_ENABLED = false;
+
+export const SMS_NOTIFICATION_DISABLED_HINT =
+  "ショートメッセージでのお知らせは現在ご利用いただけません。";
+
 const LEAD_DAYS_BY_ENUM: Record<NotifyLeadDays, number> = {
   THREE_DAYS: 3,
   FIVE_DAYS: 5,

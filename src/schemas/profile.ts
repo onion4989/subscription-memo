@@ -1,5 +1,6 @@
 import * as z from "zod";
 import { AVATAR_IDS } from "@/lib/user/avatar";
+import { SMS_NOTIFICATION_UI_ENABLED } from "@/lib/renewal-notification/constants";
 
 const phoneNumberSchema = z
   .string()
@@ -86,6 +87,7 @@ export type ProfileFormValues = {
   phoneNumber: string;
   avatarId: number | null;
   emailReadonly: boolean;
+  phoneReadonly: boolean;
   hasPassword: boolean;
 };
 
@@ -130,6 +132,7 @@ export function toProfileFormValues(input: {
     phoneNumber: input.phoneNumber ?? "",
     avatarId: input.avatarId,
     emailReadonly: input.emailReadonly,
+    phoneReadonly: !SMS_NOTIFICATION_UI_ENABLED,
     hasPassword: input.hasPassword,
   };
 }

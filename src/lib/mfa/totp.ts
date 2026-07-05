@@ -1,6 +1,7 @@
 import { TOTP, Secret } from "otpauth";
 
 const ISSUER = "Authentication";
+export const TOTP_ISSUER = ISSUER;
 const PERIOD = 30;
 const DIGITS = 6;
 const ALGORITHM = "SHA1";

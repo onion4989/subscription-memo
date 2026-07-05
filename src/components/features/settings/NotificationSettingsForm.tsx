@@ -1,16 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 import {
   updateNotificationSettings,
   type UpdateNotificationSettingsState,
 } from "@/lib/actions/notification-settings";
+import { MfaSettingsDialog } from "@/components/features/settings/MfaSettingsDialog";
 import {
   NOTIFY_CHANNEL_OPTIONS,
   NOTIFY_LEAD_DAYS_OPTIONS,
+  SMS_NOTIFICATION_DISABLED_HINT,
+  SMS_NOTIFICATION_UI_ENABLED,
 } from "@/lib/renewal-notification/constants";
-import { ROUTES } from "@/lib/routes";
 import {
   FORM_FIELD_HINT_CLASS,
   FORM_FIELD_LABEL_CLASS,
@@ -34,6 +35,7 @@ type RadioOptionRowProps = {
   value: string;
   label: string;
   defaultChecked?: boolean;
+  disabled?: boolean;
 };
 
 function RadioOptionRow({
@@ -41,14 +43,22 @@ function RadioOptionRow({
   value,
   label,
   defaultChecked,
+  disabled = false,
 }: RadioOptionRowProps) {
   return (
-    <label className={RADIO_ROW_CLASS}>
+    <label
+      className={cn(
+        RADIO_ROW_CLASS,
+        disabled &&
+          "cursor-not-allowed opacity-60 has-[:checked]:border-white/20 has-[:checked]:bg-white/10"
+      )}
+    >
       <input
         type="radio"
         name={name}
         value={value}
         defaultChecked={defaultChecked}
+        disabled={disabled}
         className="peer sr-only"
       />
       <span aria-hidden="true" className={RADIO_INDICATOR_CLASS} />
@@ -94,6 +104,8 @@ export function NotificationSettingsForm({
 
   const showEmailUnverifiedWarning =
     initialValues.notifyChannel === "EMAIL" && !emailVerified;
+  const showSmsChannelInactiveWarning =
+    !SMS_NOTIFICATION_UI_ENABLED && initialValues.notifyChannel === "SMS";
 
   return (
     <div className="flex w-full flex-col gap-6 text-white">
@@ -143,12 +155,25 @@ export function NotificationSettingsForm({
                   defaultChecked={
                     initialValues.notifyChannel === option.value
                   }
+                  disabled={
+                    !SMS_NOTIFICATION_UI_ENABLED && option.value === "SMS"
+                  }
                 />
               ))}
               <FieldError message={viewState.fieldErrors?.notifyChannel} />
+              {!SMS_NOTIFICATION_UI_ENABLED ? (
+                <p className={FORM_FIELD_HINT_CLASS}>
+                  {SMS_NOTIFICATION_DISABLED_HINT}
+                </p>
+              ) : null}
               {showEmailUnverifiedWarning ? (
                 <p className="text-sm text-amber-200">
                   メール未確認のため送信できません。確認メールのリンクを開いてからご利用ください。
+                </p>
+              ) : null}
+              {showSmsChannelInactiveWarning ? (
+                <p className="text-sm text-amber-200">
+                  現在ショートメッセージは送信されません。メールへの変更をご検討ください。
                 </p>
               ) : null}
             </fieldset>
@@ -207,21 +232,13 @@ export function NotificationSettingsForm({
             <h2 className="text-lg font-semibold">二段階認証（MFA）</h2>
             <p className={cn("mt-1", FORM_FIELD_HINT_CLASS)}>
               {totpEnabled
-                ? "二段階認証は有効です。設定の変更はこちらから行えます。"
-                : "認証アプリによる二段階認証を設定できます。"}
+                ? "二段階認証は有効です。ログイン時に認証アプリの 6 桁コードが必要です。"
+                : "メールとパスワードに加え、認証アプリ（Google Authenticator 等）でログインを保護できます。設定は任意です。"}
             </p>
           </div>
 
           <div className="flex justify-start">
-            <Button
-              asChild
-              variant="outline"
-              className="border-white/30 bg-transparent text-white hover:bg-white/20 hover:text-white"
-            >
-              <Link href={ROUTES.mfaSetup}>
-                {totpEnabled ? "MFA 設定を開く" : "MFA を設定する"}
-              </Link>
-            </Button>
+            <MfaSettingsDialog totpEnabled={totpEnabled} />
           </div>
         </div>
       </section>

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getAuthenticatedUserId } from "@/lib/auth/get-user-id";
 import { prisma } from "@/lib/prisma";
 import { ROUTES } from "@/lib/routes";
+import { resolveNotifyChannelUpdate } from "@/lib/renewal-notification/resolve-notify-channel-update";
 import {
   notificationSettingsFieldErrorsFromZod,
   notificationSettingsSchema,
@@ -26,9 +27,30 @@ export async function updateNotificationSettings(
     return { success: false, message: "認証が必要です。" };
   }
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { notifyChannel: true },
+  });
+
+  if (!user) {
+    return { success: false, message: "ユーザーが見つかりません。" };
+  }
+
+  const channelResult = resolveNotifyChannelUpdate({
+    submittedChannel: formData.get("notifyChannel") as string | null,
+    currentChannel: user.notifyChannel,
+  });
+
+  if (!channelResult.ok) {
+    return {
+      success: false,
+      fieldErrors: { notifyChannel: channelResult.error },
+    };
+  }
+
   const parsed = notificationSettingsSchema.safeParse({
     notifyLeadDays: String(formData.get("notifyLeadDays") ?? ""),
-    notifyChannel: String(formData.get("notifyChannel") ?? ""),
+    notifyChannel: channelResult.notifyChannel,
     notifyDeliveryPaused: String(formData.get("notifyDeliveryPaused") ?? ""),
   });
 

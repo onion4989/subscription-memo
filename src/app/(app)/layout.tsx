@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { isMfaVerificationPending } from "@/lib/auth/mfa-session";
 import { getAuthenticatedUserId } from "@/lib/auth/get-user-id";
 import { ROUTES } from "@/lib/routes";
 import { getAppUserDisplay } from "@/lib/user/get-app-user-display";
@@ -14,6 +15,10 @@ export default async function AppLayout({ children }: AppLayoutProps) {
 
   if (!session) {
     redirect(ROUTES.login);
+  }
+
+  if (isMfaVerificationPending(session)) {
+    redirect(ROUTES.mfaVerify);
   }
 
   const userId = await getAuthenticatedUserId();

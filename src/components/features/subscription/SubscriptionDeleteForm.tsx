@@ -81,7 +81,7 @@ export function SubscriptionDeleteForm({
       ) : (
         <SubscriptionTableSection
           description={
-            <p className="py-8 text-base text-white/90">
+            <p className="py-6 text-base text-white/90">
               登録済みのサブスクリプションを削除できます。
             </p>
           }

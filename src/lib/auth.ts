@@ -21,7 +21,7 @@ import {
 } from "@/lib/auth/mark-oauth-email-verified";
 import { loginSchema } from "@/lib/validations/auth";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   debug: process.env.NODE_ENV === "development",
@@ -122,6 +122,50 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       return true;
+    },
+    async jwt({ token, user, account, trigger, session }) {
+      if (trigger === "update") {
+        const updatePayload = session as
+          | { user?: { mfaVerified?: boolean } }
+          | undefined;
+        if (updatePayload?.user?.mfaVerified === true) {
+          token.mfaVerified = true;
+        }
+        return token;
+      }
+
+      if (user?.id) {
+        token.sub = user.id;
+      }
+
+      if (account?.provider === "credentials" && token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { totpEnabled: true },
+        });
+        const totpEnabled = dbUser?.totpEnabled ?? false;
+        token.totpEnabled = totpEnabled;
+        token.mfaVerified = !totpEnabled;
+      } else if (account) {
+        token.totpEnabled = false;
+        token.mfaVerified = true;
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      const jwt = token as {
+        sub?: string;
+        totpEnabled?: boolean;
+        mfaVerified?: boolean;
+      };
+
+      if (session.user) {
+        session.user.id = jwt.sub ?? "";
+        session.user.totpEnabled = jwt.totpEnabled ?? false;
+        session.user.mfaVerified = jwt.mfaVerified ?? true;
+      }
+      return session;
     },
   },
 });

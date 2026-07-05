@@ -3,13 +3,12 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateTotpSecret, createTotpUri, verifyTotpToken } from "@/lib/mfa/totp";
-import { generateBackupCodes, saveBackupCodes } from "@/lib/mfa/backup-codes";
 
 export type MfaSetupState = {
   step: "generate" | "verify" | "complete";
   secret?: string;
   uri?: string;
-  backupCodes?: string[];
+  email?: string;
   error?: string;
 };
 
@@ -27,10 +26,17 @@ export async function initMfaSetup(): Promise<MfaSetupState> {
     return { step: "generate", error: "ユーザーが見つかりません" };
   }
 
+  if (user.totpEnabled) {
+    return {
+      step: "generate",
+      error: "二段階認証はすでに有効です。",
+    };
+  }
+
   const secret = generateTotpSecret();
   const uri = createTotpUri(secret, user.email);
 
-  return { step: "verify", secret, uri };
+  return { step: "verify", secret, uri, email: user.email };
 }
 
 export async function confirmMfaSetup(
@@ -46,7 +52,13 @@ export async function confirmMfaSetup(
   const token = formData.get("token") as string;
 
   if (!secret || !token) {
-    return { step: "verify", secret, error: "コードを入力してください" };
+    return {
+      step: "verify",
+      secret,
+      uri: formData.get("uri") as string,
+      email: formData.get("email") as string,
+      error: "コードを入力してください",
+    };
   }
 
   const isValid = verifyTotpToken(secret, token);
@@ -55,12 +67,10 @@ export async function confirmMfaSetup(
       step: "verify",
       secret,
       uri: formData.get("uri") as string,
+      email: formData.get("email") as string,
       error: "コードが正しくありません。もう一度お試しください。",
     };
   }
-
-  const backupCodes = generateBackupCodes();
-  await saveBackupCodes(session.user.id, backupCodes);
 
   await prisma.user.update({
     where: { id: session.user.id },
@@ -70,5 +80,5 @@ export async function confirmMfaSetup(
     },
   });
 
-  return { step: "complete", backupCodes };
+  return { step: "complete" };
 }
