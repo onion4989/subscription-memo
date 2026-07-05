@@ -1,6 +1,10 @@
 import { YenAmountDisplay } from "@/components/features/subscription/YenAmountDisplay";
 import { computeSubscriptionSummary } from "@/lib/subscription/summary";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
+import { cn } from "@/lib/utils";
+
+/** モバイルピル: ラベル列の固定幅（最長ラベル「月額合計」「年額合計」に合わせる） */
+const SUMMARY_CARD_LABEL_COLUMN_CLASS = "w-[5.5rem] shrink-0";
 
 type SubscriptionSummaryCardsProps = {
   subscriptions: SavedSubscriptionRow[];
@@ -15,13 +19,27 @@ type SummaryCardConfig = {
 function SummaryCard({ label, backgroundColor, value }: SummaryCardConfig) {
   return (
     <div
-      className="flex size-[120px] items-center justify-center rounded-[10px] px-3 text-white"
+      className={cn(
+        "w-full text-white",
+        "grid grid-cols-[5.5rem_auto_1fr] items-center gap-x-3 rounded-full px-5 py-3",
+        "md:flex md:size-[120px] md:flex-col md:items-center md:justify-center md:gap-1 md:rounded-[10px] md:px-3 md:py-0"
+      )}
       style={{ backgroundColor }}
     >
-      <div className="flex w-full flex-col items-center gap-1 text-center">
-        <p className="text-[18px] font-bold leading-tight">{label}</p>
-        <div className="h-px w-full bg-white/80" aria-hidden="true" />
-        <div className="flex items-center justify-center">{value}</div>
+      <p
+        className={cn(
+          SUMMARY_CARD_LABEL_COLUMN_CLASS,
+          "text-base font-bold leading-tight md:w-auto md:text-center md:text-[18px]"
+        )}
+      >
+        {label}
+      </p>
+      <div
+        className="h-5 w-px shrink-0 bg-white/80 md:h-px md:w-full"
+        aria-hidden="true"
+      />
+      <div className="flex items-center justify-start text-left md:justify-center">
+        {value}
       </div>
     </div>
   );
@@ -55,7 +73,7 @@ export function SubscriptionSummaryCards({
   ];
 
   return (
-    <div className="flex gap-5">
+    <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:gap-5">
       {cards.map((card) => (
         <SummaryCard key={card.label} {...card} />
       ))}
