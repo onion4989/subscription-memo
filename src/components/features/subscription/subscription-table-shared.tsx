@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const SUBSCRIPTION_LIST_TABLE_GRID_CLASS =
-  "grid w-max grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px] gap-x-2 gap-y-3";
+  "grid w-max gap-x-2 gap-y-3 grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px] lg:w-full lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.75fr)]";
 
+/** 登録・変更: 狭い幅は固定列+横スクロール、lg 以上は全幅ストレッチ */
 export const SUBSCRIPTION_REGISTER_TABLE_GRID_CLASS =
-  "grid w-max grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px_80px] gap-x-2 gap-y-3";
+  "grid w-max gap-x-2 gap-y-3 grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px_80px] lg:w-full lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.75fr)_4.5rem]";
 
+/** 削除: 狭い幅は固定列+横スクロール、lg 以上は全幅ストレッチ */
 export const SUBSCRIPTION_DELETE_TABLE_GRID_CLASS =
-  "grid w-max grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px_80px] gap-x-2 gap-y-3";
+  "grid w-max gap-x-2 gap-y-3 grid-cols-[160px_80px_110px_70px_88px_100px_100px_64px_80px] lg:w-full lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.75fr)_4.5rem]";
 
 export const SUBSCRIPTION_LIST_TABLE_COLUMNS = [
   { label: "サブスクリプション名", centered: false },
@@ -46,7 +48,7 @@ export function SubscriptionTableHeader({
         <div
           key={column.label}
           className={cn(
-            "px-1 text-sm font-semibold text-white",
+            "whitespace-nowrap px-1 text-sm font-semibold text-white",
             column.centered && "text-center"
           )}
         >

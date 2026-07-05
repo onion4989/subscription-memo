@@ -28,6 +28,7 @@ type AppSidebarProps = {
   pathname: string;
   displayName: string;
   avatarId: number | null;
+  onNavigate?: () => void;
 };
 
 type NavItem = {
@@ -92,9 +93,17 @@ function isNavItemActive(pathname: string, href: string): boolean {
 type SidebarLinkProps = NavItem & {
   expanded: boolean;
   pathname: string;
+  onNavigate?: () => void;
 };
 
-function SidebarLink({ href, icon, label, pathname, expanded }: SidebarLinkProps) {
+function SidebarLink({
+  href,
+  icon,
+  label,
+  pathname,
+  expanded,
+  onNavigate,
+}: SidebarLinkProps) {
   const isActive = isNavItemActive(pathname, href);
   const linkClassName = cn(
     "flex h-9 items-center rounded-md text-sm text-slate-800 transition-colors hover:bg-slate-200",
@@ -102,7 +111,12 @@ function SidebarLink({ href, icon, label, pathname, expanded }: SidebarLinkProps
     isActive && "bg-slate-200 font-medium"
   );
   const content = (
-    <Link href={href} className={linkClassName} aria-label={label}>
+    <Link
+      href={href}
+      className={linkClassName}
+      aria-label={label}
+      onClick={onNavigate}
+    >
       <span className="text-sm text-slate-700">{icon}</span>
       {expanded ? <span className="whitespace-nowrap">{label}</span> : null}
     </Link>
@@ -180,6 +194,7 @@ export function AppSidebar({
   avatarId,
   pathname,
   expanded,
+  onNavigate,
 }: AppSidebarProps) {
   const signOutButton = (
     <button
@@ -215,6 +230,7 @@ export function AppSidebar({
               key={item.href}
               pathname={pathname}
               expanded={expanded}
+              onNavigate={onNavigate}
               {...item}
             />
           ))}
@@ -230,6 +246,7 @@ export function AppSidebar({
             href={ROUTES.account}
             pathname={pathname}
             expanded={expanded}
+            onNavigate={onNavigate}
             icon={<FaRegCircleUser aria-hidden="true" />}
             label="アカウント"
           />
@@ -237,6 +254,7 @@ export function AppSidebar({
             href={ROUTES.settings}
             pathname={pathname}
             expanded={expanded}
+            onNavigate={onNavigate}
             icon={<FaGear aria-hidden="true" />}
             label="各種設定"
           />

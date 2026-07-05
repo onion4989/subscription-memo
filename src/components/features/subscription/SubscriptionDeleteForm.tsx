@@ -2,7 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { SubscriptionDeleteConfirmModal } from "@/components/features/subscription/SubscriptionDeleteConfirmModal";
-import { SubscriptionTableSection } from "@/components/features/subscription/SubscriptionTableSection";
+import {
+  SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS,
+  SubscriptionTableSection,
+} from "@/components/features/subscription/SubscriptionTableSection";
 import {
   SUBSCRIPTION_DELETE_TABLE_COLUMNS,
   SUBSCRIPTION_DELETE_TABLE_GRID_CLASS,
@@ -11,6 +14,7 @@ import {
 } from "@/components/features/subscription/subscription-table-shared";
 import { deleteSubscription } from "@/lib/actions/subscription-delete";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
+import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
 
 type SubscriptionDeleteFormProps = {
   initialSaved: SavedSubscriptionRow[];
@@ -85,17 +89,20 @@ export function SubscriptionDeleteForm({
               登録済みのサブスクリプションを削除できます。
             </p>
           }
+          tableBlockClassName={`${SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS} gap-4`}
         >
-          <div className={SUBSCRIPTION_DELETE_TABLE_GRID_CLASS}>
-            <SubscriptionTableHeader columns={SUBSCRIPTION_DELETE_TABLE_COLUMNS} />
+          <div className={APP_SCROLLBAR_X_CLASS}>
+            <div className={SUBSCRIPTION_DELETE_TABLE_GRID_CLASS}>
+              <SubscriptionTableHeader columns={SUBSCRIPTION_DELETE_TABLE_COLUMNS} />
 
-            {rows.map((row) => (
-              <SubscriptionTableRow
-                key={row.id}
-                row={row}
-                onDelete={openDeleteModal}
-              />
-            ))}
+              {rows.map((row) => (
+                <SubscriptionTableRow
+                  key={row.id}
+                  row={row}
+                  onDelete={openDeleteModal}
+                />
+              ))}
+            </div>
           </div>
         </SubscriptionTableSection>
       )}
