@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -18,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { openNativeDatePicker } from "@/lib/dom/open-native-date-picker";
 import {
   PAYMENT_PLAN_LABELS,
   SUBSCRIPTION_NAME_MAX_LENGTH,
@@ -62,18 +64,6 @@ function FieldError({ message }: { message?: string }) {
   return <p className="mt-1 text-xs text-red-300">{message}</p>;
 }
 
-function openNativeDatePicker(input: HTMLInputElement) {
-  if (typeof input.showPicker !== "function") {
-    return;
-  }
-
-  try {
-    input.showPicker();
-  } catch {
-    // showPicker may throw when not allowed in the current context
-  }
-}
-
 function getNextRenewalPreview(values: SubscriptionRegisterFormValues): string {
   if (!values.contractDate || !values.paymentPlan) {
     return "※自動計算";
@@ -99,6 +89,7 @@ export function SubscriptionFormModal({
   onChange,
   onSubmit,
 }: SubscriptionFormModalProps) {
+  const contractDateInputRef = useRef<HTMLInputElement>(null);
   const nextRenewalPreview = useMemo(
     () => getNextRenewalPreview(values),
     [values]
@@ -112,18 +103,36 @@ export function SubscriptionFormModal({
       ? "更新する"
       : "登録する";
 
+  const contractDateLabel = values.contractDate
+    ? formatContractDateYmd(values.contractDate)
+    : "日付を選択";
+
+  const handleContractDateButtonClick = () => {
+    const input = contractDateInputRef.current;
+    if (!input) {
+      return;
+    }
+
+    openNativeDatePicker(input);
+    input.focus({ preventScroll: true });
+    input.click();
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto border-white/20 bg-[#3D3D3D] text-white max-sm:p-4 sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="pr-8 text-white">
+      <DialogContent
+        className="max-h-[calc(100dvh-2rem)] overflow-x-hidden overflow-y-auto border-white/20 bg-[#3D3D3D] text-white max-sm:px-4 max-sm:py-5 sm:max-w-md sm:py-7"
+        closeButtonClassName="max-sm:top-5 max-sm:right-4 sm:top-7 sm:right-6"
+      >
+        <DialogHeader className="py-3 text-left sm:py-2">
+          <DialogTitle className="pr-12 text-white max-sm:pr-14">
             {mode === "edit"
               ? "サブスクリプション修正"
               : "サブスクリプション登録"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
           <div>
             <Label htmlFor="subscription-name" className="mb-2 text-white">
               サブスクリプション名
@@ -229,21 +238,40 @@ export function SubscriptionFormModal({
             </div>
           </div>
 
-          <div>
+          <div className="min-w-0">
             <Label htmlFor="subscription-contract-date" className="mb-2 text-white">
               契約日
             </Label>
-            <Input
-              id="subscription-contract-date"
-              type="date"
-              value={values.contractDate}
-              onClick={(event) => openNativeDatePicker(event.currentTarget)}
-              onChange={(event) =>
-                onChange({ contractDate: event.target.value })
-              }
-              className={cn(FIELD_INPUT_CLASS, "cursor-pointer")}
-              aria-invalid={Boolean(fieldErrors.contractDate)}
-            />
+            <div className="relative">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleContractDateButtonClick}
+                aria-invalid={Boolean(fieldErrors.contractDate)}
+                className={cn(
+                  "h-9 w-full max-md:w-48 justify-start gap-2 border-input bg-white px-3 font-normal text-slate-900 hover:bg-white",
+                  !values.contractDate && "text-slate-400"
+                )}
+              >
+                <CalendarIcon className="size-4 shrink-0 text-slate-500" />
+                <span className="truncate">{contractDateLabel}</span>
+              </Button>
+              <Input
+                ref={contractDateInputRef}
+                id="subscription-contract-date"
+                type="date"
+                value={values.contractDate}
+                onChange={(event) =>
+                  onChange({ contractDate: event.target.value })
+                }
+                className={cn(
+                  "pointer-events-none absolute h-0 w-0 opacity-0",
+                  "subscription-date-input"
+                )}
+                tabIndex={-1}
+                aria-hidden
+              />
+            </div>
             <FieldError message={fieldErrors.contractDate} />
           </div>
 

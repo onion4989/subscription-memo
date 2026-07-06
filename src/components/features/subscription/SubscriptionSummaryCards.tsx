@@ -6,6 +6,11 @@ import { cn } from "@/lib/utils";
 /** モバイルピル: ラベル列の固定幅（最長ラベル「月額合計」「年額合計」に合わせる） */
 const SUMMARY_CARD_LABEL_COLUMN_CLASS = "w-[5.5rem] shrink-0";
 
+/** 旧 120px 正方形カード（md:px-3）時の横線幅を維持 */
+const SUMMARY_CARD_DESKTOP_DIVIDER_WIDTH_CLASS = "md:w-[96px]";
+
+const SUMMARY_CARDS_DESKTOP_GAP_CLASS = "md:gap-[30px]";
+
 type SubscriptionSummaryCardsProps = {
   subscriptions: SavedSubscriptionRow[];
 };
@@ -22,7 +27,7 @@ function SummaryCard({ label, backgroundColor, value }: SummaryCardConfig) {
       className={cn(
         "w-full text-white",
         "grid grid-cols-[5.5rem_auto_1fr] items-center gap-x-3 rounded-[5px] px-5 py-3",
-        "md:flex md:size-[120px] md:flex-col md:items-center md:justify-center md:gap-1 md:rounded-[10px] md:px-3 md:py-0"
+        "md:flex md:min-h-[120px] md:flex-col md:items-center md:justify-center md:gap-2 md:rounded-[10px] md:px-3 md:py-4"
       )}
       style={{ backgroundColor }}
     >
@@ -35,7 +40,11 @@ function SummaryCard({ label, backgroundColor, value }: SummaryCardConfig) {
         {label}
       </p>
       <div
-        className="h-5 w-px shrink-0 bg-white/80 md:h-px md:w-full"
+        className={cn(
+          "h-5 w-px shrink-0 bg-white/80",
+          "md:h-px",
+          SUMMARY_CARD_DESKTOP_DIVIDER_WIDTH_CLASS
+        )}
         aria-hidden="true"
       />
       <div className="flex items-center justify-start text-left md:justify-center">
@@ -73,7 +82,13 @@ export function SubscriptionSummaryCards({
   ];
 
   return (
-    <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:gap-5">
+    <div
+      className={cn(
+        "flex w-full flex-col gap-3",
+        "md:grid md:grid-cols-3",
+        SUMMARY_CARDS_DESKTOP_GAP_CLASS
+      )}
+    >
       {cards.map((card) => (
         <SummaryCard key={card.label} {...card} />
       ))}
