@@ -75,6 +75,7 @@ type MfaEnrollmentPanelProps = {
   pending: boolean;
   error?: string;
   tokenInputId?: string;
+  onCancel?: () => void;
 };
 
 export function MfaEnrollmentPanel({
@@ -83,6 +84,7 @@ export function MfaEnrollmentPanel({
   pending,
   error,
   tokenInputId = "mfa-setup-token",
+  onCancel,
 }: MfaEnrollmentPanelProps) {
   const { uri, secret, email } = setupData;
 
@@ -136,6 +138,18 @@ export function MfaEnrollmentPanel({
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "確認中..." : "設定を確定"}
         </Button>
+
+        {onCancel ? (
+          <Button
+            type="button"
+            variant="link"
+            className="mt-6 w-full"
+            disabled={pending}
+            onClick={onCancel}
+          >
+            キャンセル
+          </Button>
+        ) : null}
       </form>
     </div>
   );
