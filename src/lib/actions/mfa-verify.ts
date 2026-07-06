@@ -5,6 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { verifyTotpToken } from "@/lib/mfa/totp";
 import { isLockedOut, recordAttempt } from "@/lib/mfa/lockout";
 
+const MFA_VERIFY_UNEXPECTED_ERROR_MESSAGE =
+  "認証処理中にエラーが発生しました。しばらくしてから再度お試しください。";
+
 export type MfaVerifyState = {
   success: boolean;
   error?: string;
@@ -52,31 +55,40 @@ async function verifyTotpForSessionUser(
 }
 
 export async function completeMfaVerification(
+  _prevState: MfaVerifyState,
   formData: FormData
 ): Promise<MfaVerifyState> {
-  const session = await auth();
-  const userId = session?.user?.id;
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
 
-  if (!userId) {
-    return { success: false, error: "認証が必要です" };
-  }
+    if (!userId) {
+      return { success: false, error: "認証が必要です" };
+    }
 
-  if (!session.user.totpEnabled) {
-    return { success: false, error: "MFAが設定されていません" };
-  }
+    if (!session.user.totpEnabled) {
+      return { success: false, error: "MFAが設定されていません" };
+    }
 
-  if (session.user.mfaVerified) {
+    if (session.user.mfaVerified) {
+      return { success: true };
+    }
+
+    const token = String(formData.get("token") ?? "").trim();
+    const result = await verifyTotpForSessionUser(userId, token);
+
+    if (!result.success) {
+      return result;
+    }
+
+    await unstable_update({ user: { mfaVerified: true } });
+
     return { success: true };
+  } catch (error) {
+    console.error("[mfa-verify] completeMfaVerification failed", error);
+    return {
+      success: false,
+      error: MFA_VERIFY_UNEXPECTED_ERROR_MESSAGE,
+    };
   }
-
-  const token = String(formData.get("token") ?? "");
-  const result = await verifyTotpForSessionUser(userId, token);
-
-  if (!result.success) {
-    return result;
-  }
-
-  await unstable_update({ user: { mfaVerified: true } });
-
-  return { success: true };
 }
