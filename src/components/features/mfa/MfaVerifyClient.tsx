@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   completeMfaVerification,
@@ -23,20 +23,45 @@ import {
 } from "@/lib/auth-page-shell";
 import { RequiredFieldMark } from "@/components/features/auth/RequiredFieldMark";
 
+const initialState: MfaVerifyState = { success: false };
+
+const INVALID_TOKEN_MESSAGE = "6桁の認証コードを入力してください";
+
+const TOKEN_PATTERN = /^\d{6}$/;
+
 export function MfaVerifyClient() {
   const router = useRouter();
-  const [state, setState] = useState<MfaVerifyState>({ success: false });
-  const [pending, setPending] = useState(false);
+  const [state, formAction, pending] = useActionState(
+    completeMfaVerification,
+    initialState
+  );
+  const [clientError, setClientError] = useState<string | null>(null);
 
-  async function handleSubmit(formData: FormData) {
-    setPending(true);
-    const result = await completeMfaVerification(formData);
-    setState(result);
-    setPending(false);
+  const displayError = clientError ?? state.error;
 
-    if (result.success) {
+  useEffect(() => {
+    if (state.success) {
       router.push(ROUTES.subscriptions);
       router.refresh();
+    }
+  }, [router, state.success]);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    setClientError(null);
+
+    const tokenInput = event.currentTarget.elements.namedItem(
+      "token"
+    ) as HTMLInputElement | null;
+    const token = tokenInput?.value.trim() ?? "";
+
+    if (!TOKEN_PATTERN.test(token)) {
+      event.preventDefault();
+      setClientError(INVALID_TOKEN_MESSAGE);
+      return;
+    }
+
+    if (tokenInput) {
+      tokenInput.value = token;
     }
   }
 
@@ -50,27 +75,33 @@ export function MfaVerifyClient() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form action={handleSubmit} className="space-y-4">
+          <form
+            action={formAction}
+            onSubmit={handleSubmit}
+            className="space-y-4"
+            noValidate
+          >
             <div className="space-y-2">
-              <Label htmlFor="token">
+              <Label htmlFor="mfa-verify-token">
                 認証コード
                 <RequiredFieldMark />
               </Label>
               <Input
-                id="token"
+                id="mfa-verify-token"
                 name="token"
                 type="text"
                 inputMode="numeric"
+                pattern="[0-9]{6}"
                 maxLength={6}
-                required
                 autoComplete="one-time-code"
+                aria-invalid={displayError ? true : undefined}
                 className="text-center text-lg tracking-widest"
               />
             </div>
 
-            {state.error ? (
+            {displayError ? (
               <p className="text-sm text-red-600" role="alert">
-                {state.error}
+                {displayError}
               </p>
             ) : null}
 
