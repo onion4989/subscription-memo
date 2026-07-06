@@ -98,7 +98,7 @@ export function AppShell({ children, displayName, avatarId }: AppShellProps) {
         </div>
 
         <section className="flex min-w-0 flex-1 flex-col">
-          <div className="mb-4 flex h-10 items-center gap-3 text-white">
+          <div className="mb-4 max-md:mt-4 flex h-10 items-center gap-3 text-white">
             <button
               type="button"
               aria-label={expanded ? "メニューを折りたたむ" : "メニューを展開する"}
