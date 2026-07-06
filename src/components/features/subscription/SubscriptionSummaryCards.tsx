@@ -21,7 +21,7 @@ function SummaryCard({ label, backgroundColor, value }: SummaryCardConfig) {
     <div
       className={cn(
         "w-full text-white",
-        "grid grid-cols-[5.5rem_auto_1fr] items-center gap-x-3 rounded-full px-5 py-3",
+        "grid grid-cols-[5.5rem_auto_1fr] items-center gap-x-3 rounded-[5px] px-5 py-3",
         "md:flex md:size-[120px] md:flex-col md:items-center md:justify-center md:gap-1 md:rounded-[10px] md:px-3 md:py-0"
       )}
       style={{ backgroundColor }}

@@ -40,7 +40,7 @@ import type {
 } from "@/schemas/subscription";
 
 const FIELD_INPUT_CLASS =
-  "h-9 bg-white text-slate-900 placeholder:text-slate-400";
+  "h-9 min-w-0 bg-white text-slate-900 placeholder:text-slate-400";
 
 type SubscriptionFormModalProps = {
   open: boolean;
@@ -114,9 +114,9 @@ export function SubscriptionFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-white/20 bg-[#3D3D3D] text-white sm:max-w-md">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto border-white/20 bg-[#3D3D3D] text-white max-sm:p-4 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white">
+          <DialogTitle className="pr-8 text-white">
             {mode === "edit"
               ? "サブスクリプション修正"
               : "サブスクリプション登録"}
@@ -168,7 +168,7 @@ export function SubscriptionFormModal({
             >
               <SelectTrigger
                 id="subscription-payment-plan"
-                className={cn("w-full bg-white text-slate-900", {
+                className={cn("w-full min-w-0 bg-white text-slate-900", {
                   "border-destructive": Boolean(fieldErrors.paymentPlan),
                 })}
               >
@@ -186,8 +186,8 @@ export function SubscriptionFormModal({
             <FieldError message={fieldErrors.paymentPlan} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
+          <div className="grid min-w-0 grid-cols-2 gap-3 max-sm:gap-2">
+            <div className="min-w-0">
               <Label htmlFor="subscription-monthly" className="mb-2 text-white">
                 月額
               </Label>
@@ -207,7 +207,7 @@ export function SubscriptionFormModal({
               />
               <FieldError message={fieldErrors.monthlyAmount} />
             </div>
-            <div>
+            <div className="min-w-0">
               <Label htmlFor="subscription-annual" className="mb-2 text-white">
                 年額
               </Label>

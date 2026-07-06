@@ -2,10 +2,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
-html,
-body,
-:root {
-  height: 100%;
+/*
+ * Avoid height: 100% on body — iOS Safari locks the viewport and blocks page scroll
+ * when flex children (e.g. auth main) exceed the screen height.
+ */
+html {
+  height: -webkit-fill-available;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
 }
 
  :root {

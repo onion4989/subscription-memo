@@ -20,25 +20,53 @@ const HERO_FEATURES = [
   "次回請求時前のお知らせ",
 ] as const;
 
+const HERO_IMAGE_CLASS_NAME =
+  "h-auto w-full max-w-full rounded-[5px] object-contain sm:max-w-[690px]";
+
+function HeroIllustration() {
+  return (
+    <Image
+      src="/assets/hero2.png"
+      alt="サブスク帳イメージ"
+      width={690}
+      height={402}
+      sizes="(min-width: 1024px) 690px, (min-width: 640px) 90vw, 100vw"
+      quality={90}
+      priority
+      className={HERO_IMAGE_CLASS_NAME}
+    />
+  );
+}
+
 export function HeroSection() {
   return (
-    <main className="min-h-screen w-full bg-linear-to-b from-[#000000] to-[#06648F] px-4 py-8 sm:px-6">
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-7xl grid-cols-12 items-center gap-8">
-        <section className="col-span-12 space-y-5 lg:col-span-4">
-          <div className="space-y-1">
-            <p className={`text-[64px] leading-none text-white ${notoSansJp.className}`}>
-              サブスク
-            </p>
-            <h1
-              className={`text-[128px] leading-none tracking-wide text-white ${allertaStencil.className}`}
-            >
-              MEMO
-            </h1>
+    <main className="min-h-screen w-full bg-linear-to-b from-[#000000] to-[#06648F] px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto w-full max-w-7xl lg:grid lg:min-h-[calc(100vh-4rem)] lg:grid-cols-12 lg:items-center lg:gap-8">
+        <section className="flex flex-col gap-5 lg:col-span-4">
+          <header>
+            <div className="space-y-1">
+              <p
+                className={`text-[36px] leading-none text-white sm:text-[48px] md:text-[64px] ${notoSansJp.className}`}
+              >
+                サブスク
+              </p>
+              <h1
+                className={`text-[64px] leading-none tracking-normal text-white sm:text-[96px] lg:text-[128px] lg:tracking-wide ${allertaStencil.className}`}
+              >
+                MEMO
+              </h1>
+            </div>
+          </header>
+
+          <div className="flex items-center justify-center lg:hidden">
+            <HeroIllustration />
           </div>
 
           <hr className="w-full border-white/70" />
 
-          <p className="text-[20px] text-white">サブスクを忘れないメモ帳</p>
+          <p className="text-base text-white sm:text-[20px]">
+            サブスクを忘れないメモ帳
+          </p>
 
           <ol className="space-y-2 text-base text-white">
             {HERO_FEATURES.map((feature) => (
@@ -51,23 +79,14 @@ export function HeroSection() {
 
           <Button
             asChild
-            className="mt-2 h-[36px] w-[200px] bg-black text-white hover:bg-[#181818]"
+            className="mt-2 h-[36px] w-full rounded-[5px] bg-black text-white hover:bg-[#181818] lg:w-[200px]"
           >
             <Link href={ROUTES.login}>ログイン</Link>
           </Button>
         </section>
 
-        <section className="col-span-12 flex items-center justify-center lg:col-span-8">
-          <Image
-            src="/assets/hero2.png"
-            alt="サブスク帳イメージ"
-            width={690}
-            height={402}
-            sizes="(min-width: 1024px) 690px, 100vw"
-            quality={90}
-            priority
-            className="h-auto w-full max-w-[690px] rounded-md object-cover"
-          />
+        <section className="hidden items-center justify-center lg:col-span-8 lg:flex">
+          <HeroIllustration />
         </section>
       </div>
     </main>
