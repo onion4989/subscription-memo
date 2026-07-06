@@ -73,7 +73,7 @@ function DialogContent({
           <DialogPrimitive.Close
             data-slot="dialog-close"
             className={cn(
-              "absolute top-4 right-4 flex size-8 cursor-pointer items-center justify-center rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 max-sm:top-4 max-sm:right-4 max-sm:size-11 max-sm:[&_svg]:size-6",
+              "absolute top-4 right-4 flex size-8 cursor-pointer items-center justify-center rounded-xs opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-0 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 max-sm:top-4 max-sm:right-4 max-sm:size-11 max-sm:[&_svg]:size-6",
               closeButtonClassName
             )}
           >
