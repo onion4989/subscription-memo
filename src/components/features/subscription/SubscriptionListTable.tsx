@@ -7,7 +7,6 @@ import {
 import { SubscriptionSummaryCards } from "@/components/features/subscription/SubscriptionSummaryCards";
 import {
   SUBSCRIPTION_TABLE_BLOCK_CLASS,
-  SUBSCRIPTION_TABLE_CENTERED_ROW_CLASS,
   SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
@@ -25,7 +24,7 @@ export function SubscriptionListTable({
       <div
         className={`${SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS} gap-8 md:gap-14`}
       >
-        <div className={SUBSCRIPTION_TABLE_CENTERED_ROW_CLASS}>
+        <div className="w-full">
           <SubscriptionSummaryCards subscriptions={subscriptions} />
         </div>
 

@@ -154,4 +154,29 @@ body {
     --app-scrollbar-thumb: rgba(15, 23, 42, 0.28);
     --app-scrollbar-thumb-hover: rgba(15, 23, 42, 0.45);
   }
+
+  .subscription-date-input {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    color-scheme: light;
+  }
+
+  .subscription-date-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 1;
+  }
+
+  .subscription-date-input::-moz-calendar-picker-indicator {
+    cursor: pointer;
+  }
+
+  .subscription-date-input::-webkit-datetime-edit {
+    color: rgb(15 23 42);
+  }
+
+  .subscription-date-input:invalid::-webkit-datetime-edit {
+    color: rgb(148 163 184);
+  }
 }

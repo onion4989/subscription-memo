@@ -32,9 +32,12 @@ export function SubscriptionDeleteConfirmModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-white/20 bg-[#3D3D3D] text-white sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-white">サブスクリプション削除</DialogTitle>
+      <DialogContent 
+        className="border-white/20 bg-[#3D3D3D] text-white sm:max-w-md"
+        closeButtonClassName="top-4 right-4 max-sm:top-3 max-sm:right-3"
+      >
+        <DialogHeader className="gap-6">
+          <DialogTitle className="text-white">データ削除</DialogTitle>
           <DialogDescription className="text-white/80">
             {target ? (
               <>
@@ -52,7 +55,7 @@ export function SubscriptionDeleteConfirmModal({
           <p className="text-sm text-red-300">{errorMessage}</p>
         ) : null}
 
-        <DialogFooter className="gap-2 sm:justify-end">
+        <DialogFooter className="flex-col gap-2 sm:justify-end">
           <Button
             type="button"
             variant="outline"
