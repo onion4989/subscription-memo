@@ -19,6 +19,7 @@ tsconfig.tsbuildinfo
 
 # Local notes / agent artifacts
 cursor_.md
+dev-local.md
 .cursor/test-reports/
 
 # OS / tooling
