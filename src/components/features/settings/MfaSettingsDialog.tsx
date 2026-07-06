@@ -105,6 +105,7 @@ export function MfaSettingsDialog({ totpEnabled }: MfaSettingsDialogProps) {
                 tokenInputId="mfa-settings-dialog-token"
                 autoNotifyOnComplete
                 onComplete={handleSetupComplete}
+                onCancel={() => handleOpenChange(false)}
               />
             )}
           </>

@@ -16,6 +16,7 @@ type MfaSetupFlowProps = {
   initialSetupData: MfaSetupState;
   tokenInputId?: string;
   onComplete?: () => void;
+  onCancel?: () => void;
   autoNotifyOnComplete?: boolean;
 };
 
@@ -23,6 +24,7 @@ export function MfaSetupFlow({
   initialSetupData,
   tokenInputId,
   onComplete,
+  onCancel,
   autoNotifyOnComplete = false,
 }: MfaSetupFlowProps) {
   const [state, formAction, pending] = useActionState(
@@ -64,6 +66,7 @@ export function MfaSetupFlow({
         pending={pending}
         error={state.error ?? initialSetupData.error}
         tokenInputId={tokenInputId}
+        onCancel={onCancel}
       />
     );
   }

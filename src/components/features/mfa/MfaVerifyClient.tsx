@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ROUTES } from "@/lib/routes";
+import { signOut } from "next-auth/react";
 import {
   AUTH_CARD_MAX_WIDTH_CLASS,
   AUTH_PAGE_MAIN_CLASS,
@@ -111,6 +112,16 @@ export function MfaVerifyClient() {
               className="w-full"
             >
               {pending ? "確認中..." : "認証"}
+            </Button>
+
+            <Button
+              type="button"
+              variant="link"
+              className="mt-6 w-full"
+              disabled={pending}
+              onClick={() => signOut({ callbackUrl: ROUTES.login })}
+            >
+              ログイン画面に戻る
             </Button>
           </form>
         </CardContent>
