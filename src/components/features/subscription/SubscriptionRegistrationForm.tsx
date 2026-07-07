@@ -123,8 +123,14 @@ export function SubscriptionRegistrationForm({
     <>
       <div className={SUBSCRIPTION_PAGE_CONTENT_CLASS}>
         <div className="py-6 text-base text-white/90">
-          <p>下記の追加ボタンからデータを入力してください。</p>
-          <p>+追加ボタン からデータを入力してください。</p>
+          <p>サブスクリプションの情報を登録することができます。</p>
+          <p>
+            <span className="inline-flex items-center gap-1 rounded-[2px] bg-white/25 px-1.5 py-0.5 font-medium text-white">
+              <FaPlus className="text-xs" aria-hidden="true" />
+              追加ボタン
+            </span>
+            {" "}からデータを入力してください。
+          </p>
         </div>
 
         <div
