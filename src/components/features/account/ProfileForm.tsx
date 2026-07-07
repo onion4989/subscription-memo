@@ -179,6 +179,9 @@ export function ProfileForm({ initialValues }: ProfileFormProps) {
                   className={INPUT_CLASS}
                 />
                 <FieldError message={viewState.fieldErrors?.newPassword} />
+                <p className={FORM_FIELD_HINT_CLASS}>
+                  新しいパスワードに変更するためには、現在のパスワードを入力する必要があります。
+                </p>
               </div>
             </>
           ) : null}
