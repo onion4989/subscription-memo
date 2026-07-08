@@ -9,9 +9,9 @@ import {
   FaGear,
   FaListUl,
   FaPenToSquare,
-  FaRegCircleUser,
 } from "react-icons/fa6";
 import { GoPerson } from "react-icons/go";
+import { IoPersonCircle } from "react-icons/io5";
 import { signOut } from "next-auth/react";
 import { ROUTES } from "@/lib/routes";
 import { avatarImagePath, isAvatarId } from "@/lib/user/avatar";
@@ -247,7 +247,7 @@ export function AppSidebar({
             pathname={pathname}
             expanded={expanded}
             onNavigate={onNavigate}
-            icon={<FaRegCircleUser aria-hidden="true" />}
+            icon={<IoPersonCircle aria-hidden="true" className="size-4" />}
             label="アカウント"
           />
           <SidebarLink

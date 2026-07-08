@@ -5,6 +5,7 @@ import {
   updateNotificationSettings,
   type UpdateNotificationSettingsState,
 } from "@/lib/actions/notification-settings";
+import { MfaDisableDialog } from "@/components/features/settings/MfaDisableDialog";
 import { MfaSettingsDialog } from "@/components/features/settings/MfaSettingsDialog";
 import {
   NOTIFY_CHANNEL_OPTIONS,
@@ -237,8 +238,9 @@ export function NotificationSettingsForm({
             </p>
           </div>
 
-          <div className="flex justify-start">
+          <div className="flex flex-wrap justify-start gap-3">
             <MfaSettingsDialog totpEnabled={totpEnabled} />
+            {totpEnabled ? <MfaDisableDialog /> : null}
           </div>
         </div>
       </section>
