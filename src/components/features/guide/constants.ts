@@ -1,5 +1,5 @@
 /** ガイド画像差し替え時に更新してキャッシュを無効化する */
-export const GUIDE_IMAGE_VERSION = "20260702";
+export const GUIDE_IMAGE_VERSION = "20260708";
 
 export type GuideStep = {
   step: number;
@@ -20,7 +20,7 @@ export const GUIDE_STEPS: GuideStep[] = [
     imageSrc: "/assets/guide_step1.webp",
     imageAlt: "アカウント登録の説明図",
     imageWidth: 360,
-    imageHeight: 372,
+    imageHeight: 360,
     cardBackgroundColor: "#768A20",
   },
   {
@@ -30,7 +30,7 @@ export const GUIDE_STEPS: GuideStep[] = [
     imageSrc: "/assets/guide_step2.webp",
     imageAlt: "サブスク登録・変更の説明図",
     imageWidth: 360,
-    imageHeight: 372,
+    imageHeight: 360,
     cardBackgroundColor: "#208A73",
   },
   {
@@ -40,7 +40,7 @@ export const GUIDE_STEPS: GuideStep[] = [
     imageSrc: "/assets/guide_step3.webp",
     imageAlt: "お知らせメール設定の説明図",
     imageWidth: 360,
-    imageHeight: 372,
+    imageHeight: 360,
     cardBackgroundColor: "#C9981D",
   },
   {
@@ -50,7 +50,7 @@ export const GUIDE_STEPS: GuideStep[] = [
     imageSrc: "/assets/guide_step4.webp",
     imageAlt: "サブスク一覧確認の説明図",
     imageWidth: 360,
-    imageHeight: 372,
+    imageHeight: 360,
     cardBackgroundColor: "#8A2082",
   },
 ];
