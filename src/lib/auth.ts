@@ -126,9 +126,13 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
     async jwt({ token, user, account, trigger, session }) {
       if (trigger === "update") {
         const updatePayload = session as
-          | { user?: { mfaVerified?: boolean } }
+          | { user?: { mfaVerified?: boolean; totpEnabled?: boolean } }
           | undefined;
         if (updatePayload?.user?.mfaVerified === true) {
+          token.mfaVerified = true;
+        }
+        if (updatePayload?.user?.totpEnabled === false) {
+          token.totpEnabled = false;
           token.mfaVerified = true;
         }
         return token;

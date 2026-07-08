@@ -14,10 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { MFA_SETTINGS_BUTTON_CLASS } from "@/components/features/settings/mfa-settings-shared";
 import { cn } from "@/lib/utils";
-
-const MFA_SETTINGS_BUTTON_CLASS =
-  "border-white/30 bg-transparent text-white hover:bg-white/20 hover:text-white";
 
 type MfaSettingsDialogProps = {
   totpEnabled: boolean;
