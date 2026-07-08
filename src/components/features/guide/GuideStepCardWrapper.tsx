@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-const STEP_COLUMN_WIDTH_CLASS = "w-[180px] shrink-0";
+export const STEP_COLUMN_WIDTH_CLASS = "w-full shrink-0 lg:w-[200px]";
+
+const GUIDE_STEP_BADGE_BACKGROUND = "#545454";
 
 type GuideStepHeaderProps = {
   step: number;
@@ -13,12 +15,16 @@ export function GuideStepHeader({ step, title, className }: GuideStepHeaderProps
   return (
     <h2
       className={cn(
-        "flex items-center gap-1 text-left font-semibold text-white",
-        STEP_COLUMN_WIDTH_CLASS,
+        "flex w-full items-center gap-1 text-left font-semibold text-white lg:w-[200px]",
         className
       )}
     >
-      <span className="text-[36px] leading-none">{step}</span>
+      <span
+        className="flex size-[34px] shrink-0 items-center justify-center rounded-full text-[20px] font-bold leading-none text-white"
+        style={{ backgroundColor: GUIDE_STEP_BADGE_BACKGROUND }}
+      >
+        {step}
+      </span>
       <span className="text-[16px] leading-tight">{title}</span>
     </h2>
   );
@@ -40,24 +46,26 @@ export function GuideStepCardContent({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2.5 rounded-xl p-2.5 shadow-sm",
+        "flex w-full gap-2.5 rounded-xl p-2.5 shadow-sm",
+        "max-lg:flex-row max-lg:items-center",
+        "lg:flex-col",
         STEP_COLUMN_WIDTH_CLASS,
         className
       )}
       style={{ backgroundColor }}
     >
-      <p className="text-center text-sm leading-relaxed text-white">
-        {description}
-      </p>
       <div
         className={cn(
-          "flex w-full items-center justify-center overflow-hidden rounded-[10px]",
-          !image && "aspect-4/3 bg-slate-300"
+          "flex size-[110px] shrink-0 items-center justify-center overflow-hidden rounded-[10px] lg:order-2 lg:aspect-square lg:h-auto lg:w-full",
+          !image && "bg-slate-300"
         )}
         aria-hidden={image ? undefined : true}
       >
         {image}
       </div>
+      <p className="min-w-0 flex-1 text-left text-sm leading-relaxed text-white lg:order-1 lg:w-full lg:flex-none">
+        {description}
+      </p>
     </div>
   );
 }
