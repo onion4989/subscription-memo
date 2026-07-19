@@ -38,7 +38,11 @@ export const loginFormFieldErrorsFromZod = signupFieldErrorsFromZod;
 // Password Reset
 export const NewPasswordSchema = z.object({
   //email: z.string().min(1, "メールアドレスは必須です。").email("無効なメールアドレスです。"),
-  password: z.string().min(1, "パスワードは必須です。").min(6, "6文字以上必須。"),
+  password: z
+    .string()
+    .min(1, "パスワードは必須です。")
+    .min(8, "パスワードは8文字以上で入力してください")
+    .max(128, "パスワードは128文字以内で入力してください"),
 });
 
 // Reset
