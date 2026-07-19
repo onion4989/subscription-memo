@@ -6,6 +6,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:e2e": "LD_LIBRARY_PATH=\"${PWD}/.playwright-sysroot/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}\" playwright test",
+    "test:e2e:ui": "LD_LIBRARY_PATH=\"${PWD}/.playwright-sysroot/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}\" playwright test --ui",
+    "test:e2e:install-libs": "bash scripts/playwright-sysroot-libs.sh",
     "backup:major": "bash scripts/backup-major.sh"
   },
   "private": true,
@@ -37,17 +42,27 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4.2.4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jsdom": "^28.0.3",
     "@types/node": "^25.6.0",
     "@types/nodemailer": "^7.0.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
     "autoprefixer": "^10.5.0",
+    "dotenv": "^17.4.2",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.4",
+    "imapflow": "^1.4.7",
+    "jsdom": "^29.1.1",
     "postcss": "^8.5.14",
     "prisma": "^7.8.0",
     "tailwindcss": "^4.2.4",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
   }
 }
