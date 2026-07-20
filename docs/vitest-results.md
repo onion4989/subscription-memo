@@ -1,17 +1,17 @@
-# Vitest 実施結果（P0〜P2）
+# Vitest / 更新お知らせジョブ 実施結果（P0〜P2 + 層 A〜C）
 
 | 項目 | 内容 |
 |------|------|
-| 実施日 | 2026-07-19 10:39 JST |
-| コマンド | `npm run test:run` |
-| 環境 | Node.js v24.15.0 / Vitest v4.1.10 |
-| 結果 | **11 files passed / 62 tests passed / 0 failed** |
+| 実施日 | 2026-07-21（更新お知らせジョブ 層 A〜C）／初回 P0–P2: 2026-07-19 |
+| コマンド（層 A） | `npm run test:run` |
+| 環境（層 A） | Node.js v24.15.0 / Vitest v4.1.10 |
+| 結果（層 A） | **13 files passed / 74 tests passed / 0 failed** |
 | 除外 | V4（email / subscription レートリミット） |
 
 ## スコープ
 
-- **含む**: P0 → P1 → P2（M2 TOTP 含む）
-- **含まない**: V4、Server Actions 結合、Playwright E2E
+- **含む**: P0 → P1 → P2（M2 TOTP 含む）、更新お知らせ日次ジョブ（層 A: SMTP モック / 層 B: 本番実送信 / 層 C: Dokploy Scheduled Tasks）
+- **含まない**: V4、Server Actions 結合、Playwright E2E（更新お知らせ以外）
 
 ## テストファイル一覧
 
@@ -28,6 +28,8 @@
 | P1 | `src/lib/oauth-account-not-linked.test.ts` | O1–O2 |
 | P1 | `src/lib/renewal-notification/digest-email.test.ts` | D1 |
 | P2 | `src/lib/p2-helpers.test.ts` | V1–V3, V5 |
+| お知らせ | `src/lib/renewal-notification/daily-job.test.ts` | J1–J7 |
+| お知らせ | `src/app/api/cron/renewal-notifications/route.test.ts` | C1–C4 |
 
 ## ケース別結果
 
@@ -71,13 +73,52 @@
 | V4 | レートリミット | **除外** |
 | V5 | `cn` クラス結合 | Pass |
 
+### 更新お知らせジョブ（層 A）— Vitest・SMTP モック
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| J1 | 通知日当日 → SMTP 呼び出し＋ログ作成 | Pass |
+| J2 | 通知日より前 → 送らない | Pass |
+| J3 | 既存ログあり → 再送しない | Pass |
+| J4 | 通知日より後の登録 → 除外 | Pass |
+| J5 | 送信失敗 → ログを書かない | Pass |
+| J6 | 同一ユーザー複数サブスク → ダイジェスト1通 | Pass |
+| J7 | Phase2 で期限切れ更新日を翌サイクルへ | Pass |
+| C1–C4 | cron Route（Secret 未設定 / 401 / 不正 asOfYmd / 成功） | Pass |
+
+### 更新お知らせジョブ（層 B）— 本番スモーク（実 SMTP）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-07-21 |
+| 環境 | 本番 `https://subscmemo.see-u-soon.design` |
+| テストデータ | 契約日 `2026-06-26` / 次回更新日 `2026-07-26` / お知らせ 5日前（通知日 `2026-07-21`） |
+| 実行 | `POST /api/cron/renewal-notifications?asOfYmd=2026-07-21`（Bearer: `RENEWAL_JOB_SECRET`） |
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| B1 | 初回実行 → `phase1.sentUsers: 1` / `sentSubscriptions: 1` / `failedUsers: 0` | Pass |
+| B2 | 受信箱に件名「【サブスクMEMO】サブスクリプション更新日のお知らせ」到達 | Pass |
+| B3 | 同一 `asOfYmd` 再実行 → `targetSubscriptions: 0` / `sentUsers: 0`（再送防止） | Pass |
+| B4 | `phase2.advancedSubscriptions: 0`（更新日未到来のため繰り上げなし） | Pass |
+
+### 更新お知らせジョブ（層 C）— Dokploy Scheduled Tasks
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-07-21 |
+| 前提 | Dokploy Environment で `RENEWAL_JOB_SECRET` 再生成後に Redeploy |
+| ジョブ | Scheduled Tasks（アプリ内 cron）。Command は `process.env.RENEWAL_JOB_SECRET` を Bearer に使用 |
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| S1 | Secret 更新 + Redeploy | Pass |
+| S2 | Scheduled Tasks で手動 Run → success（緑） | Pass |
+
 ## 補足
 
 - `NewPasswordSchema` / signup / profile の新パスワードはいずれも最小 **8** 文字（最大 128）。
 - `isOAuthProvider` テストでは `@/lib/prisma` をモックし、`DATABASE_URL` なしでも実行可能にした。
-- 再実行: `npm run test:run`
-
-## 次のステップ（任意）
-
-- Playwright E2E（ログイン〜画面遷移など）
-- Server Actions / Prisma 周りの結合テスト（モックまたはテスト DB）
+- 層 A の日次ジョブは Prisma / `sendRenewalDigestEmail` をモック（実 SMTP なし）。
+- 層 B/C の実行ログや Secret の値はドキュメントに記載しない。
+- 再実行（層 A）: `npm run test:run`
