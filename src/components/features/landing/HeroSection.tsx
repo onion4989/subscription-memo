@@ -26,7 +26,7 @@ const HERO_IMAGE_CLASS_NAME =
 function HeroIllustration() {
   return (
     <Image
-      src="/assets/hero2.png"
+      src="/assets/hero2.webp"
       alt="サブスク帳イメージ"
       width={690}
       height={402}
