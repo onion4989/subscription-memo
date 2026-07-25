@@ -13,8 +13,12 @@ alwaysApply: false
 # このプロジェクトで使う送信手段
 
 - 本番・開発とも **Xserver SMTP**（`nodemailer`）を使う（portfolio と同様）
-- パスワード再設定メールと、**メールアドレス確認メール**の 2 種類がある
+- パスワード再設定メール、**メールアドレス確認メール**、**アカウント削除完了メール**、更新お知らせダイジェストがある
 - 認証フロー全体のルール（いつ送るか・ログイン可否）は `auth-nextjs16.mdc` を参照する
+- アカウント削除完了メール: 削除成功後に送信。失敗しても削除はロールバックしない（ログのみ）
+  - 件名: `【サブスクMEMO】アカウント削除完了のお知らせ`
+  - 本文: `src/lib/account-deletion/constants.ts` の `buildAccountDeletionEmailText`（表示名は「ゲスト」フォールバック）
+  - 確認フレーズ（パスワードなしユーザー）: `アカウントを削除する`
 
 # 必要な環境変数
 
@@ -85,5 +89,7 @@ alwaysApply: false
 | `src/lib/email-verification/tokens.ts` | トークン作成・検証 |
 | `src/lib/email-verification/constants.ts` | 期限・上限・画面文言 |
 | `src/lib/actions/forgot-password.ts` | パスワード再設定メール（別フロー） |
+| `src/lib/account-deletion/constants.ts` | アカウント削除完了メール件名・本文 |
+| `src/lib/actions/delete-account.ts` | アカウント削除 + 完了メール送信 |
 
 メール仕様を変えるときは、まず `constants.ts` と `auth-nextjs16.mdc` を整合させる。

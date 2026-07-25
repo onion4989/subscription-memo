@@ -1,17 +1,17 @@
-# Vitest / 更新お知らせジョブ 実施結果（P0〜P2 + 層 A〜C）
+# Vitest / 更新お知らせジョブ 実施結果（P0〜P2 + 層 A〜C + アカウント削除）
 
 | 項目 | 内容 |
 |------|------|
-| 実施日 | 2026-07-21（更新お知らせジョブ 層 A〜C）／初回 P0–P2: 2026-07-19 |
-| コマンド（層 A） | `npm run test:run` |
-| 環境（層 A） | Node.js v24.15.0 / Vitest v4.1.10 |
-| 結果（層 A） | **13 files passed / 74 tests passed / 0 failed** |
+| 実施日 | 2026-07-25（アカウント削除 AD1–AD7）／更新お知らせ 層 A〜C: 2026-07-21／初回 P0–P2: 2026-07-19 |
+| コマンド（層 A・単体） | `npm run test:run` |
+| 環境（層 A・単体） | Node.js v24.15.0 / Vitest v4.1.10 |
+| 結果（単体） | **15 files passed / 82 tests passed / 0 failed** |
 | 除外 | V4（email / subscription レートリミット） |
 
 ## スコープ
 
-- **含む**: P0 → P1 → P2（M2 TOTP 含む）、更新お知らせ日次ジョブ（層 A: SMTP モック / 層 B: 本番実送信 / 層 C: Dokploy Scheduled Tasks）
-- **含まない**: V4、Server Actions 結合、Playwright E2E（更新お知らせ以外）
+- **含む**: P0 → P1 → P2（M2 TOTP 含む）、更新お知らせ日次ジョブ（層 A: SMTP モック / 層 B: 本番実送信 / 層 C: Dokploy Scheduled Tasks）、アカウント削除（メール本文 + Server Action モック）
+- **含まない**: V4、Server Actions 結合（アカウント削除以外の全面）、Playwright E2E（更新お知らせ以外）
 
 ## テストファイル一覧
 
@@ -30,6 +30,8 @@
 | P2 | `src/lib/p2-helpers.test.ts` | V1–V3, V5 |
 | お知らせ | `src/lib/renewal-notification/daily-job.test.ts` | J1–J7 |
 | お知らせ | `src/app/api/cron/renewal-notifications/route.test.ts` | C1–C4 |
+| アカウント | `src/lib/account-deletion/constants.test.ts` | AD1 |
+| アカウント | `src/lib/actions/delete-account.test.ts` | AD2–AD7 |
 
 ## ケース別結果
 
@@ -115,10 +117,23 @@
 | S1 | Secret 更新 + Redeploy | Pass |
 | S2 | Scheduled Tasks で手動 Run → success（緑） | Pass |
 
+### アカウント削除
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| AD1 | 削除完了メール件名・本文・確認フレーズ | Pass |
+| AD2 | 未認証 → 削除しない | Pass |
+| AD3 | パスワード誤り → 削除しない | Pass |
+| AD4 | パスワード正解 → 削除・メール・signOut・トップへ | Pass |
+| AD5 | 確認フレーズ誤り → 削除しない | Pass |
+| AD6 | 確認フレーズ正解（trim）→ 削除・メール・トップへ | Pass |
+| AD7 | メール送信失敗でも削除後はトップへ | Pass |
+
 ## 補足
 
 - `NewPasswordSchema` / signup / profile の新パスワードはいずれも最小 **8** 文字（最大 128）。
 - `isOAuthProvider` テストでは `@/lib/prisma` をモックし、`DATABASE_URL` なしでも実行可能にした。
 - 層 A の日次ジョブは Prisma / `sendRenewalDigestEmail` をモック（実 SMTP なし）。
+- アカウント削除 Action は `auth` / Prisma / SMTP / `signOut` / `redirect` をモック。
 - 層 B/C の実行ログや Secret の値はドキュメントに記載しない。
 - 再実行（層 A）: `npm run test:run`

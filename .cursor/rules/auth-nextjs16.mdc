@@ -30,6 +30,47 @@ alwaysApply: false
 - 既存メールが別プロバイダで登録済みの場合はログインを拒否し、エラーとして扱う
 - 新規ユーザー作成は未登録メールかつ選択した認証方式に一致する場合のみ許可する
 
+# アカウント削除（退会）
+
+`/account` から本人がアカウントを削除できる。意味は **アカウント削除（退会）**。UI 文言は **「アカウントを削除する」**。
+
+## UI
+
+- プロフィールフォーム下に、各種設定の MFA エリアと同型の **独立セクション**（`FORM_PANEL_CLASS`）
+- **赤い警告文**をセクション内に必ず表示する
+- **確認ダイアログ必須**（警告＋ボタンのみで即削除しない）
+
+## ダイアログ内の確認（サーバーでも再検証）
+
+| 条件 | 確認方法 |
+| --- | --- |
+| `User.passwordHash` あり | 現在のパスワード |
+| `User.passwordHash` なし（OAuth のみ等） | 「アカウントを削除する」と入力（前後空白は trim） |
+
+判定は OAuth ラベルではなく **`passwordHash` の有無**（OAuth＋パスワード設定済みならパスワード確認）。
+
+## サーバー処理の順序
+
+1. 認証・確認の検証
+2. 送信先メール・表示名を退避
+3. `User` をハード削除（関連は Prisma Cascade。必要なら `VerificationToken` をメール identifier で掃除）
+4. **削除完了メール**を SMTP 送信（失敗しても削除はロールバックしない。ログのみ）
+5. `signOut` → **トップ（`/`）** へ `redirect`
+
+## MFA との関係
+
+- アカウントページ到達時点で MFA は通過済み（`(app)` レイアウト）
+- 削除時に TOTP 再入力は求めない（スコープ外）
+- `User` 削除で `totpSecret` / `BackupCode` 等も消える
+
+## 実装の置き場
+
+| 役割 | 場所 |
+| --- | --- |
+| UI | `src/components/features/account/AccountDeleteSection.tsx` |
+| Server Action | `src/lib/actions/delete-account.ts` |
+| 件名・本文・確認フレーズ | `src/lib/account-deletion/constants.ts` |
+
 # ルーティング保護（proxy.ts）
 
 - `proxy.ts` で `/` を含む保護対象ページを一括制御し、未認証時は `/login` へリダイレクトする
