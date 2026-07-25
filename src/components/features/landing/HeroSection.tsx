@@ -21,17 +21,16 @@ const HERO_FEATURES = [
 ] as const;
 
 const HERO_IMAGE_CLASS_NAME =
-  "h-auto w-full max-w-full rounded-[5px] object-contain sm:max-w-[690px]";
+  "h-auto w-full max-w-full rounded-[5px] object-contain sm:max-w-[520px]";
 
 function HeroIllustration() {
   return (
     <Image
-      src="/assets/hero2.webp"
+      src="/assets/Hero_Image_comp.png"
       alt="サブスク帳イメージ"
-      width={690}
-      height={402}
-      sizes="(min-width: 1024px) 690px, (min-width: 640px) 90vw, 100vw"
-      quality={90}
+      width={520}
+      height={390}
+      sizes="(min-width: 1024px) 520px, (min-width: 640px) 90vw, 100vw"
       priority
       className={HERO_IMAGE_CLASS_NAME}
     />
