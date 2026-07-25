@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { AccountDeleteSection } from "@/components/features/account/AccountDeleteSection";
 import { ProfileForm } from "@/components/features/account/ProfileForm";
 import { isOAuthProvider } from "@/lib/auth/mark-oauth-email-verified";
 import { getAuthenticatedUserId } from "@/lib/auth/get-user-id";
@@ -34,6 +35,7 @@ export default async function AccountPage() {
   const emailReadonly = user.accounts.some((account) =>
     isOAuthProvider(account.provider)
   );
+  const hasPassword = Boolean(user.passwordHash);
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-6 text-white">
@@ -51,9 +53,11 @@ export default async function AccountPage() {
           phoneNumber: user.phoneNumber,
           avatarId: user.avatarId,
           emailReadonly,
-          hasPassword: Boolean(user.passwordHash),
+          hasPassword,
         })}
       />
+
+      <AccountDeleteSection hasPassword={hasPassword} />
     </div>
   );
 }
