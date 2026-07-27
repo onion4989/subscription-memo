@@ -6,6 +6,7 @@ import {
   openCreateSubscriptionModal,
   submitSubscriptionCreate,
   uniqueSubscriptionName,
+  visibleGetByText,
 } from "./helpers/subscription";
 
 test.describe("P0-S subscriptions", () => {
@@ -20,7 +21,7 @@ test.describe("P0-S subscriptions", () => {
     const empty = page.getByRole("heading", {
       name: "データが登録されていません。",
     });
-    const contractCount = page.getByText("契約数");
+    const contractCount = visibleGetByText(page, "契約数");
     await expect(empty.or(contractCount).first()).toBeVisible();
   });
 
@@ -39,11 +40,11 @@ test.describe("P0-S subscriptions", () => {
       contractDate: "2025-01-15",
     });
     await submitSubscriptionCreate(page);
-    await expect(page.getByText(name).first()).toBeVisible();
+    await expect(visibleGetByText(page, name).first()).toBeVisible();
 
     await page.goto("/subscriptions");
-    await expect(page.getByText(name).first()).toBeVisible();
-    await expect(page.getByText("契約数")).toBeVisible();
+    await expect(visibleGetByText(page, name).first()).toBeVisible();
+    await expect(visibleGetByText(page, "契約数").first()).toBeVisible();
 
     await page.goto("/subscriptions/manage");
     await deleteSubscriptionByName(page, name);

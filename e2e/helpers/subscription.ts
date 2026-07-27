@@ -1,13 +1,25 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 /** Unique name per run to avoid colliding with existing local data. */
 export function uniqueSubscriptionName(prefix = "E2E"): string {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 }
 
+/** Prefer visible nodes — mobile cards and desktop table both exist in the DOM. */
+export function visibleGetByText(
+  page: Page,
+  text: string | RegExp,
+  options?: Parameters<Page["getByText"]>[1]
+): Locator {
+  return page.getByText(text, options).filter({ visible: true });
+}
+
 export async function openCreateSubscriptionModal(page: Page): Promise<void> {
   await page.goto("/subscriptions/new");
-  await page.getByRole("button", { name: "追加" }).click();
+  await page
+    .getByRole("button", { name: "追加" })
+    .filter({ visible: true })
+    .click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "サブスクリプション登録", exact: true })
@@ -42,19 +54,46 @@ export async function submitSubscriptionCreate(page: Page): Promise<void> {
 }
 
 /**
- * Delete table is a CSS grid without per-row wrappers.
- * Target the 削除 button that follows this name cell in the grid.
+ * Desktop: transposed table — find the column whose header is `name`,
+ * then click 削除 in that same column's action row.
+ * (Playwright project is Desktop Chrome; mobile cards are out of scope here.)
  */
 export async function deleteSubscriptionByName(
   page: Page,
   name: string
 ): Promise<void> {
-  const nameCell = page.getByText(name, { exact: true });
-  await expect(nameCell).toBeVisible();
+  const table = page
+    .locator("table")
+    .filter({ visible: true })
+    .filter({
+      has: page.getByRole("columnheader", { name, exact: true }),
+    });
+  await expect(table).toBeVisible();
 
-  const deleteButton = nameCell.locator(
-    "xpath=following-sibling::div[.//button[normalize-space()='削除']][1]//button[normalize-space()='削除']"
-  );
+  const headerCells = table.locator("thead th");
+  const headerCount = await headerCells.count();
+  let columnIndex = -1;
+
+  for (let index = 0; index < headerCount; index += 1) {
+    const text = (await headerCells.nth(index).innerText()).trim();
+    if (text === name) {
+      columnIndex = index;
+      break;
+    }
+  }
+
+  expect(
+    columnIndex,
+    `column header for subscription "${name}" was not found`
+  ).toBeGreaterThanOrEqual(0);
+
+  const deleteButton = table
+    .locator("tbody tr")
+    .last()
+    .locator(":scope > *")
+    .nth(columnIndex)
+    .getByRole("button", { name: "削除" });
+
   await deleteButton.click();
 
   await expect(
@@ -64,7 +103,7 @@ export async function deleteSubscriptionByName(
 
   await page.getByRole("button", { name: "削除する" }).click();
   await expect(page.getByRole("dialog")).toBeHidden({ timeout: 30_000 });
-  await expect(page.getByText(name, { exact: true })).toHaveCount(0, {
+  await expect(visibleGetByText(page, name, { exact: true })).toHaveCount(0, {
     timeout: 15_000,
   });
 }
