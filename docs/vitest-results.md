@@ -129,6 +129,28 @@
 | AD6 | 確認フレーズ正解（trim）→ 削除・メール・トップへ | Pass |
 | AD7 | メール送信失敗でも削除後はトップへ | Pass |
 
+## 追記: モバイルカード / テーブル幅 関連（2026-07-27）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-07-27 |
+| コマンド | `npm run test:run -- src/components/features/subscription src/schemas/subscription.test.ts src/lib/subscription` |
+| 環境 | Node.js v24.15.0 / Vitest v4.1.10 |
+| 結果 | **7 files passed / 43 tests passed / 0 failed** |
+
+### 追加・関連ファイル
+
+| ファイル | 内容 |
+|----------|------|
+| `SubscriptionMobileCard.test.tsx` | タイトル連結・支払いプラン文言・料金/日付・action 分岐（8件） |
+| `subscription-header-color.test.ts` | 転置テーブルヘッダー色 |
+| `subscription-table-width.test.ts` | サマリー最小幅定数 |
+| その他 | `schemas/subscription` / `format-and-summary` / `amount-sync` / `renewal-date` |
+
+### 補足
+
+- `vitest.setup.ts` に Testing Library `cleanup` を追加（複数 render の DOM 漏れ防止）
+
 ## 補足
 
 - `NewPasswordSchema` / signup / profile の新パスワードはいずれも最小 **8** 文字（最大 128）。

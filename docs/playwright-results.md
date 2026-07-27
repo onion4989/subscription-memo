@@ -46,6 +46,29 @@
 |----|------|------|
 | E1–E3 | `+tag` で登録 → SMTP → IMAP でリンク取得 → 確認 → ログイン | Pass |
 
+## 追記: モバイルカード / 転置テーブル対応後の P0-S 再実行（2026-07-27）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-07-27 |
+| コマンド | `npm run test:e2e -- e2e/p0-subscriptions.spec.ts` |
+| 環境 | Node.js v24.15.0 / Playwright Chromium 149 / ローカル DB（`.env.local`） |
+| 結果 | **4 passed / 0 failed**（約 7.6s） |
+
+### 変更点（ヘルパー）
+
+- `deleteSubscriptionByName`: 旧 CSS グリッド XPath → 転置テーブルの列ヘッダー同列「削除」
+- `visibleGetByText`: モバイルカードとデスクトップテーブルが DOM 共存するため、visible 要素のみ対象
+
+### ケース別結果
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| S1 | 一覧ロード（空 or 契約数） | Pass |
+| S2–S5 | 作成 → 一覧表示 → 削除 | Pass |
+| S3 | 必須未入力のバリデーション | Pass |
+| S6 | サイドバー遷移 | Pass |
+
 ## 実行コマンド
 
 ```bash
