@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { initMfaSetup, type MfaSetupState } from "@/lib/actions/mfa-setup";
@@ -24,13 +24,11 @@ type MfaSettingsDialogProps = {
 export function MfaSettingsDialog({ totpEnabled }: MfaSettingsDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [mfaEnabled, setMfaEnabled] = useState(totpEnabled);
+  const [setupCompleted, setSetupCompleted] = useState(false);
   const [setupData, setSetupData] = useState<MfaSetupState | null>(null);
   const [isLoadingSetup, startLoadingSetup] = useTransition();
 
-  useEffect(() => {
-    setMfaEnabled(totpEnabled);
-  }, [totpEnabled]);
+  const mfaEnabled = totpEnabled || setupCompleted;
 
   const loadSetupData = useCallback(() => {
     startLoadingSetup(async () => {
@@ -51,7 +49,7 @@ export function MfaSettingsDialog({ totpEnabled }: MfaSettingsDialogProps) {
   }
 
   function handleSetupComplete() {
-    setMfaEnabled(true);
+    setSetupCompleted(true);
     setOpen(false);
     setSetupData(null);
     router.refresh();
