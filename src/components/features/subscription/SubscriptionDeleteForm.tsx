@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { SubscriptionDeleteConfirmModal } from "@/components/features/subscription/SubscriptionDeleteConfirmModal";
+import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
 import {
   SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS,
   SubscriptionTableSection,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import {
+  DELETE_COLUMN_FADE_CLASS,
   DELETE_COLUMN_FADE_MS,
   ENABLE_DELETE_COLUMN_ANIMATION,
   SubscriptionTransposeTable,
@@ -52,6 +54,8 @@ export function SubscriptionDeleteForm({
     deleteTargetId === null
       ? null
       : (rows.find((row) => row.id === deleteTargetId) ?? null);
+
+  const isRemovalInProgress = removingSubscriptionId !== null;
 
   const openDeleteModal = (subscriptionId: string) => {
     if (removingSubscriptionId !== null) {
@@ -139,7 +143,26 @@ export function SubscriptionDeleteForm({
           }
           tableBlockClassName={`${SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS} gap-4`}
         >
-          <div className={APP_SCROLLBAR_X_CLASS}>
+          <div className="w-full space-y-3 md:hidden">
+            {rows.map((subscription) => (
+              <SubscriptionMobileCard
+                key={subscription.id}
+                subscription={subscription}
+                className={
+                  subscription.id === removingSubscriptionId
+                    ? DELETE_COLUMN_FADE_CLASS
+                    : undefined
+                }
+                action={{
+                  label: "削除",
+                  onClick: () => openDeleteModal(subscription.id),
+                  disabled: isRemovalInProgress,
+                }}
+              />
+            ))}
+          </div>
+
+          <div className={`hidden md:block ${APP_SCROLLBAR_X_CLASS}`}>
             <SubscriptionTransposeTable
               subscriptions={rows}
               action="delete"

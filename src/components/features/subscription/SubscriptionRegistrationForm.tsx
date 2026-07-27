@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { AddColumnGuideArrow } from "@/components/features/subscription/AddColumnGuideArrow";
 import { SubscriptionFormModal } from "@/components/features/subscription/SubscriptionFormModal";
+import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
 import { SubscriptionTransposeTable } from "@/components/features/subscription/subscription-table-shared";
 import {
   registerSubscription,
@@ -113,6 +114,18 @@ export function SubscriptionRegistrationForm({
     }
   };
 
+  const addButton = (
+    <button
+      type="button"
+      onClick={openCreateModal}
+      disabled={!canAddRow}
+      className="inline-flex items-center gap-2 text-sm font-medium text-white transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      <FaPlus aria-hidden="true" />
+      追加
+    </button>
+  );
+
   return (
     <>
       <div className={SUBSCRIPTION_PAGE_CONTENT_CLASS}>
@@ -127,7 +140,21 @@ export function SubscriptionRegistrationForm({
           </p>
         </div>
 
-        <div className={APP_SCROLLBAR_X_CLASS}>
+        <div className="w-full space-y-3 md:hidden">
+          {rows.map((subscription) => (
+            <SubscriptionMobileCard
+              key={subscription.id}
+              subscription={subscription}
+              action={{
+                label: "修正",
+                onClick: () => openEditModal(subscription.id),
+              }}
+            />
+          ))}
+          <div className="flex justify-center pt-1">{addButton}</div>
+        </div>
+
+        <div className={`hidden md:block ${APP_SCROLLBAR_X_CLASS}`}>
           {/*
             テーブル・追加ボタン・ガイド矢印を同一 w-max 箱に入れ、
             横スクロール時も相対位置がずれないようにする。
@@ -139,17 +166,7 @@ export function SubscriptionRegistrationForm({
               onEdit={openEditModal}
             />
 
-            <div className="mt-4 flex w-full justify-center">
-              <button
-                type="button"
-                onClick={openCreateModal}
-                disabled={!canAddRow}
-                className="inline-flex items-center gap-2 text-sm font-medium text-white transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <FaPlus aria-hidden="true" />
-                追加
-              </button>
-            </div>
+            <div className="mt-4 flex w-full justify-center">{addButton}</div>
 
             {/* 外側 relative（pr 含む）に置き、テーブル幅+60px まで線が届くようにする */}
             {showAddColumnGuide ? <AddColumnGuideArrow /> : null}

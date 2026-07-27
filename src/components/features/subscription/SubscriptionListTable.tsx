@@ -3,6 +3,7 @@ import {
   SUBSCRIPTION_SUMMARY_MIN_WIDTH_CSS_VAR,
   SubscriptionTransposeTable,
 } from "@/components/features/subscription/subscription-table-shared";
+import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
 import { SubscriptionSummaryCards } from "@/components/features/subscription/SubscriptionSummaryCards";
 import { SUBSCRIPTION_TABLE_BLOCK_CLASS } from "@/components/features/subscription/SubscriptionTableSection";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
@@ -22,12 +23,25 @@ export function SubscriptionListTable({
 }: SubscriptionListTableProps) {
   return (
     <div className={`${SUBSCRIPTION_TABLE_BLOCK_CLASS} gap-8 md:gap-14`}>
+      <div className="w-full space-y-4 md:hidden">
+        <SubscriptionSummaryCards subscriptions={subscriptions} />
+
+        <div className="space-y-3">
+          {subscriptions.map((subscription) => (
+            <SubscriptionMobileCard
+              key={subscription.id}
+              subscription={subscription}
+            />
+          ))}
+        </div>
+      </div>
+
       {/*
         inline-grid + w-max: サマリーとテーブルの広い方に列幅を揃える。
         サマリーは横スクロールなし。テーブルのみ overflow-x でスクロール。
         md 以上で最小幅（SUBSCRIPTION_SUMMARY_MIN_DATA_COLUMNS 列分）を確保。
       */}
-      <div className="inline-grid w-max max-w-full grid-cols-1 gap-8 md:gap-14">
+      <div className="hidden w-max max-w-full grid-cols-1 gap-8 md:inline-grid md:gap-14">
         <div
           className="w-full max-w-full md:min-w-(--subscription-summary-min-width)"
           style={summaryMinWidthStyle}
