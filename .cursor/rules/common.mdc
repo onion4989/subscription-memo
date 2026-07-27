@@ -63,15 +63,18 @@ Next.js 16 では同期アクセスは削除済み。以下は常に `await` す
 
 ## useEffect の方針
 
-- `useEffect` は**極力使わない**。新規実装・リファクタ時は、まず代替手段を検討する
-- データ取得は Server Component で `await` し、クライアントには必要な props だけ渡す（例: MFA setup の `initMfaSetup`）
+- `useEffect` は**原則として以下の 3 条件に合致する場合のみ使用する**
+  1. **Browser API や外部ライブラリとの同期**（例: `window.matchMedia`、shadcn/ui の `focus()` 制御）
+  2. **subscription やイベントリスナーの管理**（例: bfcache の `pageshow` — `use-bfcache-remount-key.ts`）
+  3. **cleanup が必要な副作用**（例: `setTimeout` / `setInterval` のクリア）
+- 上記に該当しない処理は event handler・Server Component・derived state 等の代替手段を優先する
+- **例外として許容するケース**
+  - `useActionState` 成功時の遷移・ダイアログ閉じ（`state.success` 監視による `router.push` / `setOpen(false)` 等）。`useActionState` + `<form action>` の構造上、成功結果が event handler に戻らないため effect での監視を許容する
+  - 上記 3 条件・例外いずれにも該当しない場合に `useEffect` を採用するときは、採用理由を PR / コメントで簡潔に残す
+- データ取得は Server Component で `await` し、クライアントには必要な props だけ渡す
 - フォーム送信・サーバー更新は `useActionState` + Server Actions を優先する
 - ユーザー操作に伴う処理は event handler に置く（state + effect で副作用を再現しない）
-- ブラウザ API の購読が必要な場合は `useSyncExternalStore` を検討する（例: `use-hydrated.ts`）
-- **例外として `useEffect` を許容する例**
-  - `window` / `document` のイベント購読（例: bfcache の `pageshow` — `use-bfcache-remount-key.ts`）
-  - 外部ライブラリが effect 前提の API を提供している場合
-  - 上記代替で同等の動作・保守性を満たせない場合（採用理由を PR / コメントで簡潔に残す）
+- ブラウザ API の購読が必要な場合は `useSyncExternalStore` も検討する
 - 詳細なパフォーマンス・レビュー時は Agent Skill `vercel-react-best-practices` も参照する
 
 # キャッシュ無効化

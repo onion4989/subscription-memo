@@ -2,13 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { FaPlus } from "react-icons/fa6";
+import { AddColumnGuideArrow } from "@/components/features/subscription/AddColumnGuideArrow";
 import { SubscriptionFormModal } from "@/components/features/subscription/SubscriptionFormModal";
-import {
-  SUBSCRIPTION_REGISTER_TABLE_COLUMNS,
-  SUBSCRIPTION_REGISTER_TABLE_GRID_CLASS,
-  SubscriptionTableHeader,
-  SubscriptionTableRow,
-} from "@/components/features/subscription/subscription-table-shared";
+import { SubscriptionTransposeTable } from "@/components/features/subscription/subscription-table-shared";
 import {
   registerSubscription,
   updateSubscription,
@@ -21,10 +17,7 @@ import {
   type SubscriptionRegisterFieldErrors,
   type SubscriptionRegisterFormValues,
 } from "@/schemas/subscription";
-import {
-  SUBSCRIPTION_PAGE_CONTENT_CLASS,
-  SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS,
-} from "@/components/features/subscription/SubscriptionTableSection";
+import { SUBSCRIPTION_PAGE_CONTENT_CLASS } from "@/components/features/subscription/SubscriptionTableSection";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
 
 type SubscriptionRegistrationFormProps = {
@@ -52,6 +45,7 @@ export function SubscriptionRegistrationForm({
   const [isPending, startTransition] = useTransition();
 
   const canAddRow = rows.length < SUBSCRIPTION_MAX_ROWS;
+  const showAddColumnGuide = rows.length > 0 && canAddRow;
 
   const openCreateModal = () => {
     setModalMode("create");
@@ -133,28 +127,33 @@ export function SubscriptionRegistrationForm({
           </p>
         </div>
 
-        <div
-          className={`${SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS} items-center gap-4`}
-        >
-          <div className={APP_SCROLLBAR_X_CLASS}>
-            <div className={SUBSCRIPTION_REGISTER_TABLE_GRID_CLASS}>
-              <SubscriptionTableHeader columns={SUBSCRIPTION_REGISTER_TABLE_COLUMNS} />
+        <div className={APP_SCROLLBAR_X_CLASS}>
+          {/*
+            テーブル・追加ボタン・ガイド矢印を同一 w-max 箱に入れ、
+            横スクロール時も相対位置がずれないようにする。
+          */}
+          <div className="relative w-max pr-[60px]">
+            <SubscriptionTransposeTable
+              subscriptions={rows}
+              action="edit"
+              onEdit={openEditModal}
+            />
 
-              {rows.map((row) => (
-                <SubscriptionTableRow key={row.id} row={row} onEdit={openEditModal} />
-              ))}
+            <div className="mt-4 flex w-full justify-center">
+              <button
+                type="button"
+                onClick={openCreateModal}
+                disabled={!canAddRow}
+                className="inline-flex items-center gap-2 text-sm font-medium text-white transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <FaPlus aria-hidden="true" />
+                追加
+              </button>
             </div>
-          </div>
 
-          <button
-            type="button"
-            onClick={openCreateModal}
-            disabled={!canAddRow}
-            className="inline-flex items-center gap-2 text-sm font-medium text-white transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <FaPlus aria-hidden="true" />
-            追加
-          </button>
+            {/* 外側 relative（pr 含む）に置き、テーブル幅+60px まで線が届くようにする */}
+            {showAddColumnGuide ? <AddColumnGuideArrow /> : null}
+          </div>
         </div>
       </div>
 
