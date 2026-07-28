@@ -6,7 +6,7 @@ import {
 } from "@/lib/renewal-notification/constants";
 import { sendRenewalDigestEmail } from "@/lib/renewal-notification/send-digest";
 import {
-  advanceRenewalDateToNextCycleYmd,
+  computeNextRenewalDateYmd,
   computeNotifyDateYmd,
   todayYmdInJst,
   utcDateToYmd,
@@ -253,6 +253,10 @@ async function runPhaseOne(asOfYmd: string): Promise<PhaseOneCounters> {
   return phase1;
 }
 
+/**
+ * Phase 2: 期限切れ nextRenewalDate を契約日起点で「asOf より後」まで一気に同期する。
+ * 中間サイクルへのメール遡及は行わない。
+ */
 async function runPhaseTwo(asOfYmd: string): Promise<PhaseTwoCounters> {
   const asOfDate = ymdToUtcDate(asOfYmd);
   const overdueSubscriptions = await prisma.subscription.findMany({
@@ -264,6 +268,7 @@ async function runPhaseTwo(asOfYmd: string): Promise<PhaseTwoCounters> {
     select: {
       id: true,
       paymentPlan: true,
+      contractDate: true,
       nextRenewalDate: true,
     },
   });
@@ -272,27 +277,39 @@ async function runPhaseTwo(asOfYmd: string): Promise<PhaseTwoCounters> {
     return { advancedSubscriptions: 0 };
   }
 
-  const updates: Prisma.PrismaPromise<unknown>[] = overdueSubscriptions.map(
-    (subscription) => {
-      const currentYmd = utcDateToYmd(subscription.nextRenewalDate);
-      const nextYmd = advanceRenewalDateToNextCycleYmd(
-        currentYmd,
-        subscription.paymentPlan as PaymentPlanValue
-      );
+  const updates: Prisma.PrismaPromise<unknown>[] = [];
 
-      return prisma.subscription.update({
+  for (const subscription of overdueSubscriptions) {
+    const storedYmd = utcDateToYmd(subscription.nextRenewalDate);
+    const contractDateYmd = utcDateToYmd(subscription.contractDate);
+    const targetYmd = computeNextRenewalDateYmd(
+      contractDateYmd,
+      subscription.paymentPlan as PaymentPlanValue,
+      asOfYmd
+    );
+
+    if (storedYmd === targetYmd) {
+      continue;
+    }
+
+    updates.push(
+      prisma.subscription.update({
         where: { id: subscription.id },
         data: {
-          nextRenewalDate: ymdToUtcDate(nextYmd),
+          nextRenewalDate: ymdToUtcDate(targetYmd),
         },
-      });
-    }
-  );
+      })
+    );
+  }
+
+  if (updates.length === 0) {
+    return { advancedSubscriptions: 0 };
+  }
 
   await prisma.$transaction(updates);
 
   return {
-    advancedSubscriptions: overdueSubscriptions.length,
+    advancedSubscriptions: updates.length,
   };
 }
 
@@ -300,8 +317,9 @@ export async function runRenewalNotificationDailyJob(params?: {
   asOfYmd?: string;
 }): Promise<RenewalNotificationJobResult> {
   const asOfYmd = params?.asOfYmd ?? todayYmdInJst();
-  const phase1 = await runPhaseOne(asOfYmd);
+  // 先に期限切れを追いつかせてから通知する（古い日付のまま Phase1 しない）
   const phase2 = await runPhaseTwo(asOfYmd);
+  const phase1 = await runPhaseOne(asOfYmd);
 
   return {
     asOfYmd,

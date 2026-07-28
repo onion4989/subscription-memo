@@ -2,7 +2,7 @@
 
 | 項目 | 内容 |
 |------|------|
-| 実施日 | 2026-07-25（アカウント削除 AD1–AD7）／更新お知らせ 層 A〜C: 2026-07-21／初回 P0–P2: 2026-07-19 |
+| 実施日 | 2026-07-28（Hybrid B 追いつき）／2026-07-27（モバイルカード）／2026-07-25（アカウント削除 AD1–AD7）／更新お知らせ 層 A〜C: 2026-07-21／初回 P0–P2: 2026-07-19 |
 | コマンド（層 A・単体） | `npm run test:run` |
 | 環境（層 A・単体） | Node.js v24.15.0 / Vitest v4.1.10 |
 | 結果（単体） | **15 files passed / 82 tests passed / 0 failed** |
@@ -28,7 +28,7 @@
 | P1 | `src/lib/oauth-account-not-linked.test.ts` | O1–O2 |
 | P1 | `src/lib/renewal-notification/digest-email.test.ts` | D1 |
 | P2 | `src/lib/p2-helpers.test.ts` | V1–V3, V5 |
-| お知らせ | `src/lib/renewal-notification/daily-job.test.ts` | J1–J7 |
+| お知らせ | `src/lib/renewal-notification/daily-job.test.ts` | J1–J9 |
 | お知らせ | `src/app/api/cron/renewal-notifications/route.test.ts` | C1–C4 |
 | アカウント | `src/lib/account-deletion/constants.test.ts` | AD1 |
 | アカウント | `src/lib/actions/delete-account.test.ts` | AD2–AD7 |
@@ -85,7 +85,9 @@
 | J4 | 通知日より後の登録 → 除外 | Pass |
 | J5 | 送信失敗 → ログを書かない | Pass |
 | J6 | 同一ユーザー複数サブスク → ダイジェスト1通 | Pass |
-| J7 | Phase2 で期限切れ更新日を翌サイクルへ | Pass |
+| J7 | Phase2 で複数サイクル遅れを1回で直近未来へ追いつき | Pass |
+| J8 | すでに未来の更新日 → Phase2 no-op | Pass |
+| J9 | 実行順 Phase2 → Phase1 | Pass |
 | C1–C4 | cron Route（Secret 未設定 / 401 / 不正 asOfYmd / 成功） | Pass |
 
 ### 更新お知らせジョブ（層 B）— 本番スモーク（実 SMTP）
@@ -150,6 +152,47 @@
 ### 補足
 
 - `vitest.setup.ts` に Testing Library `cleanup` を追加（複数 render の DOM 漏れ防止）
+
+## 追記: Hybrid B（Phase2 追いつき + Phase2→Phase1）（2026-07-28）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-07-28 |
+| 変更概要 | Phase2 を `computeNextRenewalDateYmd(contractDate, …)` による複数サイクル追いつきに強化。実行順を Phase2 → Phase1 に変更 |
+| 単体コマンド | `npx vitest run src/lib/renewal-notification/daily-job.test.ts src/lib/subscription/renewal-date.test.ts` |
+| 単体環境 | Node.js v24.15.0 / Vitest v4.1.10 |
+| 単体結果 | **2 files passed / 24 tests passed / 0 failed**（J1–J9 + renewal-date） |
+
+### 層 A（Vitest）— 追加・更新ケース
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| J1–J6 | 既存（モック順を Phase2→Phase1 に合わせて修正） | Pass |
+| J7 | 複数サイクル遅れ（例: 08/02 → asOf 10/12 で 11/02） | Pass |
+| J8 | 未来日は Phase2 no-op | Pass |
+| J9 | findMany が Phase2（lt）→ Phase1（notify）の順 | Pass |
+
+### 層 B'（localhost 手動・実 SMTP）
+
+| 項目 | 内容 |
+|------|------|
+| 環境 | `http://localhost:3000`（`npm run dev`） |
+| 実行 | `POST /api/cron/renewal-notifications?asOfYmd=…`（Bearer: `RENEWAL_JOB_SECRET`） |
+| データ | Prisma Studio で `contractDate` / `nextRenewalDate` / `notifyEnabled` をケースごとに設定 |
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| M1 | `asOfYmd=2026-10-12` → `phase2.advancedSubscriptions: 6` / `phase1.sentSubscriptions: 2`（ダイジェスト1通・Test2 10/13・Vercel 10/16） | Pass |
+| M2 | 同一 `asOfYmd=2026-10-12` 再実行 → メール再送なし | Pass |
+| TC1 | 月次・複数サイクル（contract 06/02・stored 08/02・asOf 10/12）→ `phase2: 1` / 更新日 11/02・Phase1 送信なし（notify OFF） | Pass |
+| TC4 | 更新日当日（stored=asOf `2026-09-12`）→ `phase2.advancedSubscriptions: 0`（繰り上げなし） | Pass |
+| TC8 | 年次・複数サイクル（contract 2023-03-01・stored 2024-03-01・asOf 2026-07-28）→ `phase2: 1`（期待更新日 2027-03-01） | Pass |
+
+### 補足（Hybrid B）
+
+- 中間サイクルへのメール遡及は行わない（仕様どおり）。
+- Secret の値・実行ログの詳細はドキュメントに記載しない。
+- ロールバック対象は主に `daily-job.ts` と関連テスト／ルール。スキーマ変更なし。
 
 ## 補足
 
