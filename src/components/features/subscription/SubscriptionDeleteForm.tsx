@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { SubscriptionDeleteConfirmModal } from "@/components/features/subscription/SubscriptionDeleteConfirmModal";
 import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
 import {
-  SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS,
+  SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
   SubscriptionTableSection,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import {
@@ -141,7 +141,6 @@ export function SubscriptionDeleteForm({
               登録済みのサブスクリプションを削除できます。
             </p>
           }
-          tableBlockClassName={`${SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS} gap-4`}
         >
           <div className="w-full space-y-3 md:hidden">
             {rows.map((subscription) => (
@@ -162,13 +161,17 @@ export function SubscriptionDeleteForm({
             ))}
           </div>
 
-          <div className={`hidden md:block ${APP_SCROLLBAR_X_CLASS}`}>
-            <SubscriptionTransposeTable
-              subscriptions={rows}
-              action="delete"
-              onDelete={openDeleteModal}
-              removingSubscriptionId={removingSubscriptionId}
-            />
+          <div
+            className={`hidden w-full items-center justify-center md:flex ${SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS}`}
+          >
+            <div className={`max-w-full ${APP_SCROLLBAR_X_CLASS}`}>
+              <SubscriptionTransposeTable
+                subscriptions={rows}
+                action="delete"
+                onDelete={openDeleteModal}
+                removingSubscriptionId={removingSubscriptionId}
+              />
+            </div>
           </div>
         </SubscriptionTableSection>
       )}

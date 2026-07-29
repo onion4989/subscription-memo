@@ -5,6 +5,7 @@ import {
   advanceRenewalDateToNextCycleYmd,
   computeNextRenewalDateYmd,
   computeNotifyDateYmd,
+  daysBetweenYmd,
   isValidYmd,
   subtractDaysFromYmd,
   utcDateToYmd,
@@ -90,6 +91,13 @@ describe("subtractDaysFromYmd / computeNotifyDateYmd (R9)", () => {
   it("subtracts across month boundaries", () => {
     expect(subtractDaysFromYmd("2025-03-01", 1)).toBe("2025-02-28");
     expect(computeNotifyDateYmd("2025-03-10", 3)).toBe("2025-03-07");
+  });
+});
+
+describe("daysBetweenYmd", () => {
+  it("returns signed calendar day difference", () => {
+    expect(daysBetweenYmd("2026-07-21", "2026-07-26")).toBe(5);
+    expect(daysBetweenYmd("2026-07-26", "2026-07-21")).toBe(-5);
   });
 });
 

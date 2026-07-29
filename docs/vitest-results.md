@@ -194,6 +194,27 @@
 - Secret の値・実行ログの詳細はドキュメントに記載しない。
 - ロールバック対象は主に `daily-job.ts` と関連テスト／ルール。スキーマ変更なし。
 
+## 追記: シェル max 1000px / セクション枠デザイン統一（2026-07-29）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-07-29 |
+| コマンド | `npx vitest run src/components/features/subscription/subscription-section-frame.test.ts src/components/features/subscription/SubscriptionRenewalNotice.test.tsx src/components/features/subscription/SubscriptionSummaryCards.test.tsx src/components/features/subscription/SubscriptionListTable.test.tsx src/components/features/subscription/SubscriptionRegistrationForm.layout.test.tsx src/components/features/subscription/SubscriptionDeleteForm.layout.test.tsx src/components/features/subscription/AppShell.test.tsx` |
+| 環境 | Node.js v24.15.0 / Vitest v4.1.10 |
+| 結果 | **7 files passed / 13 tests passed / 0 failed** |
+
+### 追加ファイル
+
+| ファイル | 内容 |
+|----------|------|
+| `subscription-section-frame.test.ts` | お知らせ枠・テーブル枠クラス定数 |
+| `SubscriptionRenewalNotice.test.tsx` | 枠クラス・見出し位置・複数行表示 |
+| `SubscriptionSummaryCards.test.tsx` | 各カード白 2px・全幅 |
+| `SubscriptionListTable.test.tsx` | 幅連動廃止・テーブル枠・中央寄せ |
+| `SubscriptionRegistrationForm.layout.test.tsx` | 登録画面テーブル枠・ガイド箱 |
+| `SubscriptionDeleteForm.layout.test.tsx` | 削除画面テーブル枠・空状態 |
+| `AppShell.test.tsx` | 右側領域 `max-w-[1000px]` |
+
 ## 補足
 
 - `NewPasswordSchema` / signup / profile の新パスワードはいずれも最小 **8** 文字（最大 128）。

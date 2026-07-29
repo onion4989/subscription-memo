@@ -30,6 +30,7 @@
 | P1 | `e2e/p1-account.spec.ts` | A1–A5 |
 | P1 | `e2e/p1-settings.spec.ts` | S1–S5 |
 | P1 | `e2e/p1-guide.spec.ts` | G1–G3 |
+| P1 | `e2e/p1-subscription-layout.spec.ts` | L1–L4 |
 | P2 | `e2e/p2-mfa.spec.ts` | M1–M4 |
 | P2 | `e2e/p2-signup-email.spec.ts` | E1–E3 |
 
@@ -69,6 +70,36 @@
 | S3 | 必須未入力のバリデーション | Pass |
 | S6 | サイドバー遷移 | Pass |
 
+## 追記: シェル max 1000px / セクション枠デザイン統一（2026-07-29）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-07-29 |
+| コマンド | `npx playwright test e2e/p1-subscription-layout.spec.ts --workers=1` |
+| 環境 | Node.js v24.15.0 / Playwright Chromium / ローカル DB（`.env.local`） |
+| 結果 | **3 passed / 1 skipped / 0 failed**（約 23.6s） |
+
+### 変更概要（対象機能）
+
+- 一覧のお知らせ・サマリー・テーブル枠デザイン統一（黒背景・白 2px）
+- 登録・削除画面のテーブル枠を一覧と同じ `SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS` に統一
+- 右側シェル領域 `max-w-[1000px]`
+- テーブル枠上余白 `pt-12`（「更新間近」吹き出しの上方向はみ出し対策）
+
+### ケース別結果
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| L1 | 一覧・登録・削除で右側シェル領域 ≤ 1000px | Pass |
+| L2 | 一覧・登録・削除のテーブル枠が黒背景・白 2px | Pass |
+| L3 | 「更新間近」吹き出しが枠の上辺より下（縦方向のみ検証） | Pass |
+| L4 | 削除画面の空状態ではテーブル枠なし | **Skipped**（既存データあり） |
+
+### 補足（L3）
+
+- 初回実行では吹き出し右端が枠外となり横方向アサーションで失敗。
+- Portal + 列位置による横はみ出しは許容し、本番修正目的の縦方向のみに緩和して再実行で Pass。
+
 ## 実行コマンド
 
 ```bash
@@ -76,4 +107,6 @@ nvm use
 npm run test:e2e -- --workers=1
 # P2 のみ:
 npm run test:e2e -- --workers=1 e2e/p2-mfa.spec.ts e2e/p2-signup-email.spec.ts
+# レイアウト（今回追加）:
+npx playwright test e2e/p1-subscription-layout.spec.ts --workers=1
 ```

@@ -1,30 +1,27 @@
-import {
-  SUBSCRIPTION_SUMMARY_MIN_TABLE_WIDTH_REM,
-  SUBSCRIPTION_SUMMARY_MIN_WIDTH_CSS_VAR,
-  SubscriptionTransposeTable,
-} from "@/components/features/subscription/subscription-table-shared";
+import { SubscriptionTransposeTable } from "@/components/features/subscription/subscription-table-shared";
 import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
+import { SubscriptionRenewalNotice } from "@/components/features/subscription/SubscriptionRenewalNotice";
 import { SubscriptionSummaryCards } from "@/components/features/subscription/SubscriptionSummaryCards";
-import { SUBSCRIPTION_TABLE_BLOCK_CLASS } from "@/components/features/subscription/SubscriptionTableSection";
+import {
+  SUBSCRIPTION_TABLE_BLOCK_CLASS,
+  SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
+} from "@/components/features/subscription/SubscriptionTableSection";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
-import type { CSSProperties } from "react";
+import { cn } from "@/lib/utils";
 
 type SubscriptionListTableProps = {
   subscriptions: SavedSubscriptionRow[];
 };
 
-const summaryMinWidthStyle = {
-  [SUBSCRIPTION_SUMMARY_MIN_WIDTH_CSS_VAR]: `${SUBSCRIPTION_SUMMARY_MIN_TABLE_WIDTH_REM}rem`,
-} as CSSProperties;
-
 export function SubscriptionListTable({
   subscriptions,
 }: SubscriptionListTableProps) {
   return (
-    <div className={`${SUBSCRIPTION_TABLE_BLOCK_CLASS} gap-8 md:gap-14`}>
+    <div className={`${SUBSCRIPTION_TABLE_BLOCK_CLASS} w-full gap-8 md:gap-14`}>
       <div className="w-full space-y-4 md:hidden">
         <SubscriptionSummaryCards subscriptions={subscriptions} />
+        <SubscriptionRenewalNotice subscriptions={subscriptions} />
 
         <div className="space-y-3">
           {subscriptions.map((subscription) => (
@@ -36,21 +33,19 @@ export function SubscriptionListTable({
         </div>
       </div>
 
-      {/*
-        inline-grid + w-max: サマリーとテーブルの広い方に列幅を揃える。
-        サマリーは横スクロールなし。テーブルのみ overflow-x でスクロール。
-        md 以上で最小幅（SUBSCRIPTION_SUMMARY_MIN_DATA_COLUMNS 列分）を確保。
-      */}
-      <div className="hidden w-max max-w-full grid-cols-1 gap-8 md:inline-grid md:gap-14">
-        <div
-          className="w-full max-w-full md:min-w-(--subscription-summary-min-width)"
-          style={summaryMinWidthStyle}
-        >
-          <SubscriptionSummaryCards subscriptions={subscriptions} />
-        </div>
+      <div className="hidden w-full flex-col gap-8 md:flex md:gap-14">
+        <SubscriptionSummaryCards subscriptions={subscriptions} />
+        <SubscriptionRenewalNotice subscriptions={subscriptions} />
 
-        <div className={APP_SCROLLBAR_X_CLASS}>
-          <SubscriptionTransposeTable subscriptions={subscriptions} />
+        <div
+          className={cn(
+            SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
+            "flex items-center justify-center"
+          )}
+        >
+          <div className={cn(APP_SCROLLBAR_X_CLASS, "max-w-full")}>
+            <SubscriptionTransposeTable subscriptions={subscriptions} />
+          </div>
         </div>
       </div>
     </div>

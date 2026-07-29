@@ -97,7 +97,7 @@ export function AppShell({ children, displayName, avatarId }: AppShellProps) {
           <AppSidebar {...sidebarProps} expanded={expanded} />
         </div>
 
-        <section className="flex min-w-0 flex-1 flex-col">
+        <section className="flex min-w-0 w-full max-w-[1000px] flex-1 flex-col">
           <div className="mb-4 max-md:mt-4 flex h-10 items-center gap-3 text-white">
             <button
               type="button"

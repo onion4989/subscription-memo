@@ -29,10 +29,11 @@ export function YenAmountDisplay({
     );
   }
 
+  // テーブルセルの truncate（text-overflow: ellipsis）が効くよう、flex は使わない
   return (
-    <span className="inline-flex items-baseline">
-      <span>{formattedAmount}</span>
+    <>
+      {formattedAmount}
       <span className={YEN_SUFFIX_CLASS}>円</span>
-    </span>
+    </>
   );
 }
