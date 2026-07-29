@@ -1,22 +1,30 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { SubscriptionNameHeaderCell } from "@/components/features/subscription/SubscriptionNameHeaderCell";
 import { YenAmountDisplay } from "@/components/features/subscription/YenAmountDisplay";
+import { Button } from "@/components/ui/button";
 import { PAYMENT_PLAN_LABELS } from "@/lib/subscription/constants";
 import { formatContractDateYmd } from "@/lib/subscription/format";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
-import { Button } from "@/components/ui/button";
+import {
+  daysBetweenYmd,
+  todayYmdInJst,
+} from "@/lib/subscription/renewal-date";
+import {
+  getUpcomingRenewalUrgencyTier,
+  UPCOMING_RENEWAL_CELL_COLORS,
+} from "@/lib/subscription/renewal-upcoming-notice";
 import { cn } from "@/lib/utils";
 
-const LABEL_COLUMN_WIDTH_CLASS = "w-[7.5rem] min-w-[7.5rem] max-w-[7.5rem]";
-const DATA_COLUMN_MIN_WIDTH_CLASS = "min-w-[8.75rem]";
+/** ラベル列・データ列共通のセル幅（はみ出しは truncate） */
+export const SUBSCRIPTION_TABLE_COLUMN_WIDTH_REM = 8.75;
 
-export const SUBSCRIPTION_TABLE_LABEL_COLUMN_WIDTH_REM = 7.5;
-export const SUBSCRIPTION_TABLE_DATA_COLUMN_MIN_WIDTH_REM = 8.75;
+const COLUMN_WIDTH_CLASS =
+  "w-[8.75rem] min-w-[8.75rem] max-w-[8.75rem]";
 
-/** サマリーカードの最小幅を決めるデータ列数（件数が少ないときもこの幅を下回らない） */
-export const SUBSCRIPTION_SUMMARY_MIN_DATA_COLUMNS = 6;
-
-export const SUBSCRIPTION_SUMMARY_MIN_WIDTH_CSS_VAR =
-  "--subscription-summary-min-width";
+export const SUBSCRIPTION_TABLE_LABEL_COLUMN_WIDTH_REM =
+  SUBSCRIPTION_TABLE_COLUMN_WIDTH_REM;
+export const SUBSCRIPTION_TABLE_DATA_COLUMN_MIN_WIDTH_REM =
+  SUBSCRIPTION_TABLE_COLUMN_WIDTH_REM;
 
 export function getSubscriptionTableWidthRem(dataColumnCount: number): number {
   return (
@@ -24,10 +32,6 @@ export function getSubscriptionTableWidthRem(dataColumnCount: number): number {
     dataColumnCount * SUBSCRIPTION_TABLE_DATA_COLUMN_MIN_WIDTH_REM
   );
 }
-
-export const SUBSCRIPTION_SUMMARY_MIN_TABLE_WIDTH_REM = getSubscriptionTableWidthRem(
-  SUBSCRIPTION_SUMMARY_MIN_DATA_COLUMNS
-);
 
 /**
  * 削除列フェードアニメーション。
@@ -88,14 +92,22 @@ function labelRowBackground(rowIndex: number): string {
   return rowIndex % 2 === 0 ? LABEL_ROW_BG_EVEN : LABEL_ROW_BG_ODD;
 }
 
+function formatYenTitle(amount: number | null | undefined): string | undefined {
+  if (amount === null || amount === undefined) {
+    return undefined;
+  }
+  return `${amount.toLocaleString("ja-JP")}円`;
+}
+
 const CELL_BORDER_CLASS = "border border-white";
+const CELL_TRUNCATE_CLASS = "truncate";
 
 function StickyCornerCell() {
   return (
     <th
       scope="col"
       className={cn(
-        LABEL_COLUMN_WIDTH_CLASS,
+        COLUMN_WIDTH_CLASS,
         "sticky left-0 z-30 border-r border-b border-white p-0"
       )}
       aria-hidden="true"
@@ -115,10 +127,12 @@ function StickyLabelCell({
       scope="row"
       className={cn(
         CELL_BORDER_CLASS,
-        LABEL_COLUMN_WIDTH_CLASS,
+        COLUMN_WIDTH_CLASS,
+        CELL_TRUNCATE_CLASS,
         "sticky left-0 z-20 px-2 py-2 text-left text-sm font-bold text-black"
       )}
       style={{ backgroundColor: labelRowBackground(rowIndex) }}
+      title={label}
     >
       {label}
     </th>
@@ -129,19 +143,26 @@ function DataCell({
   children,
   className,
   title,
+  truncate = true,
+  style,
 }: {
   children: ReactNode;
   className?: string;
   title?: string;
+  truncate?: boolean;
+  style?: CSSProperties;
 }) {
   return (
     <td
       className={cn(
         CELL_BORDER_CLASS,
-        DATA_COLUMN_MIN_WIDTH_CLASS,
-        "bg-black px-2 py-2 text-center text-sm text-white",
+        COLUMN_WIDTH_CLASS,
+        "px-2 py-2 text-center text-sm text-white",
+        style?.backgroundColor ? undefined : "bg-black",
+        truncate && CELL_TRUNCATE_CLASS,
         className
       )}
+      style={style}
       title={title}
     >
       {children}
@@ -153,57 +174,84 @@ function AttributeValueCells({
   row,
   attributeIndex,
   className,
+  asOfYmd,
 }: {
   row: SavedSubscriptionRow;
   attributeIndex: number;
   className?: string;
+  asOfYmd: string;
 }) {
   switch (attributeIndex) {
     case 0:
       return (
-        <DataCell
-          className={cn("max-w-40 truncate", className)}
-          title={row.planName}
-        >
+        <DataCell className={className} title={row.planName}>
           {row.planName}
         </DataCell>
       );
-    case 1:
+    case 1: {
+      const paymentPlanLabel = PAYMENT_PLAN_LABELS[row.paymentPlan];
       return (
-        <DataCell className={className}>
-          {PAYMENT_PLAN_LABELS[row.paymentPlan]}
+        <DataCell className={className} title={paymentPlanLabel}>
+          {paymentPlanLabel}
         </DataCell>
       );
+    }
     case 2:
       return (
-        <DataCell className={cn("font-bold", className)}>
+        <DataCell
+          className={cn("font-bold", className)}
+          title={formatYenTitle(row.monthlyAmount)}
+        >
           <YenAmountDisplay amount={row.monthlyAmount} />
         </DataCell>
       );
     case 3:
       return (
-        <DataCell className={cn("font-bold", className)}>
+        <DataCell
+          className={cn("font-bold", className)}
+          title={formatYenTitle(row.annualAmount)}
+        >
           <YenAmountDisplay amount={row.annualAmount} />
         </DataCell>
       );
-    case 4:
+    case 4: {
+      const contractDate = formatContractDateYmd(row.contractDate);
       return (
-        <DataCell className={className}>
-          {formatContractDateYmd(row.contractDate)}
+        <DataCell className={className} title={contractDate}>
+          {contractDate}
         </DataCell>
       );
-    case 5:
+    }
+    case 5: {
+      const nextRenewalDate = formatContractDateYmd(row.nextRenewalDate);
+      const urgencyTier = getUpcomingRenewalUrgencyTier(
+        daysBetweenYmd(asOfYmd, row.nextRenewalDate)
+      );
       return (
-        <DataCell className={className}>
-          {formatContractDateYmd(row.nextRenewalDate)}
+        <DataCell
+          className={cn(
+            urgencyTier === 5 && "text-black",
+            className
+          )}
+          title={nextRenewalDate}
+          style={
+            urgencyTier
+              ? { backgroundColor: UPCOMING_RENEWAL_CELL_COLORS[urgencyTier] }
+              : undefined
+          }
+        >
+          {nextRenewalDate}
         </DataCell>
       );
-    case 6:
+    }
+    case 6: {
+      const notifyLabel = row.notifyEnabled ? "ON" : "—";
       return (
-        <DataCell className={className}>
-          {row.notifyEnabled ? "ON" : "—"}
+        <DataCell className={className} title={notifyLabel}>
+          {notifyLabel}
         </DataCell>
       );
+    }
     default:
       return <DataCell className={className}>—</DataCell>;
   }
@@ -234,30 +282,39 @@ export function SubscriptionTransposeTable({
     action === "edit" ? "修正" : action === "delete" ? "削除" : null;
   const actionRowIndex = ATTRIBUTE_LABELS.length;
   const isRemovalInProgress = removingSubscriptionId !== null;
+  const tableWidthRem = getSubscriptionTableWidthRem(count);
+  const asOfYmd = todayYmdInJst();
 
   return (
-    <table className="w-max border-collapse">
+    <table
+      className="table-fixed border-collapse"
+      style={{ width: `${tableWidthRem}rem` }}
+    >
       <thead>
         <tr>
           <StickyCornerCell />
-          {subscriptions.map((row, index) => (
-            <th
-              key={row.id}
-              scope="col"
-              className={cn(
-                CELL_BORDER_CLASS,
-                DATA_COLUMN_MIN_WIDTH_CLASS,
-                "max-w-40 px-2 py-2 text-center text-sm font-bold text-black",
-                row.id === removingSubscriptionId && DELETE_COLUMN_FADE_CLASS
-              )}
-              style={{
-                backgroundColor: subscriptionHeaderColor(index, count),
-              }}
-              title={row.name}
-            >
-              <span className="block truncate">{row.name}</span>
-            </th>
-          ))}
+          {subscriptions.map((row, index) => {
+            const urgencyTier = getUpcomingRenewalUrgencyTier(
+              daysBetweenYmd(asOfYmd, row.nextRenewalDate)
+            );
+            return (
+              <SubscriptionNameHeaderCell
+                key={row.id}
+                name={row.name}
+                urgencyTier={urgencyTier}
+                className={cn(
+                  CELL_BORDER_CLASS,
+                  COLUMN_WIDTH_CLASS,
+                  CELL_TRUNCATE_CLASS,
+                  "px-2 py-2 text-center text-sm font-bold text-black",
+                  row.id === removingSubscriptionId && DELETE_COLUMN_FADE_CLASS
+                )}
+                style={{
+                  backgroundColor: subscriptionHeaderColor(index, count),
+                }}
+              />
+            );
+          })}
         </tr>
       </thead>
       <tbody>
@@ -269,6 +326,7 @@ export function SubscriptionTransposeTable({
                 key={`${row.id}-${label}`}
                 row={row}
                 attributeIndex={rowIndex}
+                asOfYmd={asOfYmd}
                 className={
                   row.id === removingSubscriptionId
                     ? DELETE_COLUMN_FADE_CLASS
@@ -288,6 +346,7 @@ export function SubscriptionTransposeTable({
             {subscriptions.map((row) => (
               <DataCell
                 key={`${row.id}-action`}
+                truncate={false}
                 className={
                   row.id === removingSubscriptionId
                     ? DELETE_COLUMN_FADE_CLASS

@@ -1,0 +1,64 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { SubscriptionDeleteForm } from "@/components/features/subscription/SubscriptionDeleteForm";
+import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
+
+vi.mock("@/lib/actions/subscription-delete", () => ({
+  deleteSubscription: vi.fn(),
+}));
+
+function buildSubscription(
+  overrides: Partial<SavedSubscriptionRow> = {}
+): SavedSubscriptionRow {
+  return {
+    id: "sub-1",
+    name: "Amazon",
+    planName: "Prime",
+    paymentPlan: "MONTHLY",
+    monthlyAmount: 590,
+    annualAmount: 7080,
+    contractDate: "2026-01-01",
+    nextRenewalDate: "2026-12-01",
+    notifyEnabled: true,
+    ...overrides,
+  };
+}
+
+function findTableSectionFrame(container: HTMLElement): HTMLElement | undefined {
+  return Array.from(container.querySelectorAll("div")).find(
+    (el) =>
+      el.classList.contains("border-2") &&
+      el.classList.contains("border-white") &&
+      el.classList.contains("bg-black") &&
+      el.classList.contains("pt-12") &&
+      el.classList.contains("md:flex")
+  );
+}
+
+describe("SubscriptionDeleteForm layout", () => {
+  it("データあり時、desktop テーブル領域にテーブル用セクション枠を使う", () => {
+    const { container } = render(
+      <SubscriptionDeleteForm initialSaved={[buildSubscription()]} />
+    );
+
+    const frame = findTableSectionFrame(container);
+    expect(frame).toBeDefined();
+    expect(frame).toHaveClass("w-full", "items-center", "justify-center");
+    expect(frame?.querySelector("table")).not.toBeNull();
+
+    const html = container.innerHTML;
+    expect(html).not.toContain("max-w-7xl");
+  });
+
+  it("空データ時はテーブル枠を出さず空メッセージのみ", () => {
+    const { container } = render(
+      <SubscriptionDeleteForm initialSaved={[]} />
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "登録されたデータはありません。" })
+    ).toBeInTheDocument();
+    expect(findTableSectionFrame(container)).toBeUndefined();
+    expect(container.querySelector("table")).toBeNull();
+  });
+});

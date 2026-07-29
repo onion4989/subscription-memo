@@ -119,6 +119,13 @@ export function subtractDaysFromYmd(ymd: string, days: number): string {
   );
 }
 
+/** fromYmd から toYmd までの暦日差（to − from。同日は 0） */
+export function daysBetweenYmd(fromYmd: string, toYmd: string): number {
+  const fromMs = ymdToUtcDate(fromYmd).getTime();
+  const toMs = ymdToUtcDate(toYmd).getTime();
+  return Math.round((toMs - fromMs) / (24 * 60 * 60 * 1000));
+}
+
 /** お知らせ日（更新日の N 暦日前） */
 export function computeNotifyDateYmd(
   nextRenewalDateYmd: string,

@@ -18,7 +18,10 @@ import {
   type SubscriptionRegisterFieldErrors,
   type SubscriptionRegisterFormValues,
 } from "@/schemas/subscription";
-import { SUBSCRIPTION_PAGE_CONTENT_CLASS } from "@/components/features/subscription/SubscriptionTableSection";
+import {
+  SUBSCRIPTION_PAGE_CONTENT_CLASS,
+  SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
+} from "@/components/features/subscription/SubscriptionTableSection";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
 
 type SubscriptionRegistrationFormProps = {
@@ -154,22 +157,26 @@ export function SubscriptionRegistrationForm({
           <div className="flex justify-center pt-1">{addButton}</div>
         </div>
 
-        <div className={`hidden md:block ${APP_SCROLLBAR_X_CLASS}`}>
-          {/*
-            テーブル・追加ボタン・ガイド矢印を同一 w-max 箱に入れ、
-            横スクロール時も相対位置がずれないようにする。
-          */}
-          <div className="relative w-max pr-[60px]">
-            <SubscriptionTransposeTable
-              subscriptions={rows}
-              action="edit"
-              onEdit={openEditModal}
-            />
+        <div
+          className={`hidden w-full items-center justify-center md:flex ${SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS}`}
+        >
+          <div className={`max-w-full ${APP_SCROLLBAR_X_CLASS}`}>
+            {/*
+              テーブル・追加ボタン・ガイド矢印を同一 w-max 箱に入れ、
+              横スクロール時も相対位置がずれないようにする。
+            */}
+            <div className="relative w-max pr-[60px]">
+              <SubscriptionTransposeTable
+                subscriptions={rows}
+                action="edit"
+                onEdit={openEditModal}
+              />
 
-            <div className="mt-4 flex w-full justify-center">{addButton}</div>
+              <div className="mt-4 flex w-full justify-center">{addButton}</div>
 
-            {/* 外側 relative（pr 含む）に置き、テーブル幅+60px まで線が届くようにする */}
-            {showAddColumnGuide ? <AddColumnGuideArrow /> : null}
+              {/* 外側 relative（pr 含む）に置き、テーブル幅+60px まで線が届くようにする */}
+              {showAddColumnGuide ? <AddColumnGuideArrow /> : null}
+            </div>
           </div>
         </div>
       </div>
