@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { SubscriptionDeleteConfirmModal } from "@/components/features/subscription/SubscriptionDeleteConfirmModal";
 import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
 import {
+  SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
   SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
   SubscriptionTableSection,
 } from "@/components/features/subscription/SubscriptionTableSection";
@@ -142,7 +143,7 @@ export function SubscriptionDeleteForm({
             </p>
           }
         >
-          <div className="w-full space-y-3 md:hidden">
+          <div className="w-full space-y-[30px] md:hidden">
             {rows.map((subscription) => (
               <SubscriptionMobileCard
                 key={subscription.id}
@@ -163,6 +164,7 @@ export function SubscriptionDeleteForm({
 
           <div
             className={`hidden w-full items-center justify-center md:flex ${SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS}`}
+            {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
           >
             <div className={`max-w-full ${APP_SCROLLBAR_X_CLASS}`}>
               <SubscriptionTransposeTable

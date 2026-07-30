@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   SUBSCRIPTION_SECTION_FRAME_CLASS,
+  SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
   SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
 } from "@/components/features/subscription/SubscriptionTableSection";
 
@@ -23,5 +24,11 @@ describe("subscription section frame classes", () => {
     expect(SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS).toContain("pt-12");
     expect(SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS).toContain("w-full");
     expect(SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS).not.toContain(" p-5");
+  });
+
+  it("枠外判定用の data 属性名を公開する", () => {
+    expect(SUBSCRIPTION_TABLE_FRAME_DATA_ATTR).toBe(
+      "data-subscription-table-frame"
+    );
   });
 });

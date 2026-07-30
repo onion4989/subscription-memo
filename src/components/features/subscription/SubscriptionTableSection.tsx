@@ -17,6 +17,10 @@ export const SUBSCRIPTION_SECTION_FRAME_CLASS =
 export const SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS =
   "w-full rounded-[10px] border-2 border-white bg-black px-5 pb-5 pt-12";
 
+/** 「更新間近」吹き出しの表示判定用。枠外に出た列のタグを隠す */
+export const SUBSCRIPTION_TABLE_FRAME_DATA_ATTR =
+  "data-subscription-table-frame" as const;
+
 /** 削除画面など、テーブル幅に合わせてブロックを縮める場合に使用 */
 export const SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS =
   "flex w-max max-w-full flex-col lg:w-full lg:min-w-0";

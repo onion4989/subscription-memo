@@ -4,6 +4,7 @@ import { SubscriptionRenewalNotice } from "@/components/features/subscription/Su
 import { SubscriptionSummaryCards } from "@/components/features/subscription/SubscriptionSummaryCards";
 import {
   SUBSCRIPTION_TABLE_BLOCK_CLASS,
+  SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
   SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
@@ -23,7 +24,7 @@ export function SubscriptionListTable({
         <SubscriptionSummaryCards subscriptions={subscriptions} />
         <SubscriptionRenewalNotice subscriptions={subscriptions} />
 
-        <div className="space-y-3">
+        <div className="space-y-[30px]">
           {subscriptions.map((subscription) => (
             <SubscriptionMobileCard
               key={subscription.id}
@@ -42,6 +43,7 @@ export function SubscriptionListTable({
             SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
             "flex items-center justify-center"
           )}
+          {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
         >
           <div className={cn(APP_SCROLLBAR_X_CLASS, "max-w-full")}>
             <SubscriptionTransposeTable subscriptions={subscriptions} />
