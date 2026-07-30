@@ -20,10 +20,12 @@ import {
 } from "@/schemas/subscription";
 import {
   SUBSCRIPTION_PAGE_CONTENT_CLASS,
+  SUBSCRIPTION_SECTION_FRAME_CLASS,
   SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
   SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
+import { cn } from "@/lib/utils";
 
 type SubscriptionRegistrationFormProps = {
   initialSaved: SavedSubscriptionRow[];
@@ -159,22 +161,44 @@ export function SubscriptionRegistrationForm({
         </div>
 
         <div
-          className={`hidden w-full items-center justify-center md:flex ${SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS}`}
+          className={cn(
+            "hidden w-full items-center justify-center md:flex",
+            rows.length === 0
+              ? SUBSCRIPTION_SECTION_FRAME_CLASS
+              : SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS
+          )}
           {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
         >
-          <div className={`max-w-full ${APP_SCROLLBAR_X_CLASS}`}>
+          <div
+            className={cn(
+              "max-w-full",
+              rows.length > 0 && APP_SCROLLBAR_X_CLASS
+            )}
+          >
             {/*
               テーブル・追加ボタン・ガイド矢印を同一 w-max 箱に入れ、
               横スクロール時も相対位置がずれないようにする。
             */}
-            <div className="relative w-max pr-[60px]">
+            <div
+              className={cn(
+                "relative w-max",
+                showAddColumnGuide && "pr-[60px]"
+              )}
+            >
               <SubscriptionTransposeTable
                 subscriptions={rows}
                 action="edit"
                 onEdit={openEditModal}
               />
 
-              <div className="mt-4 flex w-full justify-center">{addButton}</div>
+              <div
+                className={cn(
+                  "flex w-full justify-center",
+                  rows.length > 0 && "mt-4"
+                )}
+              >
+                {addButton}
+              </div>
 
               {/* 外側 relative（pr 含む）に置き、テーブル幅+60px まで線が届くようにする */}
               {showAddColumnGuide ? <AddColumnGuideArrow /> : null}
