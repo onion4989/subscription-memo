@@ -1,8 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
+import { UPCOMING_RENEWAL_CELL_COLORS } from "@/lib/subscription/renewal-upcoming-notice";
+
+vi.mock("@/lib/subscription/renewal-date", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/subscription/renewal-date")>();
+  return {
+    ...actual,
+    todayYmdInJst: () => "2026-07-21",
+  };
+});
 
 function buildSubscription(
   overrides: Partial<SavedSubscriptionRow> = {}
@@ -15,13 +25,17 @@ function buildSubscription(
     monthlyAmount: 590,
     annualAmount: 7080,
     contractDate: "2026-06-12",
-    nextRenewalDate: "2026-07-12",
+    nextRenewalDate: "2026-08-12",
     notifyEnabled: true,
     ...overrides,
   };
 }
 
 describe("SubscriptionMobileCard", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("タイトルにサブスク名とプラン名を連結して表示する", () => {
     render(<SubscriptionMobileCard subscription={buildSubscription()} />);
 
@@ -71,7 +85,7 @@ describe("SubscriptionMobileCard", () => {
 
     expect(
       screen.getByText((_, element) => {
-        return element?.textContent === "次回更新日：2026/07/12";
+        return element?.textContent === "次回更新日：2026/08/12";
       })
     ).toBeInTheDocument();
     expect(
@@ -79,6 +93,60 @@ describe("SubscriptionMobileCard", () => {
         return element?.textContent === "契　約　日：2026/06/12";
       })
     ).toBeInTheDocument();
+  });
+
+  it("更新間近でないときはバッジも日付強調も出さない", () => {
+    render(<SubscriptionMobileCard subscription={buildSubscription()} />);
+
+    expect(screen.queryByText("更新間近")).not.toBeInTheDocument();
+    expect(
+      document.querySelector("[data-upcoming-renewal-date]")
+    ).not.toBeInTheDocument();
+  });
+
+  it("5日以内のとき右上に更新間近バッジと日付背景を出す", () => {
+    render(
+      <SubscriptionMobileCard
+        subscription={buildSubscription({ nextRenewalDate: "2026-07-26" })}
+      />
+    );
+
+    const badge = document.querySelector("[data-upcoming-renewal-badge='5']");
+    expect(badge).toHaveTextContent("更新間近");
+    expect(badge).toBeInTheDocument();
+    expect(
+      screen.getByText("更新間近").closest("[data-upcoming-renewal-badge]")
+    ).toHaveAttribute("data-upcoming-renewal-badge", "5");
+    expect(screen.getByText("更新間近")).toHaveStyle({
+      backgroundColor: UPCOMING_RENEWAL_CELL_COLORS[5],
+    });
+
+    const date = document.querySelector("[data-upcoming-renewal-date='5']");
+    expect(date).toHaveTextContent("2026/07/26");
+    expect(date).toHaveStyle({
+      backgroundColor: UPCOMING_RENEWAL_CELL_COLORS[5],
+    });
+  });
+
+  it("3日以内のとき緊急色でバッジと日付背景を出す", () => {
+    render(
+      <SubscriptionMobileCard
+        subscription={buildSubscription({ nextRenewalDate: "2026-07-24" })}
+      />
+    );
+
+    expect(
+      screen.getByText("更新間近").closest("[data-upcoming-renewal-badge]")
+    ).toHaveAttribute("data-upcoming-renewal-badge", "3");
+    expect(screen.getByText("更新間近")).toHaveStyle({
+      backgroundColor: UPCOMING_RENEWAL_CELL_COLORS[3],
+    });
+
+    const date = document.querySelector("[data-upcoming-renewal-date='3']");
+    expect(date).toHaveTextContent("2026/07/24");
+    expect(date).toHaveStyle({
+      backgroundColor: UPCOMING_RENEWAL_CELL_COLORS[3],
+    });
   });
 
   it("action 未指定のとき操作ボタンを出さない", () => {

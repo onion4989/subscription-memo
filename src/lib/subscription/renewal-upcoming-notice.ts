@@ -23,6 +23,15 @@ export const UPCOMING_RENEWAL_CELL_COLORS: Record<
   5: "#EDE466",
 };
 
+/** 「更新間近」ラベル・強調日付の文字色（背景とのコントラスト用） */
+export const UPCOMING_RENEWAL_LABEL_TEXT_COLORS: Record<
+  UpcomingRenewalUrgencyTier,
+  string
+> = {
+  3: "#FFFFFF",
+  5: "#000000",
+};
+
 export type UpcomingRenewalNoticeItem = {
   id: string;
   displayName: string;

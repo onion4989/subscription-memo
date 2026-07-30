@@ -1,12 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { formatContractDateYmd } from "@/lib/subscription/format";
+import {
+  daysBetweenYmd,
+  todayYmdInJst,
+} from "@/lib/subscription/renewal-date";
+import {
+  getUpcomingRenewalUrgencyTier,
+  UPCOMING_RENEWAL_CELL_COLORS,
+  UPCOMING_RENEWAL_LABEL_TEXT_COLORS,
+} from "@/lib/subscription/renewal-upcoming-notice";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
+import { UpcomingRenewalCallout } from "@/components/features/subscription/UpcomingRenewalCallout";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 const CARD_AMOUNT_CLASS = "text-[16px] font-bold";
 const CARD_ANNUAL_LABEL_CLASS = "text-[12px] font-normal";
 const CARD_ANNUAL_AMOUNT_CLASS = "text-[14px] font-bold";
+const CARD_DETAIL_ROW_CLASS = "py-[5px] leading-tight";
 
 type SubscriptionMobileCardAction = {
   label: "削除" | "修正";
@@ -83,13 +94,26 @@ export function SubscriptionMobileCard({
   action,
   className,
 }: SubscriptionMobileCardProps) {
+  const daysUntil = daysBetweenYmd(
+    todayYmdInJst(),
+    subscription.nextRenewalDate
+  );
+  const urgencyTier = getUpcomingRenewalUrgencyTier(daysUntil);
+  const nextRenewalDateLabel = formatContractDateYmd(
+    subscription.nextRenewalDate
+  );
+
   return (
     <article
       className={cn(
-        "rounded-[10px] bg-white px-4 py-3 text-[14px] leading-tight text-[#111111]",
+        "relative rounded-[10px] bg-white px-4 py-5 text-[14px] leading-tight text-[#111111]",
         className
       )}
     >
+      {urgencyTier !== null ? (
+        <UpcomingRenewalCallout urgencyTier={urgencyTier} />
+      ) : null}
+
       <header className="space-y-1">
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-[20px] font-bold leading-tight">
@@ -109,16 +133,29 @@ export function SubscriptionMobileCard({
 
       <hr className="my-2 border-[#111111]" />
 
-      <div className="space-y-1 leading-tight">
-        <p className="whitespace-nowrap">
+      <div className="leading-tight">
+        <p className={cn(CARD_DETAIL_ROW_CLASS, "whitespace-nowrap")}>
           料　　　金：
           <CardBillingLine subscription={subscription} />
         </p>
-        <p>
+        <p className={CARD_DETAIL_ROW_CLASS}>
           次回更新日：
-          {formatContractDateYmd(subscription.nextRenewalDate)}
+          {urgencyTier !== null ? (
+            <span
+              className="inline-block rounded-[2px] px-[5px] py-[3px] font-bold"
+              style={{
+                backgroundColor: UPCOMING_RENEWAL_CELL_COLORS[urgencyTier],
+                color: UPCOMING_RENEWAL_LABEL_TEXT_COLORS[urgencyTier],
+              }}
+              data-upcoming-renewal-date={urgencyTier}
+            >
+              {nextRenewalDateLabel}
+            </span>
+          ) : (
+            nextRenewalDateLabel
+          )}
         </p>
-        <p>
+        <p className={CARD_DETAIL_ROW_CLASS}>
           契　約　日：
           {formatContractDateYmd(subscription.contractDate)}
         </p>

@@ -20,6 +20,7 @@ import {
 } from "@/schemas/subscription";
 import {
   SUBSCRIPTION_PAGE_CONTENT_CLASS,
+  SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
   SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
@@ -143,7 +144,7 @@ export function SubscriptionRegistrationForm({
           </p>
         </div>
 
-        <div className="w-full space-y-3 md:hidden">
+        <div className="w-full space-y-[30px] md:hidden">
           {rows.map((subscription) => (
             <SubscriptionMobileCard
               key={subscription.id}
@@ -159,6 +160,7 @@ export function SubscriptionRegistrationForm({
 
         <div
           className={`hidden w-full items-center justify-center md:flex ${SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS}`}
+          {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
         >
           <div className={`max-w-full ${APP_SCROLLBAR_X_CLASS}`}>
             {/*
