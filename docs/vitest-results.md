@@ -2,7 +2,7 @@
 
 | 項目 | 内容 |
 |------|------|
-| 実施日 | 2026-07-28（Hybrid B 追いつき）／2026-07-27（モバイルカード）／2026-07-25（アカウント削除 AD1–AD7）／更新お知らせ 層 A〜C: 2026-07-21／初回 P0–P2: 2026-07-19 |
+| 実施日 | 2026-07-31（使い方ページ刷新／`useEffect` 整理）／2026-07-29（セクション枠統一）／2026-07-28（Hybrid B 追いつき）／2026-07-27（モバイルカード）／2026-07-25（アカウント削除 AD1–AD7）／更新お知らせ 層 A〜C: 2026-07-21／初回 P0–P2: 2026-07-19 |
 | コマンド（層 A・単体） | `npm run test:run` |
 | 環境（層 A・単体） | Node.js v24.15.0 / Vitest v4.1.10 |
 | 結果（単体） | **15 files passed / 82 tests passed / 0 failed** |
@@ -214,6 +214,50 @@
 | `SubscriptionRegistrationForm.layout.test.tsx` | 登録画面テーブル枠・ガイド箱 |
 | `SubscriptionDeleteForm.layout.test.tsx` | 削除画面テーブル枠・空状態 |
 | `AppShell.test.tsx` | 右側領域 `max-w-[1000px]` |
+
+## 追記: 使い方ページ刷新 / `useEffect` 整理（2026-07-31）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-07-31 |
+| コマンド | `npx vitest run`（全体）／`npx tsc --noEmit` |
+| 環境 | Node.js v24.15.0 / Vitest v4.1.10 |
+| 結果 | **28 files passed / 132 tests passed / 0 failed**（型エラーなし） |
+
+### 使い方ページ（5 セクション化）
+
+旧 `GuideSteps` / `GuideStepCardWrapper` のカード構成を廃止し、黒背景・白 2px 枠の 5 セクション構成へ差し替え。
+
+| ケース | 内容 | 結果 |
+|--------|------|------|
+| 見出し維持 | タイトルは維持し、旧ステップカードは表示しない | Pass |
+| 枠構造 | 各セクションの見出しは枠の外、本文は黒背景・白 2px 枠の中 | Pass |
+| 番号付き手順 | データの登録方法は番号付き手順を枠内に表示する | Pass |
+| 注記の縮小 | 「※」始まりの行だけ 14px に縮小する | Pass |
+| 強調矩形 | 囲み記号で指定した語だけ背景色付きの矩形にする | Pass |
+| 字下げ | 手順本文の字下げはデスクトップのみ効かせる（モバイルは左詰め） | Pass |
+| マーカー除去 | 囲み記号は本文に残さない | Pass |
+| 説明画像 | 画像を持つセクションだけ、白枠の中に実寸比で画像を表示する | Pass |
+| 画像なし | データの登録方法は説明画像を持たない | Pass |
+
+### `useEffect` 整理（`react-hooks/set-state-in-effect`）
+
+| 対象 | 変更内容 | 結果 |
+|------|----------|------|
+| `AppShell.tsx` | パス変化でのモバイルサイドバー閉じを effect からレンダー中の state 調整へ変更（戻る／進むでも閉じる挙動は維持） | Pass |
+| `SubscriptionNameHeaderCell.tsx` | `useIsVisibleInTableFrame` を `useEffect` + `RefObject` から **ref コールバック**へ移行。cleanup で `observer.disconnect()` と観測状態のリセットを行う | Pass |
+
+`SubscriptionNameHeaderCell.test.tsx` に回帰ケースを 1 件追加（計 5 件）。
+
+| ケース | 内容 | 結果 |
+|--------|------|------|
+| 持ち越し防止 | トリガーが外れると観測を解除し、再表示時に前回の表示状態を持ち越さない | Pass |
+
+### 補足（2026-07-31）
+
+- `vitest.setup.ts` に `window.matchMedia` のモックを追加。jsdom で `useSyncExternalStore` 経由のメディアクエリ参照が落ちる問題を解消。
+- ref コールバックの cleanup は Radix の `composeRefs`（1.1.2 / 1.1.3）が返り値を回収するため、`TooltipTrigger asChild` 経由でも実行されることを実テストで確認。
+- 削除ファイル: `GuideSteps.tsx` / `GuideStepCardWrapper.tsx` / `public/assets/guide_step1〜4.webp`
 
 ## 補足
 

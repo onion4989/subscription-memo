@@ -1,7 +1,7 @@
 "use client";
 
-import type { CSSProperties, RefObject } from "react";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import type { CSSProperties, RefCallback } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -40,31 +40,27 @@ function useIsMdUp(): boolean {
   return useSyncExternalStore(subscribeMdUp, getMdUpSnapshot, () => false);
 }
 
+type TableFrameVisibility = {
+  isVisible: boolean;
+  triggerRef: RefCallback<HTMLSpanElement>;
+};
+
 /**
- * 黒いテーブル枠内にトリガーが見えているとき true。
+ * 黒いテーブル枠内にトリガーが見えているとき isVisible が true。
  * 横スクロールで枠外に出た列の「更新間近」を出さない。
+ * triggerRef が付いた要素が外れている間は観測しないため、
+ * 呼び出し側は表示条件を満たすときだけ triggerRef を渡す。
  */
-function useIsVisibleInTableFrame(
-  triggerRef: RefObject<HTMLElement | null>,
-  enabled: boolean
-): boolean {
+function useIsVisibleInTableFrame(): TableFrameVisibility {
   const [isVisible, setIsVisible] = useState(false);
 
-  useEffect(() => {
-    if (!enabled) {
-      setIsVisible(false);
-      return;
-    }
-
-    const trigger = triggerRef.current;
+  const triggerRef = useCallback((trigger: HTMLSpanElement | null) => {
     if (!trigger) {
-      setIsVisible(false);
       return;
     }
 
     const frame = trigger.closest(`[${SUBSCRIPTION_TABLE_FRAME_DATA_ATTR}]`);
     if (!(frame instanceof Element)) {
-      setIsVisible(false);
       return;
     }
 
@@ -87,10 +83,13 @@ function useIsVisibleInTableFrame(
     );
 
     observer.observe(trigger);
-    return () => observer.disconnect();
-  }, [enabled, triggerRef]);
+    return () => {
+      observer.disconnect();
+      setIsVisible(false);
+    };
+  }, []);
 
-  return isVisible;
+  return { isVisible, triggerRef };
 }
 
 type SubscriptionNameHeaderCellProps = {
@@ -107,12 +106,7 @@ export function SubscriptionNameHeaderCell({
   style,
 }: SubscriptionNameHeaderCellProps) {
   const isMdUp = useIsMdUp();
-  const triggerRef = useRef<HTMLSpanElement>(null);
-  const shouldTrackVisibility = isMdUp && urgencyTier !== null;
-  const isVisibleInFrame = useIsVisibleInTableFrame(
-    triggerRef,
-    shouldTrackVisibility
-  );
+  const { isVisible, triggerRef } = useIsVisibleInTableFrame();
 
   if (urgencyTier === null || !isMdUp) {
     return (
@@ -123,12 +117,11 @@ export function SubscriptionNameHeaderCell({
   }
 
   const backgroundColor = UPCOMING_RENEWAL_CELL_COLORS[urgencyTier];
-  const showTooltip = isVisibleInFrame;
 
   return (
     <th scope="col" className={cn(className)} style={style} title={name}>
       <TooltipProvider>
-        <Tooltip open={showTooltip} onOpenChange={() => undefined}>
+        <Tooltip open={isVisible} onOpenChange={() => undefined}>
           <TooltipTrigger asChild>
             <span ref={triggerRef} className="block truncate">
               {name}

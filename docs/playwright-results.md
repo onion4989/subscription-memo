@@ -29,7 +29,7 @@
 | P0 | `e2e/p0-subscriptions.spec.ts` | S1–S6 |
 | P1 | `e2e/p1-account.spec.ts` | A1–A5 |
 | P1 | `e2e/p1-settings.spec.ts` | S1–S5 |
-| P1 | `e2e/p1-guide.spec.ts` | G1–G3 |
+| P1 | `e2e/p1-guide.spec.ts` | G1–G5 |
 | P1 | `e2e/p1-subscription-layout.spec.ts` | L1–L4 |
 | P2 | `e2e/p2-mfa.spec.ts` | M1–M4 |
 | P2 | `e2e/p2-signup-email.spec.ts` | E1–E3 |
@@ -100,6 +100,47 @@
 - 初回実行では吹き出し右端が枠外となり横方向アサーションで失敗。
 - Portal + 列位置による横はみ出しは許容し、本番修正目的の縦方向のみに緩和して再実行で Pass。
 
+## 追記: 使い方ページ刷新 / `useEffect` 整理後の全体再実行（2026-07-31）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-07-31 |
+| コマンド | `npm run test:e2e -- --workers=1`（全スペック） |
+| 環境 | Node.js v24.15.0 / Playwright Chromium / ローカル DB（`.env.local`） |
+| 結果 | **32 passed / 1 skipped / 0 failed**（約 1.1 分） |
+
+### 変更概要（対象機能）
+
+- 使い方ページを 5 セクション構成へ刷新（黒背景・白 2px 枠 + 説明画像）
+- `AppShell` のサイドバー閉じ処理を effect からレンダー中の state 調整へ変更
+- `SubscriptionNameHeaderCell` の枠内可視判定を ref コールバックへ移行
+
+### P1-G 使い方ページ
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| G1 | 使い方ページの主見出しが表示される | Pass |
+| G2 | 5 セクションのタイトルがすべて表示される | Pass |
+| G3 | 各セクション本文が黒背景・白 2px 枠の中にある | Pass |
+| G4 | データの登録方法に番号付き手順が並ぶ | Pass |
+| G5 | 各説明画像が白枠の内側（余白 16px）に収まる | Pass |
+
+### 回帰確認（既存スペック）
+
+| 対象 | 結果 |
+|------|------|
+| P0-G / P0-A / P0-S（12 件） | Pass |
+| P1-A アカウント（5 件） | Pass |
+| P1-S 設定（5 件） | Pass |
+| P1 レイアウト L1–L3 | Pass |
+| P2-M MFA / P2-E サインアップ確認 | Pass |
+
+`AppShell` 変更のサイドバー遷移は P0-S の S6、ref コールバック移行後の「更新間近」吹き出しは L3 でそれぞれ実ブラウザ確認済み。
+
+### スキップ 1 件について
+
+L4（削除画面の空状態でテーブル枠を出さない）は、E2E ユーザーにサブスクリプションが登録済みのため空状態に到達せずスキップ。同等の検証は Vitest の `SubscriptionDeleteForm.layout.test.tsx`（`initialSaved={[]}`）でカバー済み。実行する場合は E2E ユーザーの `Subscription` 行のみを空にする（`User` 行は他テストの前提となるため削除しない）。
+
 ## 実行コマンド
 
 ```bash
@@ -107,6 +148,8 @@ nvm use
 npm run test:e2e -- --workers=1
 # P2 のみ:
 npm run test:e2e -- --workers=1 e2e/p2-mfa.spec.ts e2e/p2-signup-email.spec.ts
-# レイアウト（今回追加）:
+# レイアウト:
 npx playwright test e2e/p1-subscription-layout.spec.ts --workers=1
+# 使い方ページ:
+npx playwright test e2e/p1-guide.spec.ts --workers=1
 ```

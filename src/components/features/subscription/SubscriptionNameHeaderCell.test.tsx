@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SubscriptionNameHeaderCell } from "@/components/features/subscription/SubscriptionNameHeaderCell";
 import { SUBSCRIPTION_TABLE_FRAME_DATA_ATTR } from "@/components/features/subscription/SubscriptionTableSection";
+import type { UpcomingRenewalUrgencyTier } from "@/lib/subscription/renewal-upcoming-notice";
 
 type ObserverInstance = {
   callback: IntersectionObserverCallback;
@@ -70,9 +71,23 @@ function emitIntersection(ratio: number, isIntersecting = ratio > 0) {
   });
 }
 
+function withFrame(ui: ReactNode) {
+  return <div {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}>{ui}</div>;
+}
+
 function renderInFrame(ui: ReactNode) {
-  return render(
-    <div {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}>{ui}</div>
+  return render(withFrame(ui));
+}
+
+function nameHeaderTable(urgencyTier: UpcomingRenewalUrgencyTier | null) {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <SubscriptionNameHeaderCell name="Netflix" urgencyTier={urgencyTier} />
+        </tr>
+      </thead>
+    </table>
   );
 }
 
@@ -169,5 +184,21 @@ describe("SubscriptionNameHeaderCell", () => {
 
     emitIntersection(0, false);
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+  });
+
+  it("トリガーが外れると観測を解除し、再表示時に前回の表示状態を持ち越さない", () => {
+    const { rerender } = renderInFrame(nameHeaderTable(5));
+
+    emitIntersection(1);
+    expect(screen.getByRole("tooltip")).toHaveTextContent("更新間近");
+
+    rerender(withFrame(nameHeaderTable(null)));
+    expect(observerInstances.at(-1)?.disconnect).toHaveBeenCalled();
+
+    rerender(withFrame(nameHeaderTable(5)));
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+
+    emitIntersection(1);
+    expect(screen.getByRole("tooltip")).toHaveTextContent("更新間近");
   });
 });
