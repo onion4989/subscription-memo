@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/features/subscription/AppSidebar";
 import { SidebarToggleIcon } from "@/components/features/subscription/SidebarToggleIcon";
@@ -42,6 +42,7 @@ function isMobileSidebarViewport(): boolean {
 export function AppShell({ children, displayName, avatarId }: AppShellProps) {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(false);
+  const [lastPathname, setLastPathname] = useState(pathname);
   const pageTitle = useMemo(() => getPageTitle(pathname), [pathname]);
 
   const closeMobileSidebar = () => {
@@ -50,11 +51,15 @@ export function AppShell({ children, displayName, avatarId }: AppShellProps) {
     }
   };
 
-  useEffect(() => {
-    if (isMobileSidebarViewport()) {
-      setExpanded(false);
-    }
-  }, [pathname]);
+  /**
+   * 遷移時にドロワーを閉じる。サイドバー内リンクは onNavigate で閉じるため、
+   * ここが効くのはブラウザの戻る／進むで遷移した場合。
+   * pathname が変わったときだけ走るので、サーバー描画では実行されない。
+   */
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    closeMobileSidebar();
+  }
 
   const sidebarProps = {
     pathname,

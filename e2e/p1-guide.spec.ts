@@ -1,18 +1,21 @@
 import { expect, test } from "@playwright/test";
 import { loginWithE2EUser } from "./helpers/auth";
 
-const GUIDE_STEP_TITLES = [
-  "アカウント登録",
-  "サブスク登録・変更",
+const GUIDE_SECTION_TITLES = [
+  "データの登録方法",
+  "パスワードの変更",
+  "パスワードを忘れた場合",
   "お知らせメール設定",
-  "サブスク一覧で確認",
+  "セキュリティについて",
 ] as const;
 
-const GUIDE_IMAGE_ALTS = [
-  "アカウント登録の説明図",
-  "サブスク登録・変更の説明図",
-  "お知らせメール設定の説明図",
-  "サブスク一覧確認の説明図",
+const GUIDE_STEP_TITLES = ["登録画面へ", "追加ボタンを押下", "データ確認"] as const;
+
+const GUIDE_SECTION_IMAGE_ALTS = [
+  "パスワード変更フォームの説明図",
+  "ログイン画面のパスワード再設定リンクの説明図",
+  "お知らせメールの通知日設定の説明図",
+  "二段階認証（MFA）設定の説明図",
 ] as const;
 
 test.describe("P1-G guide", () => {
@@ -27,15 +30,46 @@ test.describe("P1-G guide", () => {
     ).toBeVisible();
   });
 
-  test("G2: all four step titles are visible", async ({ page }) => {
-    for (const title of GUIDE_STEP_TITLES) {
-      await expect(page.getByText(title, { exact: true }).first()).toBeVisible();
+  test("G2: all section titles are visible", async ({ page }) => {
+    for (const title of GUIDE_SECTION_TITLES) {
+      await expect(page.getByRole("heading", { name: title })).toBeVisible();
     }
   });
 
-  test("G3: all four step images are visible", async ({ page }) => {
-    for (const alt of GUIDE_IMAGE_ALTS) {
-      await expect(page.getByRole("img", { name: alt })).toBeVisible();
+  test("G3: each section body sits in a black frame with a 2px white border", async ({
+    page,
+  }) => {
+    for (const title of GUIDE_SECTION_TITLES) {
+      const frame = page
+        .getByRole("heading", { name: title })
+        .locator("xpath=following-sibling::div[1]");
+
+      await expect(frame).toBeVisible();
+      await expect(frame).toHaveCSS("background-color", "rgb(0, 0, 0)");
+      await expect(frame).toHaveCSS("border-top-width", "2px");
+      await expect(frame).toHaveCSS("border-top-color", "rgb(255, 255, 255)");
+    }
+  });
+
+  test("G4: data registration section lists the numbered steps", async ({
+    page,
+  }) => {
+    for (const title of GUIDE_STEP_TITLES) {
+      await expect(page.getByRole("heading", { name: title })).toBeVisible();
+    }
+  });
+
+  test("G5: each section image renders inside its white frame", async ({
+    page,
+  }) => {
+    for (const alt of GUIDE_SECTION_IMAGE_ALTS) {
+      const image = page.getByRole("img", { name: alt });
+
+      await expect(image).toBeVisible();
+      await expect(image.locator("xpath=..")).toHaveCSS(
+        "padding-top",
+        "16px"
+      );
     }
   });
 });
