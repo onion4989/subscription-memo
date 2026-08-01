@@ -17,6 +17,7 @@
 
 - `AUTH_URL` と Playwright baseURL を揃える
 - MFA 専用ユーザーは P0/P1 ユーザーと分離し、テスト後は MFA オフへ戻す
+- P2-M が途中で失敗すると MFA が有効なまま残り、シークレットもバックアップコードも手元にないため次回のログインができなくなる。その場合は `npm run e2e:reset-mfa` で `E2E_MFA_USER_EMAIL` の MFA・バックアップコード・失敗履歴をリセットする（ローカル DB 専用。`DATABASE_URL` がローカル以外を指す場合は中止する）
 - サインアップは `E2E_SIGNUP_EMAIL` をベースに `+e2e-<timestamp>` でユニーク化
 - IMAP: `E2E_IMAP_HOST` / `PORT=993` / `USER` / `PASSWORD`
 
@@ -31,7 +32,7 @@
 | P1 | `e2e/p1-settings.spec.ts` | S1–S5 |
 | P1 | `e2e/p1-guide.spec.ts` | G1–G5 |
 | P1 | `e2e/p1-subscription-layout.spec.ts` | L1–L4 |
-| P2 | `e2e/p2-mfa.spec.ts` | M1–M4 |
+| P2 | `e2e/p2-mfa.spec.ts` | M1–M6 |
 | P2 | `e2e/p2-signup-email.spec.ts` | E1–E3 |
 
 ## P2 ケース別結果
@@ -40,7 +41,9 @@
 
 | ID | 内容 | 結果 |
 |----|------|------|
-| M1–M4 | 有効化 → TOTP ログイン → 無効化 | Pass |
+| M1–M5 | 有効化 → バックアップコード提示 → TOTP ログイン → バックアップコードログイン → 無効化 | Pass |
+| M6 | 解除後に同一ページで設定ダイアログを開き直しても有効表示を持ち越さない | Pass |
+
 ### P2-E サインアップ確認（B1）
 
 | ID | 内容 | 結果 |
@@ -141,6 +144,79 @@
 
 L4（削除画面の空状態でテーブル枠を出さない）は、E2E ユーザーにサブスクリプションが登録済みのため空状態に到達せずスキップ。同等の検証は Vitest の `SubscriptionDeleteForm.layout.test.tsx`（`initialSaved={[]}`）でカバー済み。実行する場合は E2E ユーザーの `Subscription` 行のみを空にする（`User` 行は他テストの前提となるため削除しない）。
 
+## 追記: MFA バックアップコード対応後の全体再実行（2026-08-01）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-08-01 |
+| コマンド | `npx playwright test --workers=1 --reporter=list` |
+| 環境 | Node.js v24.15.0 / Chromium / `http://localhost:3000` / ローカル Postgres（Docker） |
+| 結果 | **32 passed / 1 skipped / 0 failed**（所要 1.2 分） |
+
+### 変更概要（対象機能）
+
+- MFA 有効化時にバックアップコード 10 件を発行し、設定フローの最終ステップで一度だけ提示
+- `/mfa/verify` で TOTP とバックアップコードを切り替えて認証できるように変更
+- MFA 解除時にバックアップコードを同一トランザクションで全削除
+
+### P2-M MFA（`e2e/p2-mfa.spec.ts`）
+
+1 テスト内で M1 → M2 → M2b → M3 → M5 → M4 の順に直列実行する。
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| M1 | 未設定時は MFA セクションが無効状態の説明を表示する | Pass |
+| M2 | QR / シークレットを取得し、TOTP コードで設定を確定する | Pass |
+| M2b | バックアップコードが 10 件表示され、「控えました」にチェックするまで完了ボタンが押せない | Pass |
+| M3 | ログアウト後、認証アプリの 6 桁コードでログインできる | Pass |
+| M5 | ログアウト後、控えたバックアップコード 1 件でログインできる | Pass |
+| M4 | パスワード確認のうえ MFA を解除し、未設定状態に戻る | Pass |
+
+M2b で取得した平文コードをテスト内で保持し、M5 でそのまま `/mfa/verify` に入力している。表示形式（`XXXX-XXXX-XX`）のまま入力してもサーバー側の正規化で通ることを実ブラウザで確認した。
+
+### 回帰確認（既存スペック）
+
+| 対象 | 結果 |
+|------|------|
+| P0-G / P0-A / P0-S（12 件） | Pass |
+| P1-A アカウント（5 件） | Pass |
+| P1-S 設定（5 件） | Pass |
+| P1-G 使い方（5 件） | Pass |
+| P1 レイアウト L1–L3 | Pass |
+| P2-E サインアップ確認（B1 IMAP） | Pass |
+
+P1-S の S5（MFA 設定ダイアログが開く）は、`MfaSetupFlow` から `autoNotifyOnComplete` と完了通知用 `useEffect` を削除した後も従来どおり動作することを確認。L4 のスキップ理由は前節と同じ。
+
+## 追記: MFA 解除後のダイアログ表示バグ修正（2026-08-01）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-08-01 |
+| コマンド | `npx playwright test --workers=1 --reporter=line` |
+| 環境 | Node.js v24.15.0 / Chromium / `http://localhost:3000` / ローカル Postgres（Docker） |
+| 結果 | **33 passed / 1 skipped / 0 failed**（所要 1.3 分） |
+
+### 修正内容
+
+`MfaSettingsDialog` は設定直後に `router.refresh()` が届くまでの間だけ有効表示を保つため、クライアント状態 `setupCompleted` を持っている。このフラグが MFA 解除後も残るため、同一ページのまま設定ダイアログを開き直すと「二段階認証は有効です」が表示されていた。`totpEnabled` の変化を描画中に検知して `setupCompleted` を落とす state 調整で解消した。
+
+### P2-M MFA（`e2e/p2-mfa.spec.ts`）
+
+M1–M5 は 1 テストで直列実行し、M6 は独立したテストに分離した。M6 はページを再読み込みせずに「有効化 → 解除 → ダイアログ開き直し」を行う必要があるため、既存フロー（ログアウトを挟むため毎回マウントし直される）では再現しない。
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| M1–M5 | 前節と同じ（有効化 → バックアップコード提示 → TOTP ログイン → バックアップコードログイン → 解除） | Pass |
+| M6 | 解除後に同一ページで設定ダイアログを開くと、有効表示ではなく登録フローが出る | Pass |
+
+M6 は修正を一時的に無効化した状態で失敗する（`MFA設定` 見出しが見つからない）ことを確認済み。登録・解除の手順は `enrollMfa` / `disableMfa` ヘルパーに切り出して M1–M5 と共有している。
+
+### 回帰確認
+
+| 対象 | 結果 |
+|------|------|
+| P0 / P1 / P2 の全スペック | Pass（L4 のみ従来どおりスキップ） |
+
 ## 実行コマンド
 
 ```bash
@@ -152,4 +228,6 @@ npm run test:e2e -- --workers=1 e2e/p2-mfa.spec.ts e2e/p2-signup-email.spec.ts
 npx playwright test e2e/p1-subscription-layout.spec.ts --workers=1
 # 使い方ページ:
 npx playwright test e2e/p1-guide.spec.ts --workers=1
+# MFA（バックアップコード含む）:
+npx playwright test e2e/p2-mfa.spec.ts --workers=1
 ```

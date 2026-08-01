@@ -154,30 +154,3 @@ export function MfaEnrollmentPanel({
     </div>
   );
 }
-
-type MfaSetupCompleteViewProps = {
-  onDone?: () => void;
-  doneLabel?: string;
-};
-
-export function MfaSetupCompleteView({
-  onDone,
-  doneLabel = "完了",
-}: MfaSetupCompleteViewProps) {
-  return (
-    <div className="space-y-4 text-center">
-      <p className="text-lg font-semibold text-green-600">MFA設定完了</p>
-      <p className="text-sm text-slate-600">
-        次回ログイン時から、認証アプリの 6 桁コードが必要になります。
-      </p>
-      <p className="text-sm text-slate-600">
-        認証アプリを削除したり端末を変更した場合は、再度設定が必要です。
-      </p>
-      {onDone ? (
-        <Button type="button" onClick={onDone} className="w-full">
-          {doneLabel}
-        </Button>
-      ) : null}
-    </div>
-  );
-}

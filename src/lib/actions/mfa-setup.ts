@@ -3,12 +3,15 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateTotpSecret, createTotpUri, verifyTotpToken } from "@/lib/mfa/totp";
+import { prepareBackupCodes } from "@/lib/mfa/backup-codes";
 
 export type MfaSetupState = {
-  step: "generate" | "verify" | "complete";
+  step: "generate" | "verify" | "backup-codes";
   secret?: string;
   uri?: string;
   email?: string;
+  /** 発行直後の平文。ハッシュ保存のため再表示はできない */
+  backupCodes?: string[];
   error?: string;
 };
 
@@ -72,13 +75,34 @@ export async function confirmMfaSetup(
     };
   }
 
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: {
-      totpSecret: secret,
-      totpEnabled: true,
-    },
-  });
+  const userId = session.user.id;
 
-  return { step: "complete" };
+  try {
+    const { codes, rows } = await prepareBackupCodes(userId);
+
+    // 有効化とコード発行を一括で行い、片方だけ成功した状態を作らない
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          totpSecret: secret,
+          totpEnabled: true,
+        },
+      }),
+      prisma.backupCode.deleteMany({ where: { userId } }),
+      prisma.backupCode.createMany({ data: rows }),
+    ]);
+
+    return { step: "backup-codes", backupCodes: codes };
+  } catch (error) {
+    console.error("[mfa-setup] confirmMfaSetup failed", error);
+    return {
+      step: "verify",
+      secret,
+      uri: formData.get("uri") as string,
+      email: formData.get("email") as string,
+      error:
+        "設定処理中にエラーが発生しました。しばらくしてから再度お試しください。",
+    };
+  }
 }

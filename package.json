@@ -11,6 +11,7 @@
     "test:e2e": "LD_LIBRARY_PATH=\"${PWD}/.playwright-sysroot/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}\" playwright test",
     "test:e2e:ui": "LD_LIBRARY_PATH=\"${PWD}/.playwright-sysroot/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}\" playwright test --ui",
     "test:e2e:install-libs": "bash scripts/playwright-sysroot-libs.sh",
+    "e2e:reset-mfa": "tsx scripts/reset-e2e-mfa.ts",
     "backup:major": "bash scripts/backup-major.sh"
   },
   "private": true,
@@ -62,6 +63,7 @@
     "postcss": "^8.5.14",
     "prisma": "^7.8.0",
     "tailwindcss": "^4.2.4",
+    "tsx": "^4.23.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10"
   }

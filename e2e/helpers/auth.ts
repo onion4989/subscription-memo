@@ -46,11 +46,42 @@ async function expectSubscriptionsList(page: Page): Promise<void> {
   ).toBeVisible({ timeout: 15_000 });
 }
 
+type MfaChallengeOptions = {
+  totpSecret?: string;
+  backupCode?: string;
+};
+
+async function passMfaChallenge(
+  page: Page,
+  options: MfaChallengeOptions
+): Promise<void> {
+  if (options.backupCode) {
+    await page.getByRole("button", { name: "バックアップコードを使う" }).click();
+    await page.locator("#mfa-verify-backup-code").fill(options.backupCode);
+  } else if (options.totpSecret) {
+    await page
+      .locator("#mfa-verify-token")
+      .fill(generateTotpCode(options.totpSecret));
+  } else {
+    throw new Error(
+      "MFA verify page reached but neither totpSecret nor backupCode was provided"
+    );
+  }
+
+  await page.getByRole("button", { name: "認証", exact: true }).click();
+  await page.waitForURL(
+    (url) =>
+      url.pathname === "/subscriptions" ||
+      url.pathname.startsWith("/subscriptions/"),
+    { timeout: 60_000 }
+  );
+}
+
 export async function loginWithCredentials(
   page: Page,
   email: string,
   password: string,
-  options?: { totpSecret?: string }
+  options?: MfaChallengeOptions
 ): Promise<void> {
   await page.goto("/login");
   await page.locator("#email").fill(email);
@@ -81,18 +112,7 @@ export async function loginWithCredentials(
   ]);
 
   if (page.url().includes("/mfa/verify")) {
-    const secret = options?.totpSecret;
-    if (!secret) {
-      throw new Error("MFA verify page reached but totpSecret was not provided");
-    }
-    await page.locator("#mfa-verify-token").fill(generateTotpCode(secret));
-    await page.getByRole("button", { name: "認証", exact: true }).click();
-    await page.waitForURL(
-      (url) =>
-        url.pathname === "/subscriptions" ||
-        url.pathname.startsWith("/subscriptions/"),
-      { timeout: 60_000 }
-    );
+    await passMfaChallenge(page, options ?? {});
   }
 
   await expectSubscriptionsList(page);
@@ -105,7 +125,7 @@ export async function loginWithE2EUser(page: Page): Promise<void> {
 
 export async function loginWithE2EMfaUser(
   page: Page,
-  options?: { totpSecret?: string }
+  options?: MfaChallengeOptions
 ): Promise<void> {
   const { email, password } = getE2EMfaCredentials();
   await loginWithCredentials(page, email, password, options);
