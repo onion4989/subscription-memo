@@ -259,6 +259,89 @@
 - ref コールバックの cleanup は Radix の `composeRefs`（1.1.2 / 1.1.3）が返り値を回収するため、`TooltipTrigger asChild` 経由でも実行されることを実テストで確認。
 - 削除ファイル: `GuideSteps.tsx` / `GuideStepCardWrapper.tsx` / `public/assets/guide_step1〜4.webp`
 
+## 追記: MFA バックアップコード（2026-08-01）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-08-01 |
+| コマンド | `npx vitest run`（全体）／`npx tsc --noEmit`／`npm run lint` |
+| 環境 | Node.js v24.15.0 / Vitest v4.1.10 |
+| 結果 | **32 files passed / 155 tests passed / 0 failed**（型エラーなし） |
+
+MFA 有効化時にバックアップコードを 10 件発行し、`/mfa/verify` で TOTP の代わりに使えるようにした。`bcryptjs` / Prisma はモックし、DB なしで実行できる。
+
+### `src/lib/mfa/backup-codes.test.ts`（12 件）
+
+| ケース | 内容 | 結果 |
+|--------|------|------|
+| 件数・桁数 | 既定で 10 文字 × 10 件を重複なく生成する | Pass |
+| 文字集合 | `I` / `L` / `O` / `U` を含まない Crockford Base32 だけを使う | Pass |
+| 表示整形 | 10 文字を 4-4-2 のハイフン区切りで表示する | Pass |
+| 入力正規化 | 小文字・ハイフン・空白を除去する | Pass |
+| 転記ゆれ | `O` → `0`、`I` / `L` → `1` に読み替える | Pass |
+| 往復 | 整形した文字列は正規化で元に戻る | Pass |
+| 発行 | 表示用コードとハッシュを 10 件ずつ返し、平文は保存行に現れない | Pass |
+| 消費（成功） | 一致した 1 件だけを使用済みにして `true` を返す | Pass |
+| 消費（不一致） | 一致しないときは何も更新しない | Pass |
+| 桁数不正 | 桁数が合わない入力では DB を参照しない | Pass |
+| 競合 | 同時送信で先に使われていた場合は `false` を返す | Pass |
+| 絞り込み | 未使用かつ本人のコードだけを照合対象にする | Pass |
+
+### `src/lib/actions/mfa-setup.test.ts`（3 件）
+
+| ケース | 内容 | 結果 |
+|--------|------|------|
+| 同一トランザクション | 有効化・旧コード削除・新規発行を 1 トランザクションで実行する | Pass |
+| 認証コード誤り | TOTP が誤りのときは何も書き込まない | Pass |
+| 書き込み失敗 | 失敗時は入力画面へ戻し、コードを返さない | Pass |
+
+### `src/lib/actions/mfa-verify.test.ts`（6 件）
+
+| ケース | 内容 | 結果 |
+|--------|------|------|
+| 認証成功 | バックアップコードが一致するとセッションを MFA 済みにする | Pass |
+| 認証失敗 | 不一致は失敗として記録し、セッションを更新しない | Pass |
+| 空入力 | 空のときは照合そのものを行わない | Pass |
+| ロック中 | ロック中はバックアップコードも受け付けない | Pass |
+| 既定経路 | `mode` 未指定のときは従来どおり TOTP を検証する | Pass |
+| エラー帰属 | TOTP のエラーは `mode: "totp"` として返す（入力切替時に前のエラーを残さない） | Pass |
+
+### `src/lib/actions/mfa-disable.test.ts`（2 件）
+
+| ケース | 内容 | 結果 |
+|--------|------|------|
+| 解除時削除 | 解除と同時に残っているバックアップコードを削除する | Pass |
+| パスワード誤り | パスワードが誤りのときは削除しない | Pass |
+
+### 補足（2026-08-01）
+
+- `MfaSetupCompleteView` を廃止し、完了メッセージはバックアップコード画面へ統合。あわせて `MfaSetupFlow` の `autoNotifyOnComplete` と完了通知用 `useEffect` を削除した（コードを控える前にダイアログが閉じないようにするため）。
+- `MfaSetupState.step` の `"complete"` を `"backup-codes"` に置き換え。サーバーが返さない状態を型から外した。
+- `MfaSetupClient` の未使用 `Button` インポートを削除（ESLint 警告 1 件を解消）。
+- 残る ESLint エラーは `MfaDisableDialog.tsx:41` の 1 件のみで、これは保留中の既知事項。
+
+## 追記: MFA 解除後のダイアログ表示バグ修正（2026-08-01）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-08-01 |
+| コマンド | `npx vitest run` |
+| 結果 | **33 ファイル / 158 件すべて Pass** |
+
+`MfaSettingsDialog` は設定直後に `router.refresh()` が反映されるまでの間だけ有効表示を保つため、クライアント状態 `setupCompleted` を持つ。このフラグが MFA 解除後も残り、同一ページのままダイアログを開き直すと「二段階認証は有効です」と表示されていた。`totpEnabled` の変化を描画中に検知して `setupCompleted` を落とす state 調整で解消した（`useEffect` を増やさない方針は `AppShell` と同じ）。
+
+### `src/components/features/settings/MfaSettingsDialog.test.tsx`（3 件）
+
+Server Action を伴う登録フローは扱えないため、`MfaSetupFlow` は `onComplete` を呼ぶだけのスタブに差し替え、`initMfaSetup` と `useRouter` をモックしている。
+
+| ケース | 内容 | 結果 |
+|--------|------|------|
+| 未設定 | `totpEnabled: false` では登録フローを表示する | Pass |
+| 設定済み | `totpEnabled: true` では有効である旨のみ表示し、`initMfaSetup` を呼ばない | Pass |
+| 解除後 | 設定完了 → 有効 → 解除 と props が変化した後、有効表示を持ち越さず登録フローに戻る | Pass |
+
+「解除後」のケースは修正を一時的に無効化した状態で失敗することを確認済み。
+
 ## 補足
 
 - `NewPasswordSchema` / signup / profile の新パスワードはいずれも最小 **8** 文字（最大 128）。

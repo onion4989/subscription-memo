@@ -52,13 +52,17 @@ export async function disableMfa(
       };
     }
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        totpEnabled: false,
-        totpSecret: null,
-      },
-    });
+    // 旧コードを残すと、再設定後も前回のバックアップコードが通ってしまう
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          totpEnabled: false,
+          totpSecret: null,
+        },
+      }),
+      prisma.backupCode.deleteMany({ where: { userId } }),
+    ]);
 
     await unstable_update({
       user: { totpEnabled: false, mfaVerified: true },

@@ -24,9 +24,20 @@ type MfaSettingsDialogProps = {
 export function MfaSettingsDialog({ totpEnabled }: MfaSettingsDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  // 設定直後は router.refresh() が届くまで totpEnabled が false のままなので、
+  // その間だけ有効表示を保つためのフラグ
   const [setupCompleted, setSetupCompleted] = useState(false);
+  const [lastTotpEnabled, setLastTotpEnabled] = useState(totpEnabled);
   const [setupData, setSetupData] = useState<MfaSetupState | null>(null);
   const [isLoadingSetup, startLoadingSetup] = useTransition();
+
+  if (totpEnabled !== lastTotpEnabled) {
+    setLastTotpEnabled(totpEnabled);
+    // 解除でサーバー側が無効になったら、上のフラグを持ち越さない
+    if (!totpEnabled) {
+      setSetupCompleted(false);
+    }
+  }
 
   const mfaEnabled = totpEnabled || setupCompleted;
 
@@ -99,7 +110,6 @@ export function MfaSettingsDialog({ totpEnabled }: MfaSettingsDialogProps) {
                 key={setupData.uri ?? "mfa-setup"}
                 initialSetupData={setupData}
                 tokenInputId="mfa-settings-dialog-token"
-                autoNotifyOnComplete
                 onComplete={handleSetupComplete}
                 onCancel={() => handleOpenChange(false)}
               />

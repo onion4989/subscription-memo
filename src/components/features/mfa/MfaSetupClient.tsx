@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import { MfaSetupFlow } from "@/components/features/mfa/MfaSetupFlow";
 import { MFA_SETUP_ENROLLMENT_DESCRIPTION } from "@/components/features/mfa/mfa-setup-shared";
 import type { MfaSetupState } from "@/lib/actions/mfa-setup";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
