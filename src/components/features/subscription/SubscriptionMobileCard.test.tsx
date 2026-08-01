@@ -80,6 +80,22 @@ describe("SubscriptionMobileCard", () => {
     expect(screen.getByText(/年換算：/)).toBeInTheDocument();
   });
 
+  it("年換算は月額とは別行に置き、途中で折り返さない", () => {
+    render(<SubscriptionMobileCard subscription={buildSubscription()} />);
+
+    const monthlyLine = screen.getByText("￥590").parentElement;
+    const annualLine = screen.getByText(/年換算：/);
+
+    expect(monthlyLine).toHaveClass("block", "whitespace-nowrap");
+    expect(annualLine).toHaveClass("block", "whitespace-nowrap");
+    // 2 行目の行頭を月額に揃えるため、ラベルと金額を別の flex 子要素に分ける
+    expect(monthlyLine?.parentElement).toBe(annualLine.parentElement);
+    // toHaveTextContent は全角スペースを詰めるため textContent を直接比べる
+    expect(
+      annualLine.parentElement?.previousElementSibling?.textContent
+    ).toBe("料　　　金：");
+  });
+
   it("契約日・次回更新日を YYYY/MM/DD で表示する", () => {
     render(<SubscriptionMobileCard subscription={buildSubscription()} />);
 
