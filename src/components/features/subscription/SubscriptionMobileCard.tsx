@@ -58,27 +58,24 @@ function CardBillingLine({
     return <YenAmountText amount={subscription.annualAmount} />;
   }
 
-  if (subscription.annualAmount === null) {
-    return (
-      <>
-        <YenAmountText amount={subscription.monthlyAmount} />
-        /月
-      </>
-    );
-  }
-
   return (
     <>
-      <YenAmountText amount={subscription.monthlyAmount} />
-      /月
-      <span className={CARD_ANNUAL_LABEL_CLASS}>
-        （年換算：
-        <YenAmountText
-          amount={subscription.annualAmount}
-          className={CARD_ANNUAL_AMOUNT_CLASS}
-        />
-        ）
+      <span className="block whitespace-nowrap">
+        <YenAmountText amount={subscription.monthlyAmount} />
+        /月
       </span>
+      {subscription.annualAmount !== null ? (
+        <span
+          className={cn(CARD_ANNUAL_LABEL_CLASS, "block whitespace-nowrap")}
+        >
+          （年換算：
+          <YenAmountText
+            amount={subscription.annualAmount}
+            className={CARD_ANNUAL_AMOUNT_CLASS}
+          />
+          ）
+        </span>
+      ) : null}
     </>
   );
 }
@@ -134,9 +131,12 @@ export function SubscriptionMobileCard({
       <hr className="my-2 border-[#111111]" />
 
       <div className="leading-tight">
-        <p className={cn(CARD_DETAIL_ROW_CLASS, "whitespace-nowrap")}>
-          料　　　金：
-          <CardBillingLine subscription={subscription} />
+        {/* 年換算を次行へ送るため、ラベルと金額を分けて金額側の左端に揃える */}
+        <p className={cn(CARD_DETAIL_ROW_CLASS, "flex")}>
+          <span className="shrink-0">料　　　金：</span>
+          <span className="min-w-0">
+            <CardBillingLine subscription={subscription} />
+          </span>
         </p>
         <p className={CARD_DETAIL_ROW_CLASS}>
           次回更新日：
