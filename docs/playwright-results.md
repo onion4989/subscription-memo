@@ -33,6 +33,7 @@
 | P1 | `e2e/p1-guide.spec.ts` | G1–G5 |
 | P1 | `e2e/p1-subscription-layout.spec.ts` | L1–L4 |
 | P2 | `e2e/p2-mfa.spec.ts` | M1–M6 |
+| P2 | `e2e/p2-demo.spec.ts` | D1–D4 |
 | P2 | `e2e/p2-signup-email.spec.ts` | E1–E3 |
 
 ## P2 ケース別結果
@@ -217,6 +218,27 @@ M6 は修正を一時的に無効化した状態で失敗する（`MFA設定` �
 |------|------|
 | P0 / P1 / P2 の全スペック | Pass（L4 のみ従来どおりスキップ） |
 
+## 追記: デモアカウント（2026-08-02）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-08-02 |
+| コマンド | `npx playwright test e2e/p2-demo.spec.ts --workers=1` |
+| 環境 | Node.js / Chromium / `http://localhost:3000` / ローカル Postgres |
+| 前処理 | `npm run demo:reset` |
+| 結果 | **4 passed / 0 failed**（約 7.4s） |
+
+### P2-D デモアカウント（`e2e/p2-demo.spec.ts`）
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| D1 | `demo@example.com` / `demo1234` でログインし、シードされたサブスク名が見える | Pass |
+| D2 | 設定画面で MFA セクション・設定ボタンが出ない | Pass |
+| D3 | アカウント画面で削除・パスワード変更 UI が出ず、メールが disabled | Pass |
+| D4 | `/mfa/setup` へ直接アクセスすると `/settings` へ戻る | Pass |
+
+Cron エンドポイント `POST /api/cron/demo-reset` は、`.env.local` に `DEMO_RESET_JOB_SECRET` が無い状態でライブ呼び出しすると `500 DEMO_RESET_JOB_SECRET is not configured` を返すことを確認（想定どおり）。認証成功パスは Vitest の route テストでカバー。
+
 ## 実行コマンド
 
 ```bash
@@ -230,4 +252,6 @@ npx playwright test e2e/p1-subscription-layout.spec.ts --workers=1
 npx playwright test e2e/p1-guide.spec.ts --workers=1
 # MFA（バックアップコード含む）:
 npx playwright test e2e/p2-mfa.spec.ts --workers=1
+# デモアカウント:
+npx playwright test e2e/p2-demo.spec.ts --workers=1
 ```

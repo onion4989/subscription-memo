@@ -23,7 +23,7 @@ export const ROUTES = {
   mfaSetup: "/mfa/setup",
   mfaVerify: "/mfa/verify",
   apiAuth: "/api/auth",
-  /** 日次お知らせジョブ（RENEWAL_JOB_SECRET で保護） */
+  /** 日次ジョブ（更新リマインダー / デモリセット。各エンドポイントで Bearer 保護） */
   apiCron: "/api/cron",
 } as const;
 

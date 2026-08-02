@@ -8,6 +8,10 @@ import {
   ACCOUNT_DELETION_EMAIL_SUBJECT,
   buildAccountDeletionEmailText,
 } from "@/lib/account-deletion/constants";
+import {
+  DEMO_ACCOUNT_GUARD_MESSAGE,
+  isDemoUserEmail,
+} from "@/lib/demo/constants";
 import { sendPlainTextEmail } from "@/lib/email/smtp";
 import { prisma } from "@/lib/prisma";
 import { ROUTES } from "@/lib/routes";
@@ -53,6 +57,10 @@ export async function deleteAccount(
 
     if (!user) {
       return { success: false, error: "認証が必要です。" };
+    }
+
+    if (isDemoUserEmail(user.email)) {
+      return { success: false, error: DEMO_ACCOUNT_GUARD_MESSAGE };
     }
 
     if (user.passwordHash) {
