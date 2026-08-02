@@ -342,6 +342,25 @@ Server Action を伴う登録フローは扱えないため、`MfaSetupFlow` は
 
 「解除後」のケースは修正を一時的に無効化した状態で失敗することを確認済み。
 
+## 追記: デモアカウント（2026-08-02）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-08-02 |
+| コマンド | `npx vitest run` |
+| 結果 | **36 ファイル / 170 件すべて Pass** |
+
+デモアカウント（`demo@example.com`）の初期化・ガード・Cron を追加。通常ユーザー向けロジックは `isDemoUserEmail` 分岐のみ。
+
+| 対象 | 件数 | 内容 |
+|------|------|------|
+| `src/lib/demo/constants.test.ts` | 3 | 定数・メール判定・シード 6 件（notify OFF） |
+| `src/lib/demo/reset-demo-account.test.ts` | 1 | upsert / 関連削除 / 再投入 |
+| `src/app/api/cron/demo-reset/route.test.ts` | 4 | secret 未設定 / 401 / 不正日付 / 成功 |
+| `mfa-setup.test.ts` / `delete-account.test.ts` | +2 | デモユーザーの MFA 有効化・削除を拒否 |
+
+実 DB では `npm run demo:reset` 後に `npx tsx scripts/verify-demo-user.ts` で、確認済み・パスワード一致・通知停止・サブスク 6 件を確認済み。
+
 ## 補足
 
 - `NewPasswordSchema` / signup / profile の新パスワードはいずれも最小 **8** 文字（最大 128）。

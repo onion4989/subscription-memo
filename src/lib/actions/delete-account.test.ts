@@ -57,6 +57,10 @@ import {
   ACCOUNT_DELETE_CONFIRMATION_PHRASE,
   ACCOUNT_DELETION_EMAIL_SUBJECT,
 } from "@/lib/account-deletion/constants";
+import {
+  DEMO_ACCOUNT_GUARD_MESSAGE,
+  DEMO_USER_EMAIL,
+} from "@/lib/demo/constants";
 import { ROUTES } from "@/lib/routes";
 
 const initialState = { success: false };
@@ -196,5 +200,22 @@ describe("deleteAccount (AD2–AD7)", () => {
 
     expect(deleteUser).toHaveBeenCalled();
     expect(signOut).toHaveBeenCalled();
+  });
+
+  it("デモアカウントの削除を拒否する", async () => {
+    auth.mockResolvedValueOnce({ user: { id: "demo-user" } });
+    findUniqueUser.mockResolvedValueOnce({
+      email: DEMO_USER_EMAIL,
+      name: "デモ",
+      passwordHash: "hashed",
+    });
+
+    await expect(
+      deleteAccount(initialState, formDataFrom({ password: "demo1234" }))
+    ).resolves.toEqual({
+      success: false,
+      error: DEMO_ACCOUNT_GUARD_MESSAGE,
+    });
+    expect(deleteUser).not.toHaveBeenCalled();
   });
 });

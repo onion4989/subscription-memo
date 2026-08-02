@@ -7,6 +7,10 @@ import { EMAIL_VERIFICATION_AUDIT_EVENTS } from "@/lib/email-verification/audit-
 import { issueAndSendVerificationEmail } from "@/lib/email-verification/issue-and-send";
 import { getAuthenticatedUserId } from "@/lib/auth/get-user-id";
 import { isOAuthProvider } from "@/lib/auth/mark-oauth-email-verified";
+import {
+  DEMO_ACCOUNT_GUARD_MESSAGE,
+  isDemoUserEmail,
+} from "@/lib/demo/constants";
 import { prisma } from "@/lib/prisma";
 import { ROUTES } from "@/lib/routes";
 import { SMS_NOTIFICATION_UI_ENABLED } from "@/lib/renewal-notification/constants";
@@ -89,10 +93,11 @@ export async function updateProfile(
     return { success: false, message: "ユーザーが見つかりません。" };
   }
 
+  const isDemoAccount = isDemoUserEmail(user.email);
   const hasPassword = Boolean(user.passwordHash);
-  const emailReadonly = user.accounts.some((account) =>
-    isOAuthProvider(account.provider)
-  );
+  const emailReadonly =
+    isDemoAccount ||
+    user.accounts.some((account) => isOAuthProvider(account.provider));
 
   const raw = {
     name: String(formData.get("name") ?? ""),
@@ -101,10 +106,14 @@ export async function updateProfile(
       : String(formData.get("email") ?? ""),
     phoneNumber: phoneNumberFromForm(user, formData),
     avatarId: String(formData.get("avatarId") ?? ""),
-    currentPassword: String(formData.get("currentPassword") ?? ""),
-    newPassword: String(formData.get("newPassword") ?? ""),
+    currentPassword: isDemoAccount
+      ? ""
+      : String(formData.get("currentPassword") ?? ""),
+    newPassword: isDemoAccount
+      ? ""
+      : String(formData.get("newPassword") ?? ""),
     emailEditable: !emailReadonly,
-    hasPassword,
+    hasPassword: isDemoAccount ? false : hasPassword,
   };
 
   const parsed = profileUpdateSchema.safeParse(raw);
@@ -133,12 +142,21 @@ export async function updateProfile(
 
   const responseBase = {
     emailReadonly,
-    hasPassword,
+    hasPassword: isDemoAccount ? false : hasPassword,
     name: data.name,
     email: data.email,
     phoneNumber: data.phoneNumber ?? "",
     avatarId: data.avatarId,
   };
+
+  // デモは UI を隠していても、直接 Action を叩かれた場合に備えて拒否する
+  if (isDemoAccount && (emailChanged || Boolean(data.newPassword))) {
+    return {
+      success: false,
+      message: DEMO_ACCOUNT_GUARD_MESSAGE,
+      values: buildProfileFormValues(user, responseBase),
+    };
+  }
 
   if (emailChanged) {
     const existing = await prisma.user.findUnique({

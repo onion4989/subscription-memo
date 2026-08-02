@@ -1,215 +1,86 @@
-# subscription-memo（SubscMemo）
+# SubscMemo（サブスクMEMO）
 
-`Authentication` をベースにした本番向けアプリです。Next.js 16（App Router）+ Auth.js v5 + Prisma + Xserver SMTP で認証まわりを実装しています。アプリのパス定義は `src/lib/routes.ts` を単一の情報源とし、Proxy は `src/proxy.ts` に置いています。
+サブスクリプションの契約情報を一元管理し、**更新日の前にメールで通知して解約忘れを防ぐ**Webサービスです。個人開発（企画・設計・実装・インフラ・テストまで単独）。
 
-- **本番 URL**: `https://subscmemo.see-u-soon.design`
-- **本番 DB**: Dokploy Postgres（VPS 6GB / Ubuntu 24.04 + Dokploy）
-- **ローカル DB**: `docker compose up -d`（`docker-compose.yml`）
+![Build](https://github.com/onion4989/subscription-memo/actions/workflows/deploy.yml/badge.svg)
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)
 
+## デモ
 
-## 認証のしくみ（初心者向け）
+**https://subscmemo.see-u-soon.design**
 
-ここでは「DB に何が保存されるか」と「どんなときログインできるか」を先に押さえます。セットアップ手順は後半のセクションを参照してください。
+登録不要（下記アカウントでログイン）ですぐにお試しいただけます。**データは毎日リセットされます。** 自分でアカウント登録して試すことも可能です。
 
-**用語メモ**
-- **Credentials（クレデンシャル）**
- メールアドレスとパスワードをこのアプリに直接入力してログインする方式です。
+| Email | Password |
+|---|---|
+| `demo@example.com` | `demo1234` |
 
-- **OAuth**
- Google や GitHub の画面に一度遷移し、そちらで本人確認したあとにこのアプリへ戻る方式です。
+デモアカウントでは、二段階認証の設定・アカウント削除・メール／パスワード変更はできません。
 
+<!-- スクリーンショットは後から差し替え: docs/screenshots/list.png など -->
 
-### データの置き場（テーブルの役割）
+## 課題と解決
 
-データベースは PostgreSQL です。Prisma の「モデル」が、そのままテーブル（行と列の集まり）に対応します。中心は **`User`** で、ほかの表は「その人にぶら下がる情報」です。
+サブスクは「契約を忘れたまま課金され続ける」ことが起きやすく、契約先が増えるほど更新日も金額も把握しづらくなります。本サービスは **固定費の可視化**（月額・年額の自動換算と合計の集計）と **解約忘れの防止**（更新日 3 / 5 / 7 日前のメール通知）の 2 点に絞って解決します。
 
-`User`テーブル
-**役割**
-利用者 1 人分の土台。メール、`passwordHash`（パスワードのハッシュ）、表示名、プロフィール画像、TOTP 秘密鍵の有無などを持ちます。 |
+## 主な機能
 
-`Account`テーブル
-**役割**
-OAuth 用の紐づけ 1 行が 1 レコードです。「どのプロバイダ（`google` / `github`）の、どの外部アカウント ID が、この `User` に属するか」を表します。同じメールでも、別プロバイダを勝手に同じユーザーにくっつける（自動リンク）はしません。 |
+- **サブスク管理** — 料金・支払い周期・契約日を登録し、次回更新日を自動計算（月末の繰り上がりに対応）。月額 ⇄ 年額を自動換算し、契約数と合計金額を集計
+- **更新リマインダー** — 日次バッチが対象を抽出し、同日に複数あればユーザーごとに 1 通へまとめて送信。送信済みを記録して重複を防ぎ、失敗時は翌日に再送
+- **認証** — メール + パスワード、Google / GitHub の OAuth。確認メールを経ないとログイン不可。同一メールでも別プロバイダへの自動リンクは禁止
+- **二段階認証（MFA）** — 認証アプリの TOTP に加え、**バックアップコード 10 件**を発行（ハッシュ保存・1 回で失効）。連続失敗で一時ロック
+- **アカウント管理** — プロフィール、パスワード変更、通知設定、確認ダイアログとメール通知を伴う退会
 
-`Session`テーブル
-**役割**
-Auth.js の Adapter が使うセッション行です。ブラウザが持つログイン状態の主な形は後述の **JWT** ですが、OAuth フローなど Adapter 周りでこの表が使われることがあります。 |
+## 技術スタック
 
-`VerificationToken`テーブル
-**役割**
-Auth.js がメール確認などで使うワンタイム用トークンを置くための表です。 |
+| 分類 | 技術 | 選定理由 |
+|---|---|---|
+| フレームワーク | Next.js 16（App Router） | Server Components でデータ取得をサーバーに寄せるため |
+| 言語 | TypeScript 6（strict） | `any` を禁止し全レイヤーで型を一貫させるため |
+| UI | React 19 / Tailwind CSS 4 / shadcn/ui | UI をソースごと取り込み自前で調整するため |
+| DB / ORM | PostgreSQL / Prisma 7 | 制約とトランザクションで整合性を担保するため |
+| 認証 | Auth.js v5（JWT） | Credentials と OAuth を同一基盤で扱うため |
+| 検証 | Zod / React Hook Form | 同一スキーマをクライアント・サーバーで共用するため |
+| テスト | Vitest / Playwright | ロジックは単体、動線は E2E と使い分けるため |
+| インフラ | VPS + Dokploy / Docker / GitHub Actions | 本番相当の構成を自分で構築・自動化するため |
 
-`BackupCode`テーブル
-**役割**
-MFA のバックアップコード用。MFA 有効化時に 10 件を発行し、bcrypt ハッシュのみを保存します。1 件使用すると `usedAt` が入り再利用できません。MFA 解除時は同一トランザクションで全件削除します。
+## 設計上の工夫
 
-`PasswordResetToken`テーブル
-**役割**
-パスワード再設定用リンクのトークンを **ハッシュ** で保存し、有効期限や使用済みを管理します。 |
+- **Server Action を公開エンドポイントとして扱う** — 直接呼び出せる前提で、すべての Action 内でセッション検証と本人確認を行う。ルート保護は画面遷移の入口としてのみ位置づけ
+- **単一の情報源を持つ** — パス定義を `src/lib/routes.ts` に、更新日計算を `renewal-date.ts` に集約。フォームのプレビューと保存値、画面遷移と保護対象がずれない構造にする
+- **副作用の設計方針を明文化** — `useEffect` を使う条件をルール化し、それ以外は描画時の計算・イベントハンドラ・Server Component へ寄せる
+- **レイアウトを画面幅で分離** — デスクトップは表、モバイルはカードと DOM 自体を切り替え、横スクロールや文字切れを避ける
+- **セキュリティ** — パスワードとバックアップコードは bcrypt でハッシュ化。リセット系はレートリミットとアカウント列挙対策を適用。Cron エンドポイントは Bearer トークンで保護
 
-`LoginAttempt`テーブル
-**役割**
-MFA 検証などの試行が成功したかどうかを記録し、短時間に失敗が続いたときの制限（ロックアウト）の判定に使います。 |
+## テスト
 
-**ブラウザの「ログイン中」はどこに？**  
-このアプリでは **`session: { strategy: "jwt" }`**（`src/lib/auth.ts`）のため、ログイン後の状態は主に **Cookie に載る JWT** で表現されます。
-上の **`User` や `Account` は「アカウント情報の正」**、JWT は「今このブラウザが誰としてログイン中か」の目印、と分けると整理しやすいです。
+| 種別 | 規模 | 主な対象 |
+|---|---|---|
+| Vitest | 33 ファイル / 159 ケース | 日付計算、金額換算、バリデーション、Server Action |
+| Playwright | 9 スペック / 34 ケース | 認証、ルート保護、CRUD、MFA、メール確認の実動線 |
 
+E2E では、MFA のバックアップコードによるログインや、**IMAP で実際に届いたメール**から確認リンクを取得する登録フローまで検証しています。詳細は [Vitest](docs/vitest-results.md) / [Playwright](docs/playwright-results.md) の実施記録を参照してください。
 
-### ログインパターン一覧（状況 → 結果）
+## インフラ
 
-1. はじめて利用する場合（新規登録）
-**メールとパスワードで登録**
-結果: User が作成され、確認メールが送信されます。メール内のリンク（有効期限1時間）を開いて `emailVerified` が設定されるまで、パスワードではログインできません。
+`main` への push で GitHub Actions が Docker イメージをビルドし、GHCR 経由で VPS（Ubuntu / Dokploy）へ自動デプロイします。SSL は Let's Encrypt で自動更新。更新リマインダーとデモアカウントの初期化は Cron から日次で実行します。
 
-**Google または GitHub でログイン**
-結果: User と Account（連携情報）が作成されます。次から同じボタンでログイン可能です。
+## ドキュメント
 
-2. すでに登録済みの場合（ログイン成功）
-**メール・パスワードで登録済み** ➔ 正しいパスワードを入力
-結果: 成功。
+| ドキュメント | 内容 |
+|---|---|
+| [認証の設計](docs/authentication.md) | テーブル構成、ログインパターン、ルート保護、エラー設計 |
+| [開発ガイド](docs/development.md) | セットアップ、環境変数、ディレクトリ構成、デプロイ |
+| [Vitest 結果](docs/vitest-results.md) | 単体テストの実施記録 |
+| [Playwright 結果](docs/playwright-results.md) | E2E テストの実施記録 |
 
-**Google で登録済み** ➔ Google ボタンをクリック
-結果: 成功。
+## 今後の予定
 
-**GitHub で登録済み** ➔ GitHub ボタンをクリック
-結果: 成功。
+- SMS 通知の有効化（DB・バリデーションは実装済み、送信プロバイダ未決）
+- MFA バックアップコードの残数表示・再発行（現状は解除 → 再設定でのみ再発行可能）
 
-**パスワードと Google 両方を連携済み** ➔ どちらの方法でも
-結果: 成功。
+## 作者
 
-3. ログインに失敗する場合（注意点）
-**登録済みだが、間違ったパスワードを入力**
-結果: 失敗。「パスワードが違います」等のエラー。
-
-**パスワードのみ登録済み** ➔ Google / GitHub ボタンをクリック
-結果: 失敗。セキュリティのため、自動でアカウントを合体させることはありません。
-
-**Google のみ登録済み** ➔ GitHub ボタン（同じメール）をクリック
-結果: 失敗。勝手な別プロバイダへのリンクを禁止しているため、Google でログインし直す必要があります。
-
-**SNS のみ登録済み** ➔ パスワードでログインしようとする
-結果: 失敗。パスワードが設定されていないため、元の SNS ボタンからログインしてください。
-
-**エラー時の挙動**
-自動連携の禁止: 同じメールアドレスを使っていても、登録時と異なる方法でログインしようとするとブロックされます。
-
-エラーメッセージ: OAuthAccountNotLinked などのエラーが出た場合は、「以前使った方法（またはパスワード）」でのログインが必要です。
-
-
-**補足**
-- 新規登録（`/signup`）で **確認済みのメール** を指定した場合は、フォームのエラーで「既に登録されています」と伝わります。**未確認のメール** で再登録した場合は新規作成せず、確認メールを再送します（画面メッセージは共通化）。
-- **メール確認**は `/verify-email?token=...` で完了します。届かない場合は `/resend-verification` から再送できます（レートリミットあり）。
-- **パスワードを忘れた**ときは `/forgot-password` から手続きします。**メール未確認の Credentials ユーザー**にはリセットメールは送りません。画面メッセージは登録の有無に関わらず同じにしています。
-- **MFA（二段階認証）** は、ログイン後に `/mfa/setup` で任意設定し、`totpEnabled` 時は `/mfa/verify` で認証アプリの 6 桁コードを確認する流れです。認証アプリが使えない場合は、設定時に控えたバックアップコードでも `/mfa/verify` を通過できます。上の表は「メール／OAuth による本人確認」の段階に焦点を当てています。
-
-
-## 認証要件（現時点）
-
-- **認証方式**
- Credentials（メール + パスワード）と OAuth（Google / GitHub）
-
-- **OAuth**
-ドメイン制限なし（誰でもサインイン可能）
-
-- **アカウントリンク**
- 同一メールでも別プロバイダへの自動リンクは禁止。既存ユーザーに当該 OAuth が紐づいていない場合はログインを拒否し、`/login` に `error=OAuthAccountNotLinked` および補助クエリ（既存の連携プロバイダ・Credentials 登録の有無など）を付与して案内する
-
-- **新規登録**
-`/signup`（認証不要）。登録後に確認メールを送信し、リンククリックで `emailVerified` を設定するまで Credentials ログインは不可。OAuth（Google / GitHub）は確認メール不要
-
-- **メール確認**
-`/verify-email`（認証不要）、再送 `/resend-verification`（認証不要）。トークン有効期限は1時間。再送・送信失敗は構造化ログに記録
-
-- **セッション**
- JWT 戦略（`src/lib/auth.ts`）。Prisma Adapter はアカウント連携用に利用
-
-- **パスワードリセット**
-`/forgot-password` で依頼、`/reset-password?token=...` で再設定（いずれも認証不要）。レスポンスは登録有無に関わらず同一（列挙対策）。メール送信失敗時はログに記録し、作成済みのリセットトークンを削除。OAuth のみのユーザーはトークンを発行せずログに記録（外部連携アカウント向けメールは運用ルール上の拡張ポイント）
-
-- **MFA（デモ）**
-TOTP（Google Authenticator 等）の 6 桁コード、またはバックアップコード。Credentials ユーザーは任意（推奨）。OAuth は対象外。設定 `/mfa/setup`（要ログイン）、検証 `/mfa/verify`（ログイン直後・MFA 有効時）。`totpEnabled` のユーザーは Credentials ログイン後に `/mfa/verify` へ遷移し、JWT の `mfaVerified` が付与されるまで `(app)` 配下へ入れない。MFA 検証の失敗はユーザー単位で記録し、直近 15 分以内の失敗が閾値に達すると一時的に再試行を拒否（`src/lib/mfa/lockout.ts`）。ロック中はバックアップコードも受け付けない。バックアップコードは有効化時に 10 件（Crockford Base32・10 文字）を発行して一度だけ表示し、bcrypt ハッシュで保存・1 回で失効（`src/lib/mfa/backup-codes.ts`）。残数表示と再発行は未実装（方針は `.cursor/rules/auth-nextjs16.mdc` の「MFA 将来実装」参照）
-
-- **ログイン成功後の既定遷移**
-`/success` で `Login Success!` を表示（Credentials の Server Action および OAuth の既定 `callbackUrl` と整合）
-
-
-## ルート保護（`src/proxy.ts`）
-
-- **方針**: 下記「認証スキップ」以外のパスは、セッション Cookie が無い場合 `/login` へリダイレクトする。リダイレクト時は元パスを `callbackUrl` クエリに付与する
-
-- **認証スキップ（`PROXY_PUBLIC_PATH_PREFIXES`）**: `/login`、`/signup`、`/forgot-password`、`/reset-password`、`/mfa/verify`、`/api/auth`（Auth.js のコールバック干渉回避）
-
-- **静的・フレームワーク配下（`PROXY_IGNORED_PATH_PREFIXES`）**: `/_next`、`/favicon.ico` など。Next の `public/` フォルダのファイルは URL 上はルート直下（例: `/favicon.ico`）として配信され、パス `/public/...` としては扱わない
-
-- **matcher**: `_next/static`、`_next/image`、`favicon.ico` は `config.matcher` 側でも除外（Next.js の静的解析の都合で `src/proxy.ts` 内にリテラル記述）
-
-## ログイン画面のエラー表示
-
-- `/login?error=...` を主とし、`OAuthAccountNotLinked` 時は追加クエリで文言を出し分け
-- 列挙や過度な情報露出に配慮したメッセージ設計（詳細は `.cursor/rules/auth-nextjs16.mdc`）
-
-## バージョン方針
-
-- Node.js はリポジトリ直下の `.nvmrc` を正とする（現在: `24.15.0` / Latest LTS）
-- 開発・CI・本番で Node の同一メジャーを維持する
-- Auth.js は `v5` 系を使用する（`next-auth@5`）
-- Prisma は `7` 系を使用する
-- Prisma `7` 系は Node.js `20.19+ / 22.12+ / 24+` が要件
-
-## セットアップ
-
-```bash
-nvm use
-npm install
-cp .env.example .env
-npx prisma generate
-```
-
-`.env` 必須項目:
-
-- `DATABASE_URL`
-- `AUTH_SECRET`
-- `AUTH_TRUST_HOST`
-- `AUTH_URL`
-- `AUTH_GOOGLE_ID`
-- `AUTH_GOOGLE_SECRET`
-- `AUTH_GITHUB_ID`
-- `AUTH_GITHUB_SECRET`
-- `SMTP_HOST`
-- `SMTP_PORT`（通常 `465`）
-- `MY_EMAIL`
-- `MY_PASSWORD`
-
-ローカル DB を使う場合:
-
-```bash
-docker compose up -d
-```
-
-`DATABASE_URL` の例: `postgresql://postgres:postgres@localhost:5432/subscription_memo_dev`
-
-## 開発コマンド
-
-```bash
-npm run dev
-npm run lint
-npm run build
-```
-
-## 本番デプロイ
-
-GitHub Actions で Docker イメージをビルドし、GHCR 経由で Dokploy（**Works > Subscription MEMO**）へデプロイします。詳細は `.cursor/rules/manual/deployment-ci-cd.md` を参照してください。
-
-- イメージ: `ghcr.io/onion4989/subscription-memo:latest`
-- トリガー: `main` ブランチへの push
-- SSL: Dokploy（Let's Encrypt）
-
-## ルール参照
-
-- 共通: `.cursor/rules/common.mdc`
-- 認証: `.cursor/rules/auth-nextjs16.mdc`
-- セキュリティ: `.cursor/rules/security.mdc`
-- フォーム: `.cursor/rules/form-handling.mdc`
-- メール: `.cursor/rules/email-smtp.mdc`
-- デプロイ: `.cursor/rules/manual/deployment-ci-cd.md`
+【要記入: 名前】 ｜ 開発期間: 【要記入】 ｜ ポートフォリオ: 【要記入: URL】

@@ -72,6 +72,8 @@ type NotificationSettingsFormProps = {
   initialValues: NotificationSettingsFormValues;
   emailVerified: boolean;
   totpEnabled: boolean;
+  /** false のとき MFA 設定 UI を出さない（デモアカウント用）。既定は true */
+  mfaControlsEnabled?: boolean;
 };
 
 const initialState: UpdateNotificationSettingsState = {
@@ -94,6 +96,7 @@ export function NotificationSettingsForm({
   initialValues,
   emailVerified,
   totpEnabled,
+  mfaControlsEnabled = true,
 }: NotificationSettingsFormProps) {
   const [state, formAction, pending] = useActionState(
     updateNotificationSettings,
@@ -227,23 +230,25 @@ export function NotificationSettingsForm({
         ) : null}
       </form>
 
-      <section className={FORM_PANEL_CLASS}>
-        <div className="flex flex-col gap-5">
-          <div>
-            <h2 className="text-lg font-semibold">二段階認証（MFA）</h2>
-            <p className={cn("mt-1", FORM_FIELD_HINT_CLASS)}>
-              {totpEnabled
-                ? "二段階認証は有効です。ログイン時に認証アプリの 6 桁コードが必要です。"
-                : "メールとパスワードに加え、認証アプリ（Google Authenticator 等）でログインを保護できます。設定は任意です。"}
-            </p>
-          </div>
+      {mfaControlsEnabled ? (
+        <section className={FORM_PANEL_CLASS}>
+          <div className="flex flex-col gap-5">
+            <div>
+              <h2 className="text-lg font-semibold">二段階認証（MFA）</h2>
+              <p className={cn("mt-1", FORM_FIELD_HINT_CLASS)}>
+                {totpEnabled
+                  ? "二段階認証は有効です。ログイン時に認証アプリの 6 桁コードが必要です。"
+                  : "メールとパスワードに加え、認証アプリ（Google Authenticator 等）でログインを保護できます。設定は任意です。"}
+              </p>
+            </div>
 
-          <div className="flex flex-wrap justify-start gap-3">
-            <MfaSettingsDialog totpEnabled={totpEnabled} />
-            {totpEnabled ? <MfaDisableDialog /> : null}
+            <div className="flex flex-wrap justify-start gap-3">
+              <MfaSettingsDialog totpEnabled={totpEnabled} />
+              {totpEnabled ? <MfaDisableDialog /> : null}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -41,7 +41,11 @@ vi.mock("@/lib/mfa/totp", () => ({
 
 vi.mock("@/lib/mfa/backup-codes", () => ({ prepareBackupCodes }));
 
-import { confirmMfaSetup } from "@/lib/actions/mfa-setup";
+import { confirmMfaSetup, initMfaSetup } from "@/lib/actions/mfa-setup";
+import {
+  DEMO_ACCOUNT_GUARD_MESSAGE,
+  DEMO_USER_EMAIL,
+} from "@/lib/demo/constants";
 
 const initialState = { step: "generate" } as const;
 
@@ -117,5 +121,44 @@ describe("confirmMfaSetup", () => {
     expect(result.step).toBe("verify");
     expect(result.backupCodes).toBeUndefined();
     expect(result.error).toBeDefined();
+  });
+
+  it("デモアカウントでは MFA 有効化を拒否する", async () => {
+    auth.mockResolvedValue({
+      user: { id: "demo-user", email: DEMO_USER_EMAIL },
+    });
+
+    const result = await confirmMfaSetup(initialState, setupFormData());
+
+    expect(result).toEqual({
+      step: "generate",
+      error: DEMO_ACCOUNT_GUARD_MESSAGE,
+    });
+    expect(verifyTotpToken).not.toHaveBeenCalled();
+    expect(transaction).not.toHaveBeenCalled();
+  });
+});
+
+describe("initMfaSetup", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("デモアカウントではセットアップデータを返さない", async () => {
+    auth.mockResolvedValue({
+      user: { id: "demo-user", email: DEMO_USER_EMAIL },
+    });
+    findUniqueUser.mockResolvedValue({
+      id: "demo-user",
+      email: DEMO_USER_EMAIL,
+      totpEnabled: false,
+    });
+
+    const result = await initMfaSetup();
+
+    expect(result).toEqual({
+      step: "generate",
+      error: DEMO_ACCOUNT_GUARD_MESSAGE,
+    });
   });
 });
