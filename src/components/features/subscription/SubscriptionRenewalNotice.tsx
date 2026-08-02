@@ -5,6 +5,7 @@ import {
   type UpcomingRenewalUrgencyTier,
 } from "@/lib/subscription/renewal-upcoming-notice";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
+import { cn } from "@/lib/utils";
 
 const EMPTY_NOTICE_MESSAGE =
   "現在お知らせはありません。\n登録したサブスクリプションの次回更新日が5日以内になったら、こちらのお知らせが更新されます。";
@@ -14,6 +15,14 @@ const NOTICE_ICON_COLORS: Record<UpcomingRenewalUrgencyTier, string> = {
   3: "#E62F5D",
   5: "#EDE466",
 };
+
+/** モバイル 14px / デスクトップ 16px（カード本文と揃える） */
+const NOTICE_BODY_TEXT_CLASS =
+  "text-[14px] leading-normal text-white md:text-base";
+
+/** モバイル 18px / デスクトップ 20px（数字＋「日後」を同サイズ・折り返し禁止） */
+const NOTICE_HIGHLIGHT_TEXT_CLASS =
+  "whitespace-nowrap text-[18px] font-bold underline underline-offset-[5px] md:text-[20px]";
 
 type SubscriptionRenewalNoticeProps = {
   subscriptions: SavedSubscriptionRow[];
@@ -26,7 +35,7 @@ function NoticeExclamationIcon({
 }) {
   return (
     <span
-      className="inline-flex size-[15px] shrink-0 items-center justify-center text-[14px] leading-none text-black"
+      className="mt-0.5 inline-flex size-[15px] shrink-0 items-center justify-center text-[14px] leading-none text-black"
       style={{ backgroundColor: NOTICE_ICON_COLORS[urgencyTier] }}
       aria-hidden="true"
       data-notice-icon-days={urgencyTier}
@@ -38,37 +47,34 @@ function NoticeExclamationIcon({
 
 function NoticeRemainingHighlight({ daysUntil }: { daysUntil: number }) {
   if (daysUntil === 0) {
-    return (
-      <span className="font-bold underline underline-offset-[5px]">
-        <span className="text-[20px] font-bold">本日中</span>
-      </span>
-    );
+    return <span className={NOTICE_HIGHLIGHT_TEXT_CLASS}>本日中</span>;
   }
 
   return (
     <>
       あと
-      <span className="font-bold underline underline-offset-[5px]">
-        <span className="text-[20px] font-bold">{daysUntil}</span>
-        日後
-      </span>
+      <span className={NOTICE_HIGHLIGHT_TEXT_CLASS}>{daysUntil}日後</span>
     </>
   );
 }
 
 function NoticeLine({ item }: { item: UpcomingRenewalNoticeItem }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-start gap-2">
       <NoticeExclamationIcon urgencyTier={item.urgencyTier} />
-      <p className="text-base leading-normal text-white">
+      <p className={cn(NOTICE_BODY_TEXT_CLASS, "min-w-0")}>
+        {/* モバイル: サービス名を1行目、更新文を2行目。デスクトップ: 従来の1文 */}
+        <span className="block md:inline">{item.displayName}</span>
         {item.daysUntil === 0 ? (
           <>
-            {item.displayName}の次回更新日は{" "}
+            <span className="hidden md:inline">の次回更新日は </span>
+            <span className="md:hidden">次回更新日は </span>
             <NoticeRemainingHighlight daysUntil={0} /> です。
           </>
         ) : (
           <>
-            {item.displayName}の次回更新日は、
+            <span className="hidden md:inline">の次回更新日は、</span>
+            <span className="md:hidden">次回更新日は、</span>
             <NoticeRemainingHighlight daysUntil={item.daysUntil} />
             です。
           </>
@@ -84,20 +90,25 @@ export function SubscriptionRenewalNotice({
   const items = buildUpcomingRenewalNotices(subscriptions);
 
   return (
-    <section className="w-full" aria-labelledby="subscription-renewal-notice-heading">
+    <section
+      className="w-full pb-4 md:pb-0"
+      aria-labelledby="subscription-renewal-notice-heading"
+    >
       <h2
         id="subscription-renewal-notice-heading"
-        className="mb-3 text-base font-bold text-white"
+        className="mb-4 text-[14px] font-bold text-white md:mb-3 md:text-base"
       >
         お知らせ
       </h2>
-      <div className={SUBSCRIPTION_SECTION_FRAME_CLASS}>
+      <div
+        className={cn(SUBSCRIPTION_SECTION_FRAME_CLASS, "py-6 md:py-5")}
+      >
         {items.length === 0 ? (
-          <p className="whitespace-pre-line text-base leading-normal text-white">
+          <p className={cn("whitespace-pre-line", NOTICE_BODY_TEXT_CLASS)}>
             {EMPTY_NOTICE_MESSAGE}
           </p>
         ) : (
-          <ul className="flex flex-col gap-0.5">
+          <ul className="flex flex-col gap-3 md:gap-0.5">
             {items.map((item) => (
               <li key={item.id}>
                 <NoticeLine item={item} />
