@@ -20,7 +20,7 @@ export function SubscriptionListTable({
 }: SubscriptionListTableProps) {
   return (
     <div className={`${SUBSCRIPTION_TABLE_BLOCK_CLASS} w-full gap-8 md:gap-14`}>
-      <div className="w-full space-y-4 md:hidden">
+      <div className="w-full space-y-6 md:hidden">
         <SubscriptionSummaryCards subscriptions={subscriptions} />
         <SubscriptionRenewalNotice subscriptions={subscriptions} />
 
