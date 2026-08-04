@@ -5,40 +5,40 @@ import {
 } from "@/lib/subscription/renewal-upcoming-notice";
 import { cn } from "@/lib/utils";
 
-/** デスクトップ Tooltip / モバイル吹き出しで共有する本体スタイル */
+/** デスクトップ / モバイル吹き出しで共有する本体スタイル */
 export const UPCOMING_RENEWAL_CALLOUT_CONTENT_CLASS =
   "pointer-events-none border-0 px-2.5 py-1 text-xs font-bold shadow-md rounded-md";
 
-/** Radix Tooltip Arrow 用（fill 付き） */
-export const UPCOMING_RENEWAL_CALLOUT_ARROW_CLASS: Record<
-  UpcomingRenewalUrgencyTier,
-  string
-> = {
-  3: "bg-[#9F193B] fill-[#9F193B]",
-  5: "bg-[#EDE466] fill-[#EDE466]",
-};
+type UpcomingRenewalCalloutPlacement = "card" | "tableHeader";
 
 type UpcomingRenewalCalloutProps = {
   urgencyTier: UpcomingRenewalUrgencyTier;
   className?: string;
+  /** card: モバイルカード右上 / tableHeader: テーブル列ヘッダー中央上 */
+  placement?: UpcomingRenewalCalloutPlacement;
+};
+
+const PLACEMENT_CLASS: Record<UpcomingRenewalCalloutPlacement, string> = {
+  card: "pointer-events-none absolute right-[10px] top-0 z-10 -translate-y-1/2",
+  /** 本体＋矢印がヘッダー上辺と交わらないよう 12px 上げる。スクロール領域の pt 内に収める */
+  tableHeader:
+    "pointer-events-none absolute bottom-full left-1/2 z-10 mb-3 -translate-x-1/2",
 };
 
 /**
- * デスクトップの「更新間近」Tooltip と同デザインの静的吹き出し。
- * 本体レクタングルの縦中央を Card 上辺に合わせ、矢印は Card 内側へ。
+ * 「更新間近」静的吹き出し。
+ * テーブル側は Portal せず absolute 配置し、サイドバー幅変化でも位置が追従する。
  */
 export function UpcomingRenewalCallout({
   urgencyTier,
   className,
+  placement = "card",
 }: UpcomingRenewalCalloutProps) {
   const backgroundColor = UPCOMING_RENEWAL_CELL_COLORS[urgencyTier];
 
   return (
     <span
-      className={cn(
-        "pointer-events-none absolute right-[10px] top-0 z-10 -translate-y-1/2",
-        className
-      )}
+      className={cn(PLACEMENT_CLASS[placement], className)}
       data-upcoming-renewal-badge={urgencyTier}
     >
       <span
@@ -49,7 +49,7 @@ export function UpcomingRenewalCallout({
         }}
       >
         更新間近
-        {/* absolute のためラッパー高さは本体のみ → -translate-y-1/2 がレクタングル中央基準 */}
+        {/* absolute のためラッパー高さは本体のみ → 矢印は本体下辺基準 */}
         <span
           aria-hidden
           className="absolute left-1/2 top-full z-10 size-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[2px]"

@@ -2,22 +2,9 @@
 
 import type { CSSProperties, RefCallback } from "react";
 import { useCallback, useState, useSyncExternalStore } from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { SUBSCRIPTION_TABLE_FRAME_DATA_ATTR } from "@/components/features/subscription/SubscriptionTableSection";
-import {
-  UPCOMING_RENEWAL_CALLOUT_ARROW_CLASS,
-  UPCOMING_RENEWAL_CALLOUT_CONTENT_CLASS,
-} from "@/components/features/subscription/UpcomingRenewalCallout";
-import {
-  UPCOMING_RENEWAL_CELL_COLORS,
-  UPCOMING_RENEWAL_LABEL_TEXT_COLORS,
-  type UpcomingRenewalUrgencyTier,
-} from "@/lib/subscription/renewal-upcoming-notice";
+import { UpcomingRenewalCallout } from "@/components/features/subscription/UpcomingRenewalCallout";
+import type { UpcomingRenewalUrgencyTier } from "@/lib/subscription/renewal-upcoming-notice";
 import { cn } from "@/lib/utils";
 
 const MD_UP_MEDIA_QUERY = "(min-width: 768px)";
@@ -35,31 +22,31 @@ function getMdUpSnapshot(): boolean {
   return window.matchMedia(MD_UP_MEDIA_QUERY).matches;
 }
 
-/** SSR / 初回は false。モバイルで hidden テーブルの Tooltip が Portal 漏れしないようにする */
+/** SSR / 初回は false。モバイルで hidden テーブルのバッジを出さない */
 function useIsMdUp(): boolean {
   return useSyncExternalStore(subscribeMdUp, getMdUpSnapshot, () => false);
 }
 
 type TableFrameVisibility = {
   isVisible: boolean;
-  triggerRef: RefCallback<HTMLSpanElement>;
+  anchorRef: RefCallback<HTMLSpanElement>;
 };
 
 /**
- * 黒いテーブル枠内にトリガーが見えているとき isVisible が true。
+ * 黒いテーブル枠内に列ヘッダーが見えているとき isVisible が true。
  * 横スクロールで枠外に出た列の「更新間近」を出さない。
- * triggerRef が付いた要素が外れている間は観測しないため、
- * 呼び出し側は表示条件を満たすときだけ triggerRef を渡す。
+ * anchorRef が付いた要素が外れている間は観測しないため、
+ * 呼び出し側は表示条件を満たすときだけ anchorRef を渡す。
  */
 function useIsVisibleInTableFrame(): TableFrameVisibility {
   const [isVisible, setIsVisible] = useState(false);
 
-  const triggerRef = useCallback((trigger: HTMLSpanElement | null) => {
-    if (!trigger) {
+  const anchorRef = useCallback((anchor: HTMLSpanElement | null) => {
+    if (!anchor) {
       return;
     }
 
-    const frame = trigger.closest(`[${SUBSCRIPTION_TABLE_FRAME_DATA_ATTR}]`);
+    const frame = anchor.closest(`[${SUBSCRIPTION_TABLE_FRAME_DATA_ATTR}]`);
     if (!(frame instanceof Element)) {
       return;
     }
@@ -82,14 +69,14 @@ function useIsVisibleInTableFrame(): TableFrameVisibility {
       }
     );
 
-    observer.observe(trigger);
+    observer.observe(anchor);
     return () => {
       observer.disconnect();
       setIsVisible(false);
     };
   }, []);
 
-  return { isVisible, triggerRef };
+  return { isVisible, anchorRef };
 }
 
 type SubscriptionNameHeaderCellProps = {
@@ -106,7 +93,7 @@ export function SubscriptionNameHeaderCell({
   style,
 }: SubscriptionNameHeaderCellProps) {
   const isMdUp = useIsMdUp();
-  const { isVisible, triggerRef } = useIsVisibleInTableFrame();
+  const { isVisible, anchorRef } = useIsVisibleInTableFrame();
 
   if (urgencyTier === null || !isMdUp) {
     return (
@@ -116,35 +103,26 @@ export function SubscriptionNameHeaderCell({
     );
   }
 
-  const backgroundColor = UPCOMING_RENEWAL_CELL_COLORS[urgencyTier];
-
   return (
-    <th scope="col" className={cn(className)} style={style} title={name}>
-      <TooltipProvider>
-        <Tooltip open={isVisible} onOpenChange={() => undefined}>
-          <TooltipTrigger asChild>
-            <span ref={triggerRef} className="block truncate">
-              {name}
-            </span>
-          </TooltipTrigger>
-          <TooltipContent
-            side="top"
-            align="center"
-            sideOffset={6}
-            className={cn(
-              UPCOMING_RENEWAL_CALLOUT_CONTENT_CLASS,
-              "!font-bold"
-            )}
-            style={{
-              backgroundColor,
-              color: UPCOMING_RENEWAL_LABEL_TEXT_COLORS[urgencyTier],
-            }}
-            arrowClassName={UPCOMING_RENEWAL_CALLOUT_ARROW_CLASS[urgencyTier]}
-          >
-            更新間近
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+    <th
+      scope="col"
+      className={cn(
+        className,
+        // truncate（overflow:hidden）より後に置き、吹き出しが th 外へ出せるようにする
+        "relative overflow-visible"
+      )}
+      style={style}
+      title={name}
+    >
+      <span ref={anchorRef} className="block truncate">
+        {name}
+      </span>
+      {isVisible ? (
+        <UpcomingRenewalCallout
+          urgencyTier={urgencyTier}
+          placement="tableHeader"
+        />
+      ) : null}
     </th>
   );
 }

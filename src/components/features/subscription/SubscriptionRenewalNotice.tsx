@@ -35,7 +35,7 @@ function NoticeExclamationIcon({
 }) {
   return (
     <span
-      className="mt-0.5 inline-flex size-[15px] shrink-0 items-center justify-center text-[14px] leading-none text-black"
+      className="mt-0.5 inline-flex size-[15px] shrink-0 items-center justify-center text-[14px] leading-none text-black md:mt-0"
       style={{ backgroundColor: NOTICE_ICON_COLORS[urgencyTier] }}
       aria-hidden="true"
       data-notice-icon-days={urgencyTier}
@@ -60,7 +60,7 @@ function NoticeRemainingHighlight({ daysUntil }: { daysUntil: number }) {
 
 function NoticeLine({ item }: { item: UpcomingRenewalNoticeItem }) {
   return (
-    <div className="flex items-start gap-2">
+    <div className="flex items-start gap-2 md:items-center">
       <NoticeExclamationIcon urgencyTier={item.urgencyTier} />
       <p className={cn(NOTICE_BODY_TEXT_CLASS, "min-w-0")}>
         {/* モバイル: サービス名を1行目、更新文を2行目。デスクトップ: 従来の1文 */}

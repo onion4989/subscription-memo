@@ -30,8 +30,10 @@ function findTableSectionFrame(container: HTMLElement): HTMLElement | undefined 
       el.classList.contains("border-2") &&
       el.classList.contains("border-white") &&
       el.classList.contains("bg-black") &&
-      el.classList.contains("pt-12") &&
-      el.classList.contains("md:flex")
+      el.classList.contains("pb-9") &&
+      el.classList.contains("px-5") &&
+      el.classList.contains("md:flex") &&
+      !el.classList.contains("p-5")
   );
 }
 

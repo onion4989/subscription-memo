@@ -5,6 +5,7 @@ import { SubscriptionSummaryCards } from "@/components/features/subscription/Sub
 import {
   SUBSCRIPTION_TABLE_BLOCK_CLASS,
   SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
+  SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS,
   SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
@@ -45,7 +46,12 @@ export function SubscriptionListTable({
           )}
           {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
         >
-          <div className={cn(APP_SCROLLBAR_X_CLASS, "max-w-full")}>
+          <div
+            className={cn(
+              APP_SCROLLBAR_X_CLASS,
+              SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS
+            )}
+          >
             <SubscriptionTransposeTable subscriptions={subscriptions} />
           </div>
         </div>

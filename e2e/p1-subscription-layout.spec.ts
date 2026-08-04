@@ -141,7 +141,7 @@ test.describe("P1 subscription layout (shell / frames)", () => {
     expect(tooltipBox).not.toBeNull();
 
     // 吹き出し本体が枠の上辺より下にいること
-    // （横方向は Portal + 列位置により枠外に出ることがあるため縦のみ検証）
+    // （横方向は列位置により枠外に出ることがあるため縦のみ検証）
     expect(tooltipBox!.y).toBeGreaterThanOrEqual(frame!.top - 1);
 
     await page.goto("/subscriptions/manage");
