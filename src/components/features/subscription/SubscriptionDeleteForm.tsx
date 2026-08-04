@@ -5,6 +5,7 @@ import { SubscriptionDeleteConfirmModal } from "@/components/features/subscripti
 import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
 import {
   SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
+  SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS,
   SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
   SubscriptionTableSection,
 } from "@/components/features/subscription/SubscriptionTableSection";
@@ -17,6 +18,7 @@ import {
 import { deleteSubscription } from "@/lib/actions/subscription-delete";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
+import { cn } from "@/lib/utils";
 
 type SubscriptionDeleteFormProps = {
   initialSaved: SavedSubscriptionRow[];
@@ -166,7 +168,12 @@ export function SubscriptionDeleteForm({
             className={`hidden w-full items-center justify-center md:flex ${SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS}`}
             {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
           >
-            <div className={`max-w-full ${APP_SCROLLBAR_X_CLASS}`}>
+            <div
+              className={cn(
+                APP_SCROLLBAR_X_CLASS,
+                SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS
+              )}
+            >
               <SubscriptionTransposeTable
                 subscriptions={rows}
                 action="delete"

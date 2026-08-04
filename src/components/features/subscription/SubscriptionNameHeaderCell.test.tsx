@@ -91,21 +91,10 @@ function nameHeaderTable(urgencyTier: UpcomingRenewalUrgencyTier | null) {
   );
 }
 
-function mockResizeObserver() {
-  class MockResizeObserver {
-    observe = vi.fn();
-    unobserve = vi.fn();
-    disconnect = vi.fn();
-  }
-
-  vi.stubGlobal("ResizeObserver", MockResizeObserver);
-}
-
 describe("SubscriptionNameHeaderCell", () => {
   beforeEach(() => {
     mockMatchMedia(true);
     mockIntersectionObserver();
-    mockResizeObserver();
   });
 
   afterEach(() => {
@@ -158,11 +147,17 @@ describe("SubscriptionNameHeaderCell", () => {
       </table>
     );
 
-    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    expect(screen.queryByText("更新間近")).not.toBeInTheDocument();
     expect(observerInstances).toHaveLength(1);
 
     emitIntersection(1);
-    expect(screen.getByRole("tooltip")).toHaveTextContent("更新間近");
+    const badge = screen.getByText("更新間近");
+    expect(badge).toBeInTheDocument();
+    expect(badge.closest("[data-upcoming-renewal-badge]")).toHaveAttribute(
+      "data-upcoming-renewal-badge",
+      "5"
+    );
+    expect(screen.getByRole("columnheader")).toHaveClass("overflow-visible");
   });
 
   it("枠外（交差が不十分）のとき更新間近を隠す", () => {
@@ -177,28 +172,28 @@ describe("SubscriptionNameHeaderCell", () => {
     );
 
     emitIntersection(1);
-    expect(screen.getByRole("tooltip")).toHaveTextContent("更新間近");
+    expect(screen.getByText("更新間近")).toBeInTheDocument();
 
     emitIntersection(0.2, true);
-    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    expect(screen.queryByText("更新間近")).not.toBeInTheDocument();
 
     emitIntersection(0, false);
-    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    expect(screen.queryByText("更新間近")).not.toBeInTheDocument();
   });
 
-  it("トリガーが外れると観測を解除し、再表示時に前回の表示状態を持ち越さない", () => {
+  it("アンカーが外れると観測を解除し、再表示時に前回の表示状態を持ち越さない", () => {
     const { rerender } = renderInFrame(nameHeaderTable(5));
 
     emitIntersection(1);
-    expect(screen.getByRole("tooltip")).toHaveTextContent("更新間近");
+    expect(screen.getByText("更新間近")).toBeInTheDocument();
 
     rerender(withFrame(nameHeaderTable(null)));
     expect(observerInstances.at(-1)?.disconnect).toHaveBeenCalled();
 
     rerender(withFrame(nameHeaderTable(5)));
-    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    expect(screen.queryByText("更新間近")).not.toBeInTheDocument();
 
     emitIntersection(1);
-    expect(screen.getByRole("tooltip")).toHaveTextContent("更新間近");
+    expect(screen.getByText("更新間近")).toBeInTheDocument();
   });
 });

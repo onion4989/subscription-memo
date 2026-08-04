@@ -22,6 +22,7 @@ import {
   SUBSCRIPTION_PAGE_CONTENT_CLASS,
   SUBSCRIPTION_SECTION_FRAME_CLASS,
   SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
+  SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS,
   SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
@@ -172,7 +173,8 @@ export function SubscriptionRegistrationForm({
           <div
             className={cn(
               "max-w-full",
-              rows.length > 0 && APP_SCROLLBAR_X_CLASS
+              rows.length > 0 && APP_SCROLLBAR_X_CLASS,
+              rows.length > 0 && SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS
             )}
           >
             {/*

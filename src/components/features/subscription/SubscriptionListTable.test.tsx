@@ -26,7 +26,9 @@ function findTableSectionFrame(container: HTMLElement): HTMLElement | undefined 
       el.classList.contains("border-2") &&
       el.classList.contains("border-white") &&
       el.classList.contains("bg-black") &&
-      el.classList.contains("pt-12")
+      el.classList.contains("pb-9") &&
+      el.classList.contains("px-5") &&
+      !el.classList.contains("p-5")
   );
 }
 
@@ -60,7 +62,7 @@ describe("SubscriptionListTable", () => {
       "border-2",
       "border-white",
       "bg-black",
-      "pt-12",
+      "pb-9",
       "flex",
       "items-center",
       "justify-center"
