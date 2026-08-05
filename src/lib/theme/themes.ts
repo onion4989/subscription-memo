@@ -164,7 +164,7 @@ export const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
   ocean: createTheme({
     id: "ocean",
     label: "オーシャン",
-    background: { type: "solid", color: "#E8F4FC" },
+    background: { type: "gradient", from: "#4A9BC7", to: "#E8F4FC" },
     foreground: "#0B3D5C",
     summary: ["#0077B6", "#0096C7", "#00B4D8"],
     tagUrgent: "#C1121F",
@@ -187,7 +187,7 @@ export const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
   sunset: createTheme({
     id: "sunset",
     label: "サンセット",
-    background: { type: "solid", color: "#FFF1F0" },
+    background: { type: "gradient", from: "#E87A6A", to: "#FFF1F0" },
     foreground: "#5C1A1A",
     summary: ["#E63946", "#F4A261", "#E9C46A"],
     tagUrgent: "#E63946",
@@ -210,7 +210,7 @@ export const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
   forest: createTheme({
     id: "forest",
     label: "フォレスト",
-    background: { type: "solid", color: "#EEF5F0" },
+    background: { type: "gradient", from: "#5A9A6E", to: "#EEF5F0" },
     foreground: "#1B4332",
     summary: ["#2D6A4F", "#40916C", "#52B788"],
     tagUrgent: "#9B2226",
@@ -233,7 +233,7 @@ export const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
   cyberpunk: createTheme({
     id: "cyberpunk",
     label: "サイバーパンク",
-    background: { type: "solid", color: "#0F172A" },
+    background: { type: "gradient", from: "#000000", to: "#0F172A" },
     foreground: "#E2E8F0",
     summary: ["#F43F5E", "#8B5CF6", "#06B6D4"],
     tagUrgent: "#F43F5E",
@@ -256,7 +256,7 @@ export const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
   sakura: createTheme({
     id: "sakura",
     label: "サクラ",
-    background: { type: "solid", color: "#FDF2F8" },
+    background: { type: "gradient", from: "#D46BA8", to: "#FDF2F8" },
     foreground: "#831843",
     summary: ["#DB2777", "#EC4899", "#F472B6"],
     tagUrgent: "#BE123C",
@@ -279,7 +279,7 @@ export const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
   coffee: createTheme({
     id: "coffee",
     label: "コーヒー",
-    background: { type: "solid", color: "#F5EFE6" },
+    background: { type: "gradient", from: "#A07850", to: "#F5EFE6" },
     foreground: "#3E2723",
     summary: ["#4A3B32", "#8C6D58", "#A67C5D"],
     tagUrgent: "#7F1D1D",
@@ -302,7 +302,7 @@ export const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
   nordic: createTheme({
     id: "nordic",
     label: "ノーディック",
-    background: { type: "solid", color: "#E8EEF4" },
+    background: { type: "gradient", from: "#5B738C", to: "#E8EEF4" },
     foreground: "#1E293B",
     summary: ["#334155", "#475569", "#64748B"],
     tagUrgent: "#B91C1C",
@@ -325,7 +325,7 @@ export const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
   midnight: createTheme({
     id: "midnight",
     label: "ミッドナイト",
-    background: { type: "solid", color: "#1A1B26" },
+    background: { type: "gradient", from: "#05060A", to: "#1A1B26" },
     foreground: "#C0CAF5",
     summary: ["#7AA2F7", "#BB9AF7", "#7DCFFF"],
     tagUrgent: "#F7768E",
@@ -354,7 +354,7 @@ export const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
   citrus: createTheme({
     id: "citrus",
     label: "シトラス",
-    background: { type: "solid", color: "#FEF9C3" },
+    background: { type: "gradient", from: "#D4C020", to: "#FEF9C3" },
     foreground: "#365314",
     summary: ["#CA8A04", "#65A30D", "#16A34A"],
     tagUrgent: "#DC2626",
@@ -377,7 +377,7 @@ export const COLOR_THEMES: Record<ColorThemeId, ColorTheme> = {
   vintage: createTheme({
     id: "vintage",
     label: "ヴィンテージ",
-    background: { type: "solid", color: "#F5ECD7" },
+    background: { type: "gradient", from: "#A88840", to: "#F5ECD7" },
     foreground: "#3F2A1D",
     summary: ["#991B1B", "#854D0E", "#166534"],
     tagUrgent: "#991B1B",
