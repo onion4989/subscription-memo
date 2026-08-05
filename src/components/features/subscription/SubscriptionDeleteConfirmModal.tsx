@@ -69,7 +69,7 @@ export function SubscriptionDeleteConfirmModal({
             type="button"
             onClick={onConfirm}
             disabled={isDeleting || !target}
-            className="bg-[var(--app-action-danger)] font-bold text-white hover:bg-[var(--app-action-danger-hover)]"
+            className="bg-[#9B1343] font-bold text-white hover:bg-[#851039]"
           >
             {deleteLabel}
           </Button>

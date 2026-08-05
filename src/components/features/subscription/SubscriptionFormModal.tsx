@@ -303,7 +303,7 @@ export function SubscriptionFormModal({
             type="button"
             disabled={isSubmitting}
             onClick={onSubmit}
-            className="h-10 w-full bg-[var(--app-action-primary)] text-white hover:bg-[var(--app-action-primary-hover)]"
+            className="h-10 w-full bg-[#8A2082] text-white hover:bg-[#74206E]"
           >
             {submitLabel}
           </Button>
