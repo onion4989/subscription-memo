@@ -15,8 +15,9 @@ describe("color themes", () => {
     expect(COLOR_THEME_IDS).toHaveLength(11);
     expect(COLOR_THEME_IDS[0]).toBe(DEFAULT_THEME_ID);
     expect(COLOR_THEMES.midnight.background).toEqual({
-      type: "solid",
-      color: "#1A1B26",
+      type: "gradient",
+      from: "#05060A",
+      to: "#1A1B26",
     });
     expect(COLOR_THEMES.midnight.summary).toEqual([
       "#7AA2F7",
