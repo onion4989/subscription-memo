@@ -25,7 +25,7 @@ export function ColorThemeSwitcher() {
           disabled={isPending}
           aria-label="カラーテーマを選択"
           className={cn(
-            "inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2 text-sm font-medium",
+            "inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-md pl-2 pr-0 text-sm font-medium",
             "text-[color:var(--app-fg)] transition-opacity hover:opacity-80",
             "disabled:cursor-not-allowed disabled:opacity-60"
           )}

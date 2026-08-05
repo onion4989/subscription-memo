@@ -56,5 +56,9 @@ describe("AppShell", () => {
     expect(section).not.toBeNull();
     expect(section?.className).toMatch(/max-w-\[1000px\]|max-w-250/);
     expect(section).toHaveClass("w-full");
+
+    const header = section?.querySelector(":scope > div");
+    expect(header?.className).toMatch(/pr-4/);
+    expect(header?.className).toMatch(/md:pr-6/);
   });
 });

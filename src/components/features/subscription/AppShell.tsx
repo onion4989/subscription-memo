@@ -108,7 +108,7 @@ export function AppShell({ children, displayName, avatarId }: AppShellProps) {
         <section className="flex min-w-0 w-full max-w-[1000px] flex-1 flex-col">
           <div
             className={cn(
-              "mb-4 flex h-10 max-md:mt-4 items-center gap-3",
+              "mb-4 flex h-10 max-md:mt-4 items-center gap-3 pr-4 md:pr-6",
               isChromeThemeLocked
                 ? "text-white"
                 : "text-[color:var(--app-fg)]"
