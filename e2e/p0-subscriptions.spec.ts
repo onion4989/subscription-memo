@@ -63,12 +63,10 @@ test.describe("P0-S subscriptions", () => {
   });
 
   test("S6: sidebar navigates between main app pages", async ({ page }) => {
-    await page
-      .getByRole("link", { name: "サブスクリプション登録・変更" })
-      .click();
+    await page.getByRole("link", { name: "サブスク登録・変更" }).click();
     await expect(page).toHaveURL(/\/subscriptions\/new/);
 
-    await page.getByRole("link", { name: "サブスクリプション削除" }).click();
+    await page.getByRole("link", { name: "サブスク削除" }).click();
     await expect(page).toHaveURL(/\/subscriptions\/manage/);
 
     await page.getByRole("link", { name: "使い方" }).click();
@@ -77,7 +75,7 @@ test.describe("P0-S subscriptions", () => {
       page.getByRole("heading", { name: "サブスクMEMOの使い方" })
     ).toBeVisible();
 
-    await page.getByRole("link", { name: "サブスクリプション一覧" }).click();
+    await page.getByRole("link", { name: "サブスク一覧" }).click();
     await expect(page).toHaveURL(/\/subscriptions$/);
   });
 });

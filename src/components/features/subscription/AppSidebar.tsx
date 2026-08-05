@@ -41,17 +41,17 @@ const SUBSCRIPTION_NAV_ITEMS: NavItem[] = [
   {
     href: ROUTES.subscriptions,
     icon: <FaListUl aria-hidden="true" />,
-    label: "サブスクリプション一覧",
+    label: "サブスク一覧",
   },
   {
     href: ROUTES.subscriptionsNew,
     icon: <FaCirclePlus aria-hidden="true" />,
-    label: "サブスクリプション登録・変更",
+    label: "サブスク登録・変更",
   },
   {
     href: ROUTES.subscriptionsManage,
     icon: <FaPenToSquare aria-hidden="true" />,
-    label: "サブスクリプション削除",
+    label: "サブスク削除",
   },
   {
     href: ROUTES.guide,
