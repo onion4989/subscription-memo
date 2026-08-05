@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { NotificationSettingsForm } from "@/components/features/settings/NotificationSettingsForm";
+import { DefaultThemeContent } from "@/components/features/theme/DefaultThemeContent";
 import { getAuthenticatedUserId } from "@/lib/auth/get-user-id";
 import { isDemoUserEmail } from "@/lib/demo/constants";
 import { prisma } from "@/lib/prisma";
@@ -32,10 +33,10 @@ export default async function SettingsPage() {
   const isDemoAccount = isDemoUserEmail(user.email);
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-6 text-white">
+    <DefaultThemeContent>
       <div>
         <h1 className="text-2xl font-bold">一般設定</h1>
-        <p className="mt-2 text-sm text-white/80">
+        <p className="mt-2 text-sm opacity-80">
           お知らせの送信方法や二段階認証の設定を行えます。
         </p>
         {isDemoAccount ? (
@@ -55,6 +56,6 @@ export default async function SettingsPage() {
         totpEnabled={user.totpEnabled}
         mfaControlsEnabled={!isDemoAccount}
       />
-    </div>
+    </DefaultThemeContent>
   );
 }

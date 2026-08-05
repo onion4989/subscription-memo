@@ -10,13 +10,13 @@ import { cn } from "@/lib/utils";
 const EMPTY_NOTICE_MESSAGE =
   "現在お知らせはありません。\n登録したサブスクリプションの次回更新日が5日以内になったら、こちらのお知らせが更新されます。";
 
-/** 差し替えやすいよう色だけ定数化（！は簡易実装） */
+/** 差し替えやすいよう色だけ定数化（！は簡易実装）。テーマ CSS 変数を参照 */
 const NOTICE_ICON_COLORS: Record<UpcomingRenewalUrgencyTier, string> = {
-  3: "#E62F5D",
-  5: "#EDE466",
+  3: "var(--app-notice-icon-urgent)",
+  5: "var(--app-notice-icon-soon)",
 };
 
-/** モバイル 14px / デスクトップ 16px（カード本文と揃える） */
+/** モバイル 14px / デスクトップ 16px（カード本文と揃える）。枠内は常に白 */
 const NOTICE_BODY_TEXT_CLASS =
   "text-[14px] leading-normal text-white md:text-base";
 
@@ -96,7 +96,7 @@ export function SubscriptionRenewalNotice({
     >
       <h2
         id="subscription-renewal-notice-heading"
-        className="mb-4 text-[14px] font-bold text-white md:mb-3 md:text-base"
+        className="mb-4 text-[14px] font-bold text-[color:var(--app-fg)] md:mb-3 md:text-base"
       >
         お知らせ
       </h2>

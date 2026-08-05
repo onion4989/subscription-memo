@@ -1,11 +1,16 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { SubscriptionRegistrationForm } from "@/components/features/subscription/SubscriptionRegistrationForm";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
+import { renderWithColorTheme } from "@/test/render-with-color-theme";
 
 vi.mock("@/lib/actions/subscription-register", () => ({
   registerSubscription: vi.fn(),
   updateSubscription: vi.fn(),
+}));
+
+vi.mock("@/lib/actions/update-color-theme", () => ({
+  updateColorTheme: vi.fn(async () => ({ success: true, themeId: "default" })),
 }));
 
 function buildSubscription(
@@ -30,7 +35,7 @@ function findTableSectionFrame(container: HTMLElement): HTMLElement | undefined 
     (el) =>
       el.classList.contains("border-2") &&
       el.classList.contains("border-white") &&
-      el.classList.contains("bg-black") &&
+      el.className.includes("bg-[var(--app-table-frame)]") &&
       el.classList.contains("pb-9") &&
       el.classList.contains("px-5") &&
       el.classList.contains("md:flex") &&
@@ -40,7 +45,7 @@ function findTableSectionFrame(container: HTMLElement): HTMLElement | undefined 
 
 describe("SubscriptionRegistrationForm layout", () => {
   it("desktop テーブル領域にテーブル用セクション枠を使う", () => {
-    const { container } = render(
+    const { container } = renderWithColorTheme(
       <SubscriptionRegistrationForm
         initialSaved={[buildSubscription()]}
       />
@@ -53,7 +58,7 @@ describe("SubscriptionRegistrationForm layout", () => {
   });
 
   it("枠内にガイド矢印用の relative w-max 箱と追加ボタンを持つ", () => {
-    const { container } = render(
+    const { container } = renderWithColorTheme(
       <SubscriptionRegistrationForm
         initialSaved={[buildSubscription()]}
       />

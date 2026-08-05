@@ -22,7 +22,7 @@ function findSectionFrame(section: HTMLElement): HTMLElement | undefined {
     (el) =>
       el.classList.contains("border-2") &&
       el.classList.contains("border-white") &&
-      el.classList.contains("bg-black") &&
+      el.className.includes("bg-[var(--app-table-frame)]") &&
       el.classList.contains("p-5")
   );
 }

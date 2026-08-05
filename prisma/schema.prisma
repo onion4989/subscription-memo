@@ -32,6 +32,8 @@ model User {
   notifyChannel          NotifyChannel    @default(EMAIL)
   /// true のときお知らせを全停止（サブスク単位の notifyEnabled は維持）
   notifyDeliveryPaused   Boolean          @default(false)
+  /// ログイン後アプリのカラーテーマ ID（`src/lib/theme/themes.ts` のキー）
+  themeId                String           @default("default")
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

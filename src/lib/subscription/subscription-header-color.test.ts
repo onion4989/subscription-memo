@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { subscriptionHeaderColor } from "@/components/features/subscription/subscription-table-shared";
+import { subscriptionHeaderColor } from "@/lib/subscription/subscription-header-color";
 
 describe("subscriptionHeaderColor", () => {
   it("returns the start color when there is a single column", () => {

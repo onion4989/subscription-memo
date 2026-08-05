@@ -47,6 +47,7 @@ export async function resetDemoAccount(
       totpSecret: null,
       phoneNumber: null,
       avatarId: 1,
+      themeId: "default",
     },
     update: {
       name: DEMO_USER_DISPLAY_NAME,
@@ -59,6 +60,7 @@ export async function resetDemoAccount(
       totpSecret: null,
       phoneNumber: null,
       avatarId: 1,
+      themeId: "default",
     },
     select: { id: true, email: true },
   });

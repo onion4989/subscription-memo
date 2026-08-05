@@ -58,12 +58,14 @@ describe("resetDemoAccount", () => {
           notifyDeliveryPaused: true,
           totpEnabled: false,
           passwordHash: "hashed-demo-password",
+          themeId: "default",
         }),
         update: expect.objectContaining({
           notifyDeliveryPaused: true,
           totpEnabled: false,
           totpSecret: null,
           passwordHash: "hashed-demo-password",
+          themeId: "default",
         }),
       })
     );

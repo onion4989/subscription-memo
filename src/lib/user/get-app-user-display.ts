@@ -4,6 +4,7 @@ import { GUEST_DISPLAY_NAME } from "@/lib/user/avatar";
 export type AppUserDisplay = {
   displayName: string;
   avatarId: number | null;
+  themeId: string;
 };
 
 export async function getAppUserDisplay(
@@ -14,11 +15,13 @@ export async function getAppUserDisplay(
     select: {
       name: true,
       avatarId: true,
+      themeId: true,
     },
   });
 
   return {
     displayName: user?.name?.trim() || GUEST_DISPLAY_NAME,
     avatarId: user?.avatarId ?? null,
+    themeId: user?.themeId ?? "default",
   };
 }

@@ -8,14 +8,14 @@ export const SUBSCRIPTION_TABLE_BLOCK_CLASS =
 
 /** お知らせ・テーブル共通のセクション外枠 */
 export const SUBSCRIPTION_SECTION_FRAME_CLASS =
-  "w-full rounded-[10px] border-2 border-white bg-black p-5";
+  "w-full rounded-[10px] border-2 border-white bg-[var(--app-table-frame)] p-5";
 
 /**
  * テーブル用外枠。
  * 「更新間近」吹き出し分の上余白はスクロール領域（SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS）側に確保する。
  */
 export const SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS =
-  "w-full rounded-[10px] border-2 border-white bg-black px-5 pb-9";
+  "w-full rounded-[10px] border-2 border-white bg-[var(--app-table-frame)] px-5 pb-9";
 
 /**
  * テーブル横スクロール領域。

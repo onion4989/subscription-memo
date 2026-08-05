@@ -115,7 +115,7 @@ export function GuideSection({ section }: { section: GuideSectionData }) {
 
   return (
     <section className="w-full min-w-0" aria-labelledby={headingId}>
-      <h2 id={headingId} className="mb-2.5 text-xl font-bold text-white">
+      <h2 id={headingId} className="mb-2.5 text-xl font-bold text-[color:var(--app-fg)]">
         {section.title}
       </h2>
       <div className={SUBSCRIPTION_SECTION_FRAME_CLASS}>

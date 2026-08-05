@@ -60,10 +60,25 @@ const SUBSCRIPTION_NAV_ITEMS: NavItem[] = [
   },
 ];
 
+/** Portal 先ではテーマ CSS 変数が届かないため、視認できる固定色を使う */
 const SIDEBAR_TOOLTIP_CONTENT_CLASS =
   "border-0 bg-[#C9C9C9] text-black shadow-md";
 
 const SIDEBAR_TOOLTIP_ARROW_CLASS = "bg-[#C9C9C9] fill-[#C9C9C9]";
+
+const SIDEBAR_ITEM_TEXT_CLASS =
+  "text-sm text-[color:var(--app-sidebar-fg)]";
+
+const SIDEBAR_ICON_CLASS =
+  "text-sm text-[color:var(--app-sidebar-muted-fg)]";
+
+const SIDEBAR_INTERACTIVE_CLASS =
+  "rounded-md text-sm text-[color:var(--app-sidebar-fg)] transition-colors hover:bg-[var(--app-sidebar-hover)]";
+
+const SIDEBAR_ACTIVE_CLASS = "bg-[var(--app-sidebar-active)] font-medium";
+
+/** 折りたたみ時の選択面を正方形に近いレクタングルにする */
+const SIDEBAR_COLLAPSED_HIT_CLASS = "size-9 shrink-0 justify-center px-0";
 
 function SidebarTooltipContent({
   children,
@@ -106,9 +121,12 @@ function SidebarLink({
 }: SidebarLinkProps) {
   const isActive = isNavItemActive(pathname, href);
   const linkClassName = cn(
-    "flex h-9 items-center rounded-md text-sm text-slate-800 transition-colors hover:bg-slate-200",
-    expanded ? "justify-start gap-2 px-2" : "justify-center px-0",
-    isActive && "bg-slate-200 font-medium"
+    "flex items-center",
+    SIDEBAR_INTERACTIVE_CLASS,
+    expanded
+      ? "h-9 w-full justify-start gap-2 px-2"
+      : SIDEBAR_COLLAPSED_HIT_CLASS,
+    isActive && SIDEBAR_ACTIVE_CLASS
   );
   const content = (
     <Link
@@ -117,7 +135,7 @@ function SidebarLink({
       aria-label={label}
       onClick={onNavigate}
     >
-      <span className="text-sm text-slate-700">{icon}</span>
+      <span className={SIDEBAR_ICON_CLASS}>{icon}</span>
       {expanded ? <span className="whitespace-nowrap">{label}</span> : null}
     </Link>
   );
@@ -144,12 +162,15 @@ function SidebarItem({ icon, label, expanded }: SidebarItemProps) {
   const content = (
     <div
       className={cn(
-        "flex h-[46px] items-center rounded-md text-sm text-slate-800",
-        expanded ? "justify-start gap-2 px-2" : "justify-center px-0"
+        "flex items-center",
+        SIDEBAR_ITEM_TEXT_CLASS,
+        expanded
+          ? "h-[46px] w-full justify-start gap-2 px-2"
+          : "size-[46px] shrink-0 justify-center px-0"
       )}
       aria-label={label}
     >
-      <span className="text-sm text-slate-700">{icon}</span>
+      <span className={SIDEBAR_ICON_CLASS}>{icon}</span>
       {expanded ? <span className="whitespace-nowrap">{label}</span> : null}
     </div>
   );
@@ -201,12 +222,15 @@ export function AppSidebar({
       type="button"
       onClick={() => signOut({ callbackUrl: ROUTES.login })}
       className={cn(
-        "flex h-9 w-full cursor-pointer items-center rounded-md text-sm text-slate-800 transition-colors hover:bg-slate-200",
-        expanded ? "justify-start gap-2 px-2" : "justify-center px-0"
+        "flex cursor-pointer items-center",
+        SIDEBAR_INTERACTIVE_CLASS,
+        expanded
+          ? "h-9 w-full justify-start gap-2 px-2"
+          : SIDEBAR_COLLAPSED_HIT_CLASS
       )}
       aria-label="ログアウト"
     >
-      <span className="text-sm text-slate-700">
+      <span className={SIDEBAR_ICON_CLASS}>
         <FaArrowRightFromBracket aria-hidden="true" />
       </span>
       {expanded ? <span className="whitespace-nowrap">ログアウト</span> : null}
@@ -217,7 +241,7 @@ export function AppSidebar({
     <TooltipProvider>
       <aside
         className={cn(
-          "flex h-full shrink-0 flex-col rounded-lg bg-white/90 py-4 transition-[width,padding] duration-300 ease-in-out",
+          "flex h-full shrink-0 flex-col rounded-lg bg-[var(--app-sidebar-bg)] py-4 text-[color:var(--app-sidebar-fg)] transition-[width,padding] duration-300 ease-in-out",
           expanded ? "w-[250px] px-3" : "w-[50px] px-1"
         )}
       >
