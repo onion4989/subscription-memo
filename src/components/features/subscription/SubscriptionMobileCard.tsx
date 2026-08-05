@@ -118,7 +118,7 @@ export function SubscriptionMobileCard({
           </h3>
           <p className="shrink-0 text-[14px] leading-tight">
             お知らせ：
-            <span className="text-[#9B1343]">
+            <span className="text-[color:var(--app-action-danger)]">
               {subscription.notifyEnabled ? "ON" : "OFF"}
             </span>
           </p>
@@ -170,8 +170,8 @@ export function SubscriptionMobileCard({
             className={cn(
               "h-10 w-full px-0 text-[14px] font-bold text-white",
               action.label === "削除"
-                ? "bg-[#9B1343] hover:bg-[#851039]"
-                : "bg-[#8A2082] hover:bg-[#74206E]"
+                ? "bg-[var(--app-action-danger)] hover:bg-[var(--app-action-danger-hover)]"
+                : "bg-[var(--app-action-primary)] hover:bg-[var(--app-action-primary-hover)]"
             )}
           >
             {action.label}

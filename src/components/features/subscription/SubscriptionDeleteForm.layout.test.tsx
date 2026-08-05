@@ -1,10 +1,15 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { SubscriptionDeleteForm } from "@/components/features/subscription/SubscriptionDeleteForm";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
+import { renderWithColorTheme } from "@/test/render-with-color-theme";
 
 vi.mock("@/lib/actions/subscription-delete", () => ({
   deleteSubscription: vi.fn(),
+}));
+
+vi.mock("@/lib/actions/update-color-theme", () => ({
+  updateColorTheme: vi.fn(async () => ({ success: true, themeId: "default" })),
 }));
 
 function buildSubscription(
@@ -29,7 +34,7 @@ function findTableSectionFrame(container: HTMLElement): HTMLElement | undefined 
     (el) =>
       el.classList.contains("border-2") &&
       el.classList.contains("border-white") &&
-      el.classList.contains("bg-black") &&
+      el.className.includes("bg-[var(--app-table-frame)]") &&
       el.classList.contains("pb-9") &&
       el.classList.contains("px-5") &&
       el.classList.contains("md:flex") &&
@@ -39,7 +44,7 @@ function findTableSectionFrame(container: HTMLElement): HTMLElement | undefined 
 
 describe("SubscriptionDeleteForm layout", () => {
   it("データあり時、desktop テーブル領域にテーブル用セクション枠を使う", () => {
-    const { container } = render(
+    const { container } = renderWithColorTheme(
       <SubscriptionDeleteForm initialSaved={[buildSubscription()]} />
     );
 
@@ -53,7 +58,7 @@ describe("SubscriptionDeleteForm layout", () => {
   });
 
   it("空データ時はテーブル枠を出さず空メッセージのみ", () => {
-    const { container } = render(
+    const { container } = renderWithColorTheme(
       <SubscriptionDeleteForm initialSaved={[]} />
     );
 

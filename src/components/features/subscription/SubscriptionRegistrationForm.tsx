@@ -126,7 +126,7 @@ export function SubscriptionRegistrationForm({
       type="button"
       onClick={openCreateModal}
       disabled={!canAddRow}
-      className="inline-flex items-center gap-2 text-sm font-medium text-white transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+      className="inline-flex items-center gap-2 text-sm font-medium text-[color:var(--app-fg)] transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
     >
       <FaPlus aria-hidden="true" />
       追加
@@ -136,10 +136,10 @@ export function SubscriptionRegistrationForm({
   return (
     <>
       <div className={SUBSCRIPTION_PAGE_CONTENT_CLASS}>
-        <div className="py-6 text-base text-white/90">
+        <div className="py-6 text-base text-[color:var(--app-fg)]/90">
           <p>サブスクリプションの情報を登録することができます。</p>
           <p>
-            <span className="inline-flex items-center gap-1 rounded-[2px] bg-white/25 px-1.5 py-0.5 font-medium text-white">
+            <span className="inline-flex items-center gap-1 rounded-[2px] bg-white/25 px-1.5 py-0.5 font-medium text-[color:var(--app-fg)]">
               <FaPlus className="text-xs" aria-hidden="true" />
               追加ボタン
             </span>

@@ -14,13 +14,13 @@ export const UPCOMING_RENEWAL_URGENCY_TIERS = [3, 5] as const;
 export type UpcomingRenewalUrgencyTier =
   (typeof UPCOMING_RENEWAL_URGENCY_TIERS)[number];
 
-/** 次回更新日セル・吹き出しの背景色 */
+/** 次回更新日セル・吹き出しの背景色（`(app)` のテーマ CSS 変数） */
 export const UPCOMING_RENEWAL_CELL_COLORS: Record<
   UpcomingRenewalUrgencyTier,
   string
 > = {
-  3: "#9F193B",
-  5: "#EDE466",
+  3: "var(--app-tag-urgent)",
+  5: "var(--app-tag-soon)",
 };
 
 /** 「更新間近」ラベル・強調日付の文字色（背景とのコントラスト用） */
@@ -28,8 +28,8 @@ export const UPCOMING_RENEWAL_LABEL_TEXT_COLORS: Record<
   UpcomingRenewalUrgencyTier,
   string
 > = {
-  3: "#FFFFFF",
-  5: "#000000",
+  3: "var(--app-tag-urgent-fg)",
+  5: "var(--app-tag-soon-fg)",
 };
 
 export type UpcomingRenewalNoticeItem = {

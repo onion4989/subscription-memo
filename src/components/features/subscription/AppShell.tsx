@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/features/subscription/AppSidebar";
+import { ColorThemeSwitcher } from "@/components/features/subscription/ColorThemeSwitcher";
 import { SidebarToggleIcon } from "@/components/features/subscription/SidebarToggleIcon";
+import { useColorTheme } from "@/components/providers/ColorThemeProvider";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +43,7 @@ function isMobileSidebarViewport(): boolean {
 
 export function AppShell({ children, displayName, avatarId }: AppShellProps) {
   const pathname = usePathname();
+  const { isChromeThemeLocked } = useColorTheme();
   const [expanded, setExpanded] = useState(false);
   const [lastPathname, setLastPathname] = useState(pathname);
   const pageTitle = useMemo(() => getPageTitle(pathname), [pathname]);
@@ -103,7 +106,14 @@ export function AppShell({ children, displayName, avatarId }: AppShellProps) {
         </div>
 
         <section className="flex min-w-0 w-full max-w-[1000px] flex-1 flex-col">
-          <div className="mb-4 max-md:mt-4 flex h-10 items-center gap-3 text-white">
+          <div
+            className={cn(
+              "mb-4 flex h-10 max-md:mt-4 items-center gap-3",
+              isChromeThemeLocked
+                ? "text-white"
+                : "text-[color:var(--app-fg)]"
+            )}
+          >
             <button
               type="button"
               aria-label={expanded ? "メニューを折りたたむ" : "メニューを展開する"}
@@ -113,10 +123,18 @@ export function AppShell({ children, displayName, avatarId }: AppShellProps) {
               <SidebarToggleIcon />
             </button>
             <span
-              className="h-6 w-px shrink-0 bg-white/40"
+              className={cn(
+                "h-6 w-px shrink-0",
+                isChromeThemeLocked
+                  ? "bg-white/40"
+                  : "bg-[color:var(--app-fg)]/40"
+              )}
               aria-hidden="true"
             />
-            <p className="text-base font-semibold text-white">{pageTitle}</p>
+            <p className="min-w-0 flex-1 truncate text-base font-semibold">
+              {pageTitle}
+            </p>
+            <ColorThemeSwitcher />
           </div>
 
           <div className="min-w-0 flex-1 overflow-x-hidden rounded-lg pt-4 pr-4 pb-4 md:pt-6 md:pr-6 md:pb-6">

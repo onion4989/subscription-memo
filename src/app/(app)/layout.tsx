@@ -5,6 +5,7 @@ import { ROUTES } from "@/lib/routes";
 import { getAppUserDisplay } from "@/lib/user/get-app-user-display";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/features/subscription/AppShell";
+import { ColorThemeProvider } from "@/components/providers/ColorThemeProvider";
 
 type AppLayoutProps = Readonly<{
   children: React.ReactNode;
@@ -24,16 +25,21 @@ export default async function AppLayout({ children }: AppLayoutProps) {
   const userId = await getAuthenticatedUserId();
   const appUserDisplay = userId
     ? await getAppUserDisplay(userId)
-    : { displayName: "ゲスト", avatarId: null };
+    : { displayName: "ゲスト", avatarId: null, themeId: "default" };
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-linear-to-b from-[#000000] to-[#06648F]">
-      <AppShell
-        displayName={appUserDisplay.displayName}
-        avatarId={appUserDisplay.avatarId}
-      >
-        {children}
-      </AppShell>
-    </main>
+    <ColorThemeProvider
+      initialThemeId={appUserDisplay.themeId}
+      className="min-h-screen w-full overflow-x-hidden"
+    >
+      <main className="min-h-screen w-full overflow-x-hidden bg-transparent">
+        <AppShell
+          displayName={appUserDisplay.displayName}
+          avatarId={appUserDisplay.avatarId}
+        >
+          {children}
+        </AppShell>
+      </main>
+    </ColorThemeProvider>
   );
 }

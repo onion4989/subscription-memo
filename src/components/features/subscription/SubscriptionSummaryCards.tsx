@@ -17,19 +17,28 @@ type SubscriptionSummaryCardsProps = {
 
 type SummaryCardConfig = {
   label: string;
-  backgroundColor: string;
+  backgroundVar: string;
+  foregroundVar: string;
   value: React.ReactNode;
 };
 
-function SummaryCard({ label, backgroundColor, value }: SummaryCardConfig) {
+function SummaryCard({
+  label,
+  backgroundVar,
+  foregroundVar,
+  value,
+}: SummaryCardConfig) {
   return (
     <div
       className={cn(
-        "w-full border-2 border-white text-white",
+        "w-full border-2 border-white",
         "grid grid-cols-[5.5rem_auto_1fr] items-center gap-x-3 rounded-[5px] px-5 py-3",
         "md:flex md:min-h-[120px] md:flex-col md:items-center md:justify-center md:gap-2 md:rounded-[10px] md:px-3 md:py-4"
       )}
-      style={{ backgroundColor }}
+      style={{
+        backgroundColor: `var(${backgroundVar})`,
+        color: `var(${foregroundVar})`,
+      }}
     >
       <p
         className={cn(
@@ -41,7 +50,7 @@ function SummaryCard({ label, backgroundColor, value }: SummaryCardConfig) {
       </p>
       <div
         className={cn(
-          "h-5 w-px shrink-0 bg-white/80",
+          "h-5 w-px shrink-0 bg-current/80",
           "md:h-px",
           SUMMARY_CARD_DESKTOP_DIVIDER_WIDTH_CLASS
         )}
@@ -62,7 +71,8 @@ export function SubscriptionSummaryCards({
   const cards: SummaryCardConfig[] = [
     {
       label: "契約数",
-      backgroundColor: "#768A20",
+      backgroundVar: "--app-summary-1",
+      foregroundVar: "--app-summary-fg-1",
       value: (
         <span className="text-[20px] font-bold leading-none">
           {summary.contractCount}
@@ -71,12 +81,14 @@ export function SubscriptionSummaryCards({
     },
     {
       label: "月額合計",
-      backgroundColor: "#208A73",
+      backgroundVar: "--app-summary-2",
+      foregroundVar: "--app-summary-fg-2",
       value: <YenAmountDisplay amount={summary.monthlyTotal} variant="summary" />,
     },
     {
       label: "年額合計",
-      backgroundColor: "#8A2082",
+      backgroundVar: "--app-summary-3",
+      foregroundVar: "--app-summary-fg-3",
       value: <YenAmountDisplay amount={summary.annualTotal} variant="summary" />,
     },
   ];

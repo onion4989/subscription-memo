@@ -1,7 +1,12 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { SubscriptionListTable } from "@/components/features/subscription/SubscriptionListTable";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
+import { renderWithColorTheme } from "@/test/render-with-color-theme";
+
+vi.mock("@/lib/actions/update-color-theme", () => ({
+  updateColorTheme: vi.fn(async () => ({ success: true, themeId: "default" })),
+}));
 
 function buildSubscription(
   overrides: Partial<SavedSubscriptionRow> = {}
@@ -25,7 +30,7 @@ function findTableSectionFrame(container: HTMLElement): HTMLElement | undefined 
     (el) =>
       el.classList.contains("border-2") &&
       el.classList.contains("border-white") &&
-      el.classList.contains("bg-black") &&
+      el.className.includes("bg-[var(--app-table-frame)]") &&
       el.classList.contains("pb-9") &&
       el.classList.contains("px-5") &&
       !el.classList.contains("p-5")
@@ -34,7 +39,7 @@ function findTableSectionFrame(container: HTMLElement): HTMLElement | undefined 
 
 describe("SubscriptionListTable", () => {
   it("desktop 側は全幅フレックスで、旧テーブル幅連動クラスを使わない", () => {
-    const { container } = render(
+    const { container } = renderWithColorTheme(
       <SubscriptionListTable subscriptions={[buildSubscription()]} />
     );
 
@@ -52,7 +57,7 @@ describe("SubscriptionListTable", () => {
   });
 
   it("desktop テーブルをテーブル用セクション枠で囲み中央寄せする", () => {
-    const { container } = render(
+    const { container } = renderWithColorTheme(
       <SubscriptionListTable subscriptions={[buildSubscription()]} />
     );
 
@@ -61,17 +66,19 @@ describe("SubscriptionListTable", () => {
     expect(frame).toHaveClass(
       "border-2",
       "border-white",
-      "bg-black",
       "pb-9",
       "flex",
       "items-center",
       "justify-center"
     );
+    expect(frame?.className).toContain("bg-[var(--app-table-frame)]");
     expect(frame?.querySelector("table")).not.toBeNull();
   });
 
   it("モバイル側にカード、desktop 側にお知らせとサマリーを持つ", () => {
-    render(<SubscriptionListTable subscriptions={[buildSubscription()]} />);
+    renderWithColorTheme(
+      <SubscriptionListTable subscriptions={[buildSubscription()]} />
+    );
 
     expect(screen.getAllByText("契約数").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByRole("heading", { name: "お知らせ" }).length).toBe(

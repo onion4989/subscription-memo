@@ -1,6 +1,9 @@
+"use client";
+
 import type { CSSProperties, ReactNode } from "react";
 import { SubscriptionNameHeaderCell } from "@/components/features/subscription/SubscriptionNameHeaderCell";
 import { YenAmountDisplay } from "@/components/features/subscription/YenAmountDisplay";
+import { useColorTheme } from "@/components/providers/ColorThemeProvider";
 import { Button } from "@/components/ui/button";
 import { PAYMENT_PLAN_LABELS } from "@/lib/subscription/constants";
 import { formatContractDateYmd } from "@/lib/subscription/format";
@@ -13,25 +16,20 @@ import {
   getUpcomingRenewalUrgencyTier,
   UPCOMING_RENEWAL_CELL_COLORS,
 } from "@/lib/subscription/renewal-upcoming-notice";
+import { subscriptionHeaderColor } from "@/lib/subscription/subscription-header-color";
+import { getSubscriptionTableWidthRem } from "@/lib/subscription/subscription-table-layout";
 import { cn } from "@/lib/utils";
 
-/** ラベル列・データ列共通のセル幅（はみ出しは truncate） */
-export const SUBSCRIPTION_TABLE_COLUMN_WIDTH_REM = 8.75;
+export { subscriptionHeaderColor } from "@/lib/subscription/subscription-header-color";
+export {
+  getSubscriptionTableWidthRem,
+  SUBSCRIPTION_TABLE_COLUMN_WIDTH_REM,
+  SUBSCRIPTION_TABLE_DATA_COLUMN_MIN_WIDTH_REM,
+  SUBSCRIPTION_TABLE_LABEL_COLUMN_WIDTH_REM,
+} from "@/lib/subscription/subscription-table-layout";
 
 const COLUMN_WIDTH_CLASS =
   "w-[8.75rem] min-w-[8.75rem] max-w-[8.75rem]";
-
-export const SUBSCRIPTION_TABLE_LABEL_COLUMN_WIDTH_REM =
-  SUBSCRIPTION_TABLE_COLUMN_WIDTH_REM;
-export const SUBSCRIPTION_TABLE_DATA_COLUMN_MIN_WIDTH_REM =
-  SUBSCRIPTION_TABLE_COLUMN_WIDTH_REM;
-
-export function getSubscriptionTableWidthRem(dataColumnCount: number): number {
-  return (
-    SUBSCRIPTION_TABLE_LABEL_COLUMN_WIDTH_REM +
-    dataColumnCount * SUBSCRIPTION_TABLE_DATA_COLUMN_MIN_WIDTH_REM
-  );
-}
 
 /**
  * 削除列フェードアニメーション。
@@ -41,12 +39,6 @@ export const ENABLE_DELETE_COLUMN_ANIMATION = true;
 export const DELETE_COLUMN_FADE_MS = 250;
 export const DELETE_COLUMN_FADE_CLASS =
   "opacity-0 transition-opacity duration-[250ms] motion-reduce:transition-none";
-
-const LABEL_ROW_BG_EVEN = "#A3A3A3";
-const LABEL_ROW_BG_ODD = "#C9C9C9";
-
-const HEADER_GRADIENT_START = { r: 249, g: 203, b: 142 };
-const HEADER_GRADIENT_END = { r: 162, g: 240, b: 235 };
 
 const ATTRIBUTE_LABELS = [
   "プラン",
@@ -59,38 +51,6 @@ const ATTRIBUTE_LABELS = [
 ] as const;
 
 type SubscriptionTableAction = "edit" | "delete";
-
-function lerpChannel(start: number, end: number, t: number): number {
-  return Math.round(start + (end - start) * t);
-}
-
-/** 列数に応じて start→end を補間したヘッダー背景色 */
-export function subscriptionHeaderColor(
-  index: number,
-  count: number
-): string {
-  const t = count <= 1 ? 0 : index / (count - 1);
-  const r = lerpChannel(
-    HEADER_GRADIENT_START.r,
-    HEADER_GRADIENT_END.r,
-    t
-  );
-  const g = lerpChannel(
-    HEADER_GRADIENT_START.g,
-    HEADER_GRADIENT_END.g,
-    t
-  );
-  const b = lerpChannel(
-    HEADER_GRADIENT_START.b,
-    HEADER_GRADIENT_END.b,
-    t
-  );
-  return `rgb(${r}, ${g}, ${b})`;
-}
-
-function labelRowBackground(rowIndex: number): string {
-  return rowIndex % 2 === 0 ? LABEL_ROW_BG_EVEN : LABEL_ROW_BG_ODD;
-}
 
 function formatYenTitle(amount: number | null | undefined): string | undefined {
   if (amount === null || amount === undefined) {
@@ -118,9 +78,13 @@ function StickyCornerCell() {
 function StickyLabelCell({
   label,
   rowIndex,
+  evenBackground,
+  oddBackground,
 }: {
   label: string;
   rowIndex: number;
+  evenBackground: string;
+  oddBackground: string;
 }) {
   return (
     <th
@@ -131,7 +95,10 @@ function StickyLabelCell({
         CELL_TRUNCATE_CLASS,
         "sticky left-0 z-20 px-2 py-2 text-left text-sm font-bold text-black"
       )}
-      style={{ backgroundColor: labelRowBackground(rowIndex) }}
+      style={{
+        backgroundColor:
+          rowIndex % 2 === 0 ? evenBackground : oddBackground,
+      }}
       title={label}
     >
       {label}
@@ -158,7 +125,7 @@ function DataCell({
         CELL_BORDER_CLASS,
         COLUMN_WIDTH_CLASS,
         "px-2 py-2 text-center text-sm text-white",
-        style?.backgroundColor ? undefined : "bg-black",
+        style?.backgroundColor ? undefined : "bg-[var(--app-table-frame)]",
         truncate && CELL_TRUNCATE_CLASS,
         className
       )}
@@ -273,6 +240,8 @@ export function SubscriptionTransposeTable({
   onDelete,
   removingSubscriptionId = null,
 }: SubscriptionTransposeTableProps) {
+  const { theme } = useColorTheme();
+
   if (subscriptions.length === 0) {
     return null;
   }
@@ -310,7 +279,12 @@ export function SubscriptionTransposeTable({
                   row.id === removingSubscriptionId && DELETE_COLUMN_FADE_CLASS
                 )}
                 style={{
-                  backgroundColor: subscriptionHeaderColor(index, count),
+                  backgroundColor: subscriptionHeaderColor(
+                    index,
+                    count,
+                    theme.tableHeaderStart,
+                    theme.tableHeaderEnd
+                  ),
                 }}
               />
             );
@@ -320,7 +294,12 @@ export function SubscriptionTransposeTable({
       <tbody>
         {ATTRIBUTE_LABELS.map((label, rowIndex) => (
           <tr key={label}>
-            <StickyLabelCell label={label} rowIndex={rowIndex} />
+            <StickyLabelCell
+              label={label}
+              rowIndex={rowIndex}
+              evenBackground={theme.tableLabelEven}
+              oddBackground={theme.tableLabelOdd}
+            />
             {subscriptions.map((row) => (
               <AttributeValueCells
                 key={`${row.id}-${label}`}
@@ -342,6 +321,8 @@ export function SubscriptionTransposeTable({
             <StickyLabelCell
               label={actionLabel}
               rowIndex={actionRowIndex}
+              evenBackground={theme.tableLabelEven}
+              oddBackground={theme.tableLabelOdd}
             />
             {subscriptions.map((row) => (
               <DataCell
@@ -357,7 +338,7 @@ export function SubscriptionTransposeTable({
                   <Button
                     type="button"
                     onClick={() => onEdit(row.id)}
-                    className="h-9 w-[72px] bg-[#8A2082] px-0 text-white hover:bg-[#74206E]"
+                    className="h-9 w-[72px] bg-[var(--app-action-primary)] px-0 text-white hover:bg-[var(--app-action-primary-hover)]"
                   >
                     修正
                   </Button>
@@ -367,7 +348,7 @@ export function SubscriptionTransposeTable({
                     type="button"
                     onClick={() => onDelete(row.id)}
                     disabled={isRemovalInProgress}
-                    className="h-9 w-[72px] bg-[#9B1343] px-0 font-bold text-white hover:bg-[#851039]"
+                    className="h-9 w-[72px] bg-[var(--app-action-danger)] px-0 font-bold text-white hover:bg-[var(--app-action-danger-hover)]"
                   >
                     削除
                   </Button>

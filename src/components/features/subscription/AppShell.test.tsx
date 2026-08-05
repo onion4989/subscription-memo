@@ -5,6 +5,10 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/subscriptions",
 }));
 
+vi.mock("@/lib/actions/update-color-theme", () => ({
+  updateColorTheme: vi.fn(async () => ({ success: true, themeId: "default" })),
+}));
+
 vi.mock("@/components/features/subscription/AppSidebar", () => ({
   AppSidebar: () => <aside data-testid="app-sidebar" />,
 }));
@@ -14,6 +18,7 @@ vi.mock("@/components/features/subscription/SidebarToggleIcon", () => ({
 }));
 
 import { AppShell } from "@/components/features/subscription/AppShell";
+import { ColorThemeProvider } from "@/components/providers/ColorThemeProvider";
 
 describe("AppShell", () => {
   beforeEach(() => {
@@ -35,14 +40,17 @@ describe("AppShell", () => {
 
   it("右側コンテンツ領域に max-w-[1000px] を付ける", () => {
     const { container } = render(
-      <AppShell displayName="ゲスト" avatarId={1}>
-        <div>content</div>
-      </AppShell>
+      <ColorThemeProvider initialThemeId="default">
+        <AppShell displayName="ゲスト" avatarId={1}>
+          <div>content</div>
+        </AppShell>
+      </ColorThemeProvider>
     );
 
     expect(
       screen.getByText("サブスクリプション一覧")
     ).toBeInTheDocument();
+    expect(screen.getByLabelText("カラーテーマを選択")).toBeInTheDocument();
 
     const section = container.querySelector("section");
     expect(section).not.toBeNull();

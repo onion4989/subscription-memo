@@ -4,7 +4,7 @@ import {
   SUBSCRIPTION_TABLE_COLUMN_WIDTH_REM,
   SUBSCRIPTION_TABLE_DATA_COLUMN_MIN_WIDTH_REM,
   SUBSCRIPTION_TABLE_LABEL_COLUMN_WIDTH_REM,
-} from "@/components/features/subscription/subscription-table-shared";
+} from "@/lib/subscription/subscription-table-layout";
 
 describe("getSubscriptionTableWidthRem", () => {
   it("ラベル列とデータ列は同じ幅を使う", () => {
