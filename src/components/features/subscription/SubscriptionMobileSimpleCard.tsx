@@ -28,7 +28,7 @@ type SubscriptionMobileSimpleCardProps = {
 const SIMPLE_AMOUNT_TEXT_CLASS = "text-[12px] font-normal leading-tight";
 
 /** 列見出し・簡易カード行で共通の左右 padding */
-export const SUBSCRIPTION_MOBILE_SIMPLE_ROW_PADDING_CLASS = "px-4";
+export const SUBSCRIPTION_MOBILE_SIMPLE_ROW_PADDING_CLASS = "px-[10px]";
 
 /** 列見出し・簡易カード行で共通の3列グリッド（名前やや広め） */
 export const SUBSCRIPTION_MOBILE_SIMPLE_ROW_CLASS =
@@ -45,7 +45,7 @@ export const SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_CELL_CLASS = "text-left";
 export const SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_HEADER_CLASS = "text-center";
 
 export const SUBSCRIPTION_MOBILE_SIMPLE_DATE_HEADER_CLASS =
-  "flex items-center gap-[3px] text-left";
+  "flex items-center gap-[3px] text-left whitespace-nowrap";
 
 export const SUBSCRIPTION_MOBILE_SIMPLE_DATE_CELL_CLASS =
   "flex items-center gap-[3px] text-left";

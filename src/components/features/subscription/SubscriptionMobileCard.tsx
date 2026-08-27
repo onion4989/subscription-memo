@@ -193,7 +193,7 @@ export function SubscriptionMobileCard({
 }: SubscriptionMobileCardProps) {
   const displayName = `${subscription.name} ${subscription.planName}`;
   const cardClassName = cn(
-    "relative w-full rounded-[10px] bg-white px-4 py-5 text-[14px] leading-tight text-[#111111]",
+    "relative w-full rounded-[10px] bg-white px-[10px] py-5 text-[14px] leading-tight text-[#111111]",
     onPress && MOBILE_PRESSABLE_CARD_CLASS,
     onPress && disabled && "pointer-events-none opacity-40",
     className
