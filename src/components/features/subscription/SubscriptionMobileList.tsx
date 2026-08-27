@@ -6,6 +6,7 @@ import {
   SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_HEADER_CLASS,
   SUBSCRIPTION_MOBILE_SIMPLE_DATE_DOT_SLOT_CLASS,
   SUBSCRIPTION_MOBILE_SIMPLE_DATE_HEADER_CLASS,
+  SUBSCRIPTION_MOBILE_SIMPLE_DATE_TEXT_CLASS,
   SUBSCRIPTION_MOBILE_SIMPLE_NAME_HEADER_CELL_CLASS,
   SUBSCRIPTION_MOBILE_SIMPLE_ROW_CLASS,
   SUBSCRIPTION_MOBILE_SIMPLE_ROW_PADDING_CLASS,
@@ -71,7 +72,9 @@ export function SubscriptionMobileList({
                 className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_DOT_SLOT_CLASS}
                 aria-hidden
               />
-              <span>{SIMPLE_COLUMN_HEADERS[2]}</span>
+              <span className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_TEXT_CLASS}>
+                {SIMPLE_COLUMN_HEADERS[2]}
+              </span>
             </span>
           </div>
           <div className="mt-[15px] space-y-[15px]">

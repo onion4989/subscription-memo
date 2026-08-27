@@ -32,7 +32,7 @@ export const SUBSCRIPTION_MOBILE_SIMPLE_ROW_PADDING_CLASS = "px-[10px]";
 
 /** 列見出し・簡易カード行で共通の3列グリッド（名前やや広め） */
 export const SUBSCRIPTION_MOBILE_SIMPLE_ROW_CLASS =
-  "grid grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)_minmax(0,0.85fr)] items-center gap-2";
+  "grid grid-cols-[minmax(0,1.35fr)_minmax(0,0.75fr)_minmax(0,1fr)] items-center gap-2";
 
 export const SUBSCRIPTION_MOBILE_SIMPLE_NAME_CELL_CLASS =
   "min-w-0 truncate text-left text-[12px] font-normal leading-tight";
@@ -45,10 +45,12 @@ export const SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_CELL_CLASS = "text-left";
 export const SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_HEADER_CLASS = "text-center";
 
 export const SUBSCRIPTION_MOBILE_SIMPLE_DATE_HEADER_CLASS =
-  "flex items-center gap-[3px] text-left whitespace-nowrap";
+  "flex min-w-0 items-center gap-[3px] text-left";
 
 export const SUBSCRIPTION_MOBILE_SIMPLE_DATE_CELL_CLASS =
-  "flex items-center gap-[3px] text-left";
+  "flex min-w-0 items-center gap-[3px] text-left text-[12px] font-normal leading-tight";
+
+export const SUBSCRIPTION_MOBILE_SIMPLE_DATE_TEXT_CLASS = "min-w-0 truncate";
 
 export const SUBSCRIPTION_MOBILE_SIMPLE_DATE_DOT_SLOT_CLASS =
   "inline-flex w-[10px] shrink-0 justify-center";
@@ -122,9 +124,7 @@ export function SubscriptionMobileSimpleCard({
       <p className={SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_CELL_CLASS}>
         <SimplePrimaryBillingLine subscription={subscription} />
       </p>
-      <p
-        className={`${SUBSCRIPTION_MOBILE_SIMPLE_DATE_CELL_CLASS} whitespace-nowrap text-[12px] font-normal leading-tight`}
-      >
+      <p className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_CELL_CLASS}>
         <span className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_DOT_SLOT_CLASS} aria-hidden>
           {urgencyTier !== null ? (
             <span
@@ -136,7 +136,9 @@ export function SubscriptionMobileSimpleCard({
             />
           ) : null}
         </span>
-        <span>{nextRenewalDateLabel}</span>
+        <span className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_TEXT_CLASS}>
+          {nextRenewalDateLabel}
+        </span>
       </p>
     </>
   );
