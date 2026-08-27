@@ -47,7 +47,7 @@ export function SubscriptionViewModeToggle({
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(option.mode)}
-            className="flex h-[30px] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[5px] px-2 text-[12px] font-bold text-white"
+            className="flex h-[40px] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[5px] px-2 text-[12px] font-bold text-white"
             style={{
               backgroundColor: selected ? SELECTED_BG : UNSELECTED_BG,
             }}
