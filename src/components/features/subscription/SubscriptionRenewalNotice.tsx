@@ -21,9 +21,9 @@ const NOTICE_ICON_COLORS: Record<UpcomingRenewalUrgencyTier, string> = {
 const NOTICE_BODY_TEXT_CLASS =
   "text-[14px] leading-normal text-white md:text-base";
 
-/** モバイル 18px / デスクトップ 20px（数字＋「日後」を同サイズ・折り返し禁止） */
+/** モバイル 16px / デスクトップ 20px（数字＋「日後」を同サイズ・折り返し禁止） */
 const NOTICE_HIGHLIGHT_TEXT_CLASS =
-  "whitespace-nowrap text-[18px] font-bold underline underline-offset-[5px] md:text-[20px]";
+  "whitespace-nowrap text-[16px] font-bold underline underline-offset-[5px] md:text-[20px]";
 
 type SubscriptionRenewalNoticeProps = {
   subscriptions: SavedSubscriptionRow[];

@@ -27,10 +27,10 @@ const GUIDE_STEP_BODY_INDENT_CLASS = "lg:pl-[35px]";
 const GUIDE_NOTE_PREFIX = "※";
 
 const GUIDE_BODY_TEXT_CLASS =
-  "mt-2.5 text-base leading-[24px] text-white first:mt-0";
+  "mt-2.5 text-[14px] leading-[24px] text-white first:mt-0 lg:text-base";
 
 const GUIDE_NOTE_TEXT_CLASS =
-  "mt-1 text-sm leading-[20px] text-white first:mt-0";
+  "mt-1 text-[12px] leading-[20px] text-white first:mt-0 lg:text-sm";
 
 /** Figma の画像エリア幅。高さは画像の縦横比に追従させる */
 const GUIDE_IMAGE_FRAME_CLASS =
@@ -94,9 +94,9 @@ function GuideParagraphs({ body }: { body: readonly string[] }) {
 function GuideStepItem({ step }: { step: GuideSectionStep }) {
   return (
     <li className="flex flex-col gap-2">
-      <h3 className="flex items-center gap-2 text-base font-bold text-white">
+      <h3 className="flex items-center gap-2 text-[14px] font-bold text-white lg:text-base">
         <span
-          className="flex size-[27px] shrink-0 items-center justify-center rounded-full text-base font-bold leading-none text-white"
+          className="flex size-[27px] shrink-0 items-center justify-center rounded-full text-[14px] font-bold leading-none text-white lg:text-base"
           style={{ backgroundColor: GUIDE_STEP_BADGE_BACKGROUND }}
         >
           {step.step}
@@ -115,7 +115,7 @@ export function GuideSection({ section }: { section: GuideSectionData }) {
 
   return (
     <section className="w-full min-w-0" aria-labelledby={headingId}>
-      <h2 id={headingId} className="mb-2.5 text-xl font-bold text-[color:var(--app-fg)]">
+      <h2 id={headingId} className="mb-2.5 text-[18px] font-bold text-[color:var(--app-fg)] lg:text-xl">
         {section.title}
       </h2>
       <div className={SUBSCRIPTION_SECTION_FRAME_CLASS}>
