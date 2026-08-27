@@ -68,4 +68,18 @@ describe("SubscriptionDeleteForm layout", () => {
     expect(findTableSectionFrame(container)).toBeUndefined();
     expect(container.querySelector("table")).toBeNull();
   });
+
+  it("モバイルは案内文とカードタップ削除で、削除ボタンを出さない", () => {
+    renderWithColorTheme(
+      <SubscriptionDeleteForm initialSaved={[buildSubscription()]} />
+    );
+
+    expect(
+      screen.getByText("削除したいサブスクリプションのカードをタップしてください。")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Amazon Prime を削除" })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "簡易表示" })).toBeInTheDocument();
+  });
 });

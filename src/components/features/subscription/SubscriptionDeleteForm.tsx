@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { SubscriptionDeleteConfirmModal } from "@/components/features/subscription/SubscriptionDeleteConfirmModal";
-import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
+import { SubscriptionMobileList } from "@/components/features/subscription/SubscriptionMobileList";
 import {
   SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
   SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS,
@@ -130,7 +130,7 @@ export function SubscriptionDeleteForm({
     <>
       {rows.length === 0 ? (
         <div className="flex w-full flex-col space-y-4">
-          <p className="pt-6 text-base text-[color:var(--app-fg)]/90">
+          <p className="pt-6 text-[14px] text-[color:var(--app-fg)]/90 md:text-base">
             登録済みのサブスクリプションを削除できます。
           </p>
           <h2 className="text-[24px] font-bold text-[color:var(--app-fg)]">
@@ -140,28 +140,24 @@ export function SubscriptionDeleteForm({
       ) : (
         <SubscriptionTableSection
           description={
-            <p className="py-6 text-base text-[color:var(--app-fg)]/90">
+            <p className="py-6 text-[14px] text-[color:var(--app-fg)]/90 md:text-base">
               登録済みのサブスクリプションを削除できます。
             </p>
           }
         >
-          <div className="w-full space-y-[30px] md:hidden">
-            {rows.map((subscription) => (
-              <SubscriptionMobileCard
-                key={subscription.id}
-                subscription={subscription}
-                className={
-                  subscription.id === removingSubscriptionId
-                    ? DELETE_COLUMN_FADE_CLASS
-                    : undefined
-                }
-                action={{
-                  label: "削除",
-                  onClick: () => openDeleteModal(subscription.id),
-                  disabled: isRemovalInProgress,
-                }}
-              />
-            ))}
+          <div className="w-full md:hidden">
+            <SubscriptionMobileList
+              subscriptions={rows}
+              guideText="削除したいサブスクリプションのカードをタップしてください。"
+              onCardPress={openDeleteModal}
+              pressActionLabel="削除"
+              cardDisabled={isRemovalInProgress}
+              getCardClassName={(subscriptionId) =>
+                subscriptionId === removingSubscriptionId
+                  ? DELETE_COLUMN_FADE_CLASS
+                  : undefined
+              }
+            />
           </div>
 
           <div

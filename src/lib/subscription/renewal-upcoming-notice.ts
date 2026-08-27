@@ -49,6 +49,19 @@ export function formatSubscriptionDisplayName(
   return `${name} ${planName}`;
 }
 
+/** モバイルお知らせ用: 最大文字数を超える場合は末尾に … を付ける */
+export const NOTICE_DISPLAY_NAME_MAX_LENGTH = 10;
+
+export function truncateNoticeDisplayName(
+  displayName: string,
+  maxLength: number = NOTICE_DISPLAY_NAME_MAX_LENGTH
+): string {
+  if (displayName.length <= maxLength) {
+    return displayName;
+  }
+  return `${displayName.slice(0, maxLength)}…`;
+}
+
 /**
  * 残り日数から緊急度帯を返す。
  * 0〜3 → 3、4〜5 → 5、範囲外 → null

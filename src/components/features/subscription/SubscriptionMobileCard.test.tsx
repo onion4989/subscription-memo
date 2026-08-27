@@ -2,6 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
+import {
+  MOBILE_NOTIFY_OFF_COLOR,
+  MOBILE_NOTIFY_ON_COLOR,
+  MOBILE_SUBSCRIPTION_URGENT_COLOR,
+  MOBILE_SUBSCRIPTION_URGENT_FG_COLOR,
+} from "@/components/features/subscription/subscription-mobile-colors";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
 import { UPCOMING_RENEWAL_CELL_COLORS } from "@/lib/subscription/renewal-upcoming-notice";
 
@@ -62,14 +68,20 @@ describe("SubscriptionMobileCard", () => {
     const { rerender } = render(
       <SubscriptionMobileCard subscription={buildSubscription()} />
     );
-    expect(screen.getByText("ON")).toBeInTheDocument();
+    const onLabel = screen.getByText("ON");
+    expect(onLabel).toBeInTheDocument();
+    expect(onLabel).toHaveClass("font-bold");
+    expect(onLabel).toHaveStyle({ color: MOBILE_NOTIFY_ON_COLOR });
 
     rerender(
       <SubscriptionMobileCard
         subscription={buildSubscription({ notifyEnabled: false })}
       />
     );
-    expect(screen.getByText("OFF")).toBeInTheDocument();
+    const offLabel = screen.getByText("OFF");
+    expect(offLabel).toBeInTheDocument();
+    expect(offLabel).toHaveClass("font-bold");
+    expect(offLabel).toHaveStyle({ color: MOBILE_NOTIFY_OFF_COLOR });
   });
 
   it("料金行に月額と年換算を表示する", () => {
@@ -144,7 +156,7 @@ describe("SubscriptionMobileCard", () => {
     });
   });
 
-  it("3日以内のとき緊急色でバッジと日付背景を出す", () => {
+  it("3日以内のときモバイル用アクセント色でバッジと日付背景を出す", () => {
     render(
       <SubscriptionMobileCard
         subscription={buildSubscription({ nextRenewalDate: "2026-07-24" })}
@@ -155,13 +167,15 @@ describe("SubscriptionMobileCard", () => {
       screen.getByText("更新間近").closest("[data-upcoming-renewal-badge]")
     ).toHaveAttribute("data-upcoming-renewal-badge", "3");
     expect(screen.getByText("更新間近")).toHaveStyle({
-      backgroundColor: UPCOMING_RENEWAL_CELL_COLORS[3],
+      backgroundColor: MOBILE_SUBSCRIPTION_URGENT_COLOR,
+      color: MOBILE_SUBSCRIPTION_URGENT_FG_COLOR,
     });
 
     const date = document.querySelector("[data-upcoming-renewal-date='3']");
     expect(date).toHaveTextContent("2026/07/24");
     expect(date).toHaveStyle({
-      backgroundColor: UPCOMING_RENEWAL_CELL_COLORS[3],
+      backgroundColor: MOBILE_SUBSCRIPTION_URGENT_COLOR,
+      color: MOBILE_SUBSCRIPTION_URGENT_FG_COLOR,
     });
   });
 
@@ -185,6 +199,43 @@ describe("SubscriptionMobileCard", () => {
 
     await user.click(screen.getByRole("button", { name: "削除" }));
     expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("onPress を渡すとカード全体が押下可能ボタンになる", async () => {
+    const user = userEvent.setup();
+    const onPress = vi.fn();
+
+    render(
+      <SubscriptionMobileCard
+        subscription={buildSubscription()}
+        onPress={onPress}
+      />
+    );
+
+    const cardButton = screen.getByRole("button", {
+      name: "Amazon Prime を修正",
+    });
+    expect(cardButton).toHaveClass("active:scale-[0.98]");
+    expect(screen.queryByRole("heading", { name: "Amazon Prime" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "修正" })).not.toBeInTheDocument();
+
+    await user.click(cardButton);
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it("pressActionLabel が削除のとき詳細カードも削除ラベルになる", () => {
+    render(
+      <SubscriptionMobileCard
+        subscription={buildSubscription()}
+        onPress={() => undefined}
+        pressActionLabel="削除"
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Amazon Prime を削除" })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "削除" })).not.toBeInTheDocument();
   });
 
   it("修正 action を表示し、disabled のときクリックできない", async () => {

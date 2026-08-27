@@ -1,6 +1,6 @@
 ---
-description: mailform-test プロジェクト全体のコーディング規則
-alwaysApply: true
+description: subscription-memo のコーディング規則。必要時 Read
+alwaysApply: false
 ---
 
 # 基本コーディング規則
@@ -15,6 +15,7 @@ alwaysApply: true
 - `let` より `const` を優先する。`var` は使用しない
 - Promise チェーンではなく async/await を使う
 - import の順序: 外部ライブラリ → 内部モジュール → 型定義
+- 命名: 変数 20文字 / 定数 35文字（詳細: `naming.mdc`）
 
 ## ファイル・フォルダ構成（Next.js 16）
 

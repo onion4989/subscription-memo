@@ -1,6 +1,6 @@
 ---
-description: mailform-test プロジェクトのセキュリティ要件
-alwaysApply: true
+description: subscription-memo のセキュリティ要件。認証・フォーム作業時に Read
+alwaysApply: false
 ---
 
 # セキュリティ

@@ -43,7 +43,7 @@ function SummaryCard({
       <p
         className={cn(
           SUMMARY_CARD_LABEL_COLUMN_CLASS,
-          "text-base font-bold leading-tight md:w-auto md:text-center md:text-[18px]"
+          "text-[14px] font-bold leading-tight md:w-auto md:text-center md:text-[18px]"
         )}
       >
         {label}
@@ -74,7 +74,7 @@ export function SubscriptionSummaryCards({
       backgroundVar: "--app-summary-1",
       foregroundVar: "--app-summary-fg-1",
       value: (
-        <span className="text-[20px] font-bold leading-none">
+        <span className="text-[16px] font-bold leading-none md:text-[20px]">
           {summary.contractCount}
         </span>
       ),
