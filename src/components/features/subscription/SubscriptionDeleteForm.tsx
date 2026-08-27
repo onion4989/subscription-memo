@@ -130,7 +130,7 @@ export function SubscriptionDeleteForm({
     <>
       {rows.length === 0 ? (
         <div className="flex w-full flex-col space-y-4">
-          <p className="pt-6 text-[14px] text-[color:var(--app-fg)]/90 md:text-base">
+          <p className="pt-4 text-[14px] text-[color:var(--app-fg)]/90 md:pt-6 md:text-base">
             登録済みのサブスクリプションを削除できます。
           </p>
           <h2 className="text-[24px] font-bold text-[color:var(--app-fg)]">
@@ -140,7 +140,7 @@ export function SubscriptionDeleteForm({
       ) : (
         <SubscriptionTableSection
           description={
-            <p className="py-6 text-[14px] text-[color:var(--app-fg)]/90 md:text-base">
+            <p className="py-4 text-[14px] text-[color:var(--app-fg)]/90 md:py-6 md:text-base">
               登録済みのサブスクリプションを削除できます。
             </p>
           }

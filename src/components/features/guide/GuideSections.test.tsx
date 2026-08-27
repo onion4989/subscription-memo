@@ -75,7 +75,7 @@ describe("GuideSections", () => {
     expect(stepTitles).toEqual(["1登録画面へ", "2追加ボタンを押下", "3データ確認"]);
   });
 
-  it("「※」始まりの行だけ14pxに縮小する", () => {
+  it("「※」始まりの行だけ12pxに縮小する", () => {
     const { container } = render(<GuideSections />);
 
     const notes = GUIDE_SECTIONS.flatMap((section) => [
@@ -88,7 +88,7 @@ describe("GuideSections", () => {
     for (const note of notes) {
       expect(
         findParagraphByText(container, stripGuideHighlightMarkers(note))
-      ).toHaveClass("text-sm", "leading-[20px]");
+      ).toHaveClass("text-[12px]", "leading-[20px]", "lg:text-sm");
     }
 
     expect(
@@ -96,7 +96,7 @@ describe("GuideSections", () => {
         container,
         "パスワードを忘れた場合は、ログイン画面 >「パスワードをお忘れですか？」のリンクから再度設定してください。"
       )
-    ).toHaveClass("text-base", "leading-[24px]");
+    ).toHaveClass("text-[14px]", "leading-[24px]", "lg:text-base");
   });
 
   it("囲み記号で指定した語だけ背景色付きの矩形にする", () => {
