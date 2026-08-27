@@ -3,6 +3,7 @@ import {
   buildUpcomingRenewalNotices,
   formatSubscriptionDisplayName,
   getUpcomingRenewalUrgencyTier,
+  truncateNoticeDisplayName,
 } from "@/lib/subscription/renewal-upcoming-notice";
 
 describe("formatSubscriptionDisplayName", () => {
@@ -11,6 +12,18 @@ describe("formatSubscriptionDisplayName", () => {
       "Amazon Prime Pro"
     );
     expect(formatSubscriptionDisplayName("Vercel", "Pro")).toBe("Vercel Pro");
+  });
+});
+
+describe("truncateNoticeDisplayName", () => {
+  it("returns the original name when within max length", () => {
+    expect(truncateNoticeDisplayName("Netflix")).toBe("Netflix");
+    expect(truncateNoticeDisplayName("Vercel Pro")).toBe("Vercel Pro");
+  });
+
+  it("truncates to max length and appends …", () => {
+    expect(truncateNoticeDisplayName("Amazon Prime")).toBe("Amazon Pri…");
+    expect(truncateNoticeDisplayName("Amazon Prime Pro")).toBe("Amazon Pri…");
   });
 });
 

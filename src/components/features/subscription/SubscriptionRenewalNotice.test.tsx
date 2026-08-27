@@ -29,8 +29,7 @@ function findNoticeFrame(container: HTMLElement): HTMLElement | undefined {
     (el) =>
       el.classList.contains("border-2") &&
       el.classList.contains("border-white") &&
-      el.classList.contains("bg-black") &&
-      el.classList.contains("p-5")
+      el.classList.contains("rounded-[10px]")
   );
 }
 
@@ -73,10 +72,58 @@ describe("SubscriptionRenewalNotice", () => {
       />
     );
 
-    expect(screen.getByText(/Amazon Prime/)).toBeInTheDocument();
-    expect(screen.getByText(/Vercel Pro/)).toBeInTheDocument();
+    const listItems = screen.getAllByRole("listitem");
+    expect(listItems).toHaveLength(2);
+
+    expect(listItems[0]?.querySelector("p")?.getAttribute("aria-label")).toBe(
+      "Amazon Prime は、あと3日後です。"
+    );
+    expect(listItems[0]?.querySelector(".md\\:hidden")?.textContent).toBe(
+      "Amazon Pri…は、"
+    );
+    expect(
+      listItems[0]?.querySelector(".hidden.md\\:inline")?.textContent
+    ).toBe("Amazon Prime は、");
+
+    expect(listItems[1]?.querySelector("p")?.getAttribute("aria-label")).toBe(
+      "Vercel Pro は、あと5日後です。"
+    );
+    expect(listItems[1]?.querySelector(".md\\:hidden")?.textContent).toBe(
+      "Vercel Proは、"
+    );
+    expect(screen.queryByText("次回更新日")).not.toBeInTheDocument();
     expect(
       screen.queryByText(/現在お知らせはありません/)
     ).not.toBeInTheDocument();
+  });
+
+  it("当日の更新は「本日中」と表示する", () => {
+    const today = todayYmdInJst();
+
+    render(
+      <SubscriptionRenewalNotice
+        subscriptions={[
+          buildSubscription({
+            id: "today",
+            name: "Netflix",
+            planName: "Standard",
+            nextRenewalDate: today,
+          }),
+        ]}
+      />
+    );
+
+    const listItem = screen.getByRole("listitem");
+    expect(listItem.querySelector("p")?.getAttribute("aria-label")).toBe(
+      "Netflix Standard は、本日中です。"
+    );
+    expect(listItem.querySelector(".md\\:hidden")?.textContent).toBe(
+      "Netflix St…は、"
+    );
+    expect(
+      listItem.querySelector(".hidden.md\\:inline")?.textContent
+    ).toBe("Netflix Standard は、");
+    expect(screen.queryByText("次回更新日")).not.toBeInTheDocument();
+    expect(screen.queryByText(/あと本日中/)).not.toBeInTheDocument();
   });
 });

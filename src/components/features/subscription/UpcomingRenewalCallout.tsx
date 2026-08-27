@@ -16,6 +16,8 @@ type UpcomingRenewalCalloutProps = {
   className?: string;
   /** card: モバイルカード右上 / tableHeader: テーブル列ヘッダー中央上 */
   placement?: UpcomingRenewalCalloutPlacement;
+  backgroundColor?: string;
+  textColor?: string;
 };
 
 const PLACEMENT_CLASS: Record<UpcomingRenewalCalloutPlacement, string> = {
@@ -33,9 +35,9 @@ export function UpcomingRenewalCallout({
   urgencyTier,
   className,
   placement = "card",
+  backgroundColor = UPCOMING_RENEWAL_CELL_COLORS[urgencyTier],
+  textColor = UPCOMING_RENEWAL_LABEL_TEXT_COLORS[urgencyTier],
 }: UpcomingRenewalCalloutProps) {
-  const backgroundColor = UPCOMING_RENEWAL_CELL_COLORS[urgencyTier];
-
   return (
     <span
       className={cn(PLACEMENT_CLASS[placement], className)}
@@ -45,7 +47,7 @@ export function UpcomingRenewalCallout({
         className={cn(UPCOMING_RENEWAL_CALLOUT_CONTENT_CLASS, "relative block")}
         style={{
           backgroundColor,
-          color: UPCOMING_RENEWAL_LABEL_TEXT_COLORS[urgencyTier],
+          color: textColor,
         }}
       >
         更新間近

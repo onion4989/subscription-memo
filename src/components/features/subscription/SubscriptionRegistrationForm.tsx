@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { AddColumnGuideArrow } from "@/components/features/subscription/AddColumnGuideArrow";
 import { SubscriptionFormModal } from "@/components/features/subscription/SubscriptionFormModal";
-import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
+import { SubscriptionMobileList } from "@/components/features/subscription/SubscriptionMobileList";
 import { SubscriptionTransposeTable } from "@/components/features/subscription/subscription-table-shared";
 import {
   registerSubscription,
@@ -136,7 +136,7 @@ export function SubscriptionRegistrationForm({
   return (
     <>
       <div className={SUBSCRIPTION_PAGE_CONTENT_CLASS}>
-        <div className="py-6 text-base text-[color:var(--app-fg)]/90">
+        <div className="py-4 text-[14px] text-[color:var(--app-fg)]/90 md:py-6 md:text-base">
           <p>サブスクリプションの情報を登録することができます。</p>
           <p>
             <span className="inline-flex items-center gap-1 rounded-[2px] bg-white/25 px-1.5 py-0.5 font-medium text-[color:var(--app-fg)]">
@@ -147,18 +147,15 @@ export function SubscriptionRegistrationForm({
           </p>
         </div>
 
-        <div className="w-full space-y-[30px] md:hidden">
-          {rows.map((subscription) => (
-            <SubscriptionMobileCard
-              key={subscription.id}
-              subscription={subscription}
-              action={{
-                label: "修正",
-                onClick: () => openEditModal(subscription.id),
-              }}
+        <div className="w-full md:hidden">
+          {rows.length > 0 ? (
+            <SubscriptionMobileList
+              subscriptions={rows}
+              guideText="変更したいサブスクリプションのカードをタップしてください。"
+              onCardPress={openEditModal}
             />
-          ))}
-          <div className="flex justify-center pt-1">{addButton}</div>
+          ) : null}
+          <div className="flex justify-center pt-4">{addButton}</div>
         </div>
 
         <div

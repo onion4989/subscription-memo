@@ -1,7 +1,7 @@
 const YEN_SUFFIX_CLASS = "ml-[2px] text-[10px] font-normal leading-none";
 
 const SUMMARY_AMOUNT_CLASS =
-  "relative inline-block text-[20px] font-bold leading-none after:absolute after:bottom-[2px] after:left-full after:ml-[2px] after:text-[10px] after:font-normal after:leading-none after:content-['円']";
+  "relative inline-block text-[16px] font-bold leading-none after:absolute after:bottom-[2px] after:left-full after:ml-[2px] after:text-[10px] after:font-normal after:leading-none after:content-['円'] md:text-[20px]";
 
 type YenAmountDisplayProps = {
   amount: number | null | undefined;

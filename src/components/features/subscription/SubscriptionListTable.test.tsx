@@ -84,8 +84,8 @@ describe("SubscriptionListTable", () => {
     expect(screen.getAllByRole("heading", { name: "お知らせ" }).length).toBe(
       2
     );
-    expect(
-      screen.getAllByRole("heading", { name: "Amazon Prime" }).length
-    ).toBeGreaterThanOrEqual(1);
+    expect(screen.getByRole("radiogroup", { name: "一覧の表示切替" })).toBeInTheDocument();
+    expect(screen.getByText("Amazon Prime")).toBeInTheDocument();
+    expect(document.body).toHaveTextContent("￥590 / 月");
   });
 });

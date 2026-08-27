@@ -1,6 +1,7 @@
 import { SUBSCRIPTION_SECTION_FRAME_CLASS } from "@/components/features/subscription/SubscriptionTableSection";
 import {
   buildUpcomingRenewalNotices,
+  truncateNoticeDisplayName,
   type UpcomingRenewalNoticeItem,
   type UpcomingRenewalUrgencyTier,
 } from "@/lib/subscription/renewal-upcoming-notice";
@@ -35,7 +36,7 @@ function NoticeExclamationIcon({
 }) {
   return (
     <span
-      className="mt-0.5 inline-flex size-[15px] shrink-0 items-center justify-center text-[14px] leading-none text-black md:mt-0"
+      className="inline-flex size-[15px] shrink-0 items-center justify-center text-[14px] leading-none text-black"
       style={{ backgroundColor: NOTICE_ICON_COLORS[urgencyTier] }}
       aria-hidden="true"
       data-notice-icon-days={urgencyTier}
@@ -58,27 +59,28 @@ function NoticeRemainingHighlight({ daysUntil }: { daysUntil: number }) {
   );
 }
 
+function formatNoticeAriaLabel(item: UpcomingRenewalNoticeItem): string {
+  const remaining =
+    item.daysUntil === 0 ? "本日中" : `あと${item.daysUntil}日後`;
+  return `${item.displayName} は、${remaining}です。`;
+}
+
 function NoticeLine({ item }: { item: UpcomingRenewalNoticeItem }) {
   return (
-    <div className="flex items-start gap-2 md:items-center">
+    <div className="flex items-center gap-2">
       <NoticeExclamationIcon urgencyTier={item.urgencyTier} />
-      <p className={cn(NOTICE_BODY_TEXT_CLASS, "min-w-0")}>
-        {/* モバイル: サービス名を1行目、更新文を2行目。デスクトップ: 従来の1文 */}
-        <span className="block md:inline">{item.displayName}</span>
-        {item.daysUntil === 0 ? (
-          <>
-            <span className="hidden md:inline">の次回更新日は </span>
-            <span className="md:hidden">次回更新日は </span>
-            <NoticeRemainingHighlight daysUntil={0} /> です。
-          </>
-        ) : (
-          <>
-            <span className="hidden md:inline">の次回更新日は、</span>
-            <span className="md:hidden">次回更新日は、</span>
-            <NoticeRemainingHighlight daysUntil={item.daysUntil} />
-            です。
-          </>
-        )}
+      <p
+        className={cn(NOTICE_BODY_TEXT_CLASS, "min-w-0")}
+        aria-label={formatNoticeAriaLabel(item)}
+      >
+        <span aria-hidden="true">
+          <span className="md:hidden" title={item.displayName}>
+            {truncateNoticeDisplayName(item.displayName)}は、
+          </span>
+          <span className="hidden md:inline">{item.displayName} は、</span>
+          <NoticeRemainingHighlight daysUntil={item.daysUntil} />
+          です。
+        </span>
       </p>
     </div>
   );

@@ -1,5 +1,5 @@
 import { SubscriptionTransposeTable } from "@/components/features/subscription/subscription-table-shared";
-import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
+import { SubscriptionMobileList } from "@/components/features/subscription/SubscriptionMobileList";
 import { SubscriptionRenewalNotice } from "@/components/features/subscription/SubscriptionRenewalNotice";
 import { SubscriptionSummaryCards } from "@/components/features/subscription/SubscriptionSummaryCards";
 import {
@@ -23,15 +23,9 @@ export function SubscriptionListTable({
     <div className={`${SUBSCRIPTION_TABLE_BLOCK_CLASS} w-full gap-8 md:gap-14`}>
       <div className="w-full space-y-6 md:hidden">
         <SubscriptionSummaryCards subscriptions={subscriptions} />
-        <SubscriptionRenewalNotice subscriptions={subscriptions} />
-
-        <div className="space-y-[30px]">
-          {subscriptions.map((subscription) => (
-            <SubscriptionMobileCard
-              key={subscription.id}
-              subscription={subscription}
-            />
-          ))}
+        <div>
+          <SubscriptionRenewalNotice subscriptions={subscriptions} />
+          <SubscriptionMobileList subscriptions={subscriptions} />
         </div>
       </div>
 
