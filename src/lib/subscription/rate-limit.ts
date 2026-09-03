@@ -1,6 +1,6 @@
 import {
-  SUBSCRIPTION_REGISTER_RATE_LIMIT_PER_MINUTE,
-  SUBSCRIPTION_REGISTER_RATE_LIMIT_WINDOW_MS,
+  SUB_REG_RATE_LIMIT_PER_MIN,
+  SUB_REG_RATE_LIMIT_WINDOW_MS,
 } from "@/lib/subscription/constants";
 
 type WindowEntry = {
@@ -12,7 +12,7 @@ const userWindows = new Map<string, WindowEntry>();
 
 function pruneExpired(now: number): void {
   for (const [key, entry] of userWindows.entries()) {
-    if (now - entry.windowStart >= SUBSCRIPTION_REGISTER_RATE_LIMIT_WINDOW_MS) {
+    if (now - entry.windowStart >= SUB_REG_RATE_LIMIT_WINDOW_MS) {
       userWindows.delete(key);
     }
   }
@@ -25,12 +25,12 @@ export function checkSubscriptionRegisterRateLimit(userId: string): boolean {
   const existing = userWindows.get(userId);
   if (
     !existing ||
-    now - existing.windowStart >= SUBSCRIPTION_REGISTER_RATE_LIMIT_WINDOW_MS
+    now - existing.windowStart >= SUB_REG_RATE_LIMIT_WINDOW_MS
   ) {
     userWindows.set(userId, { count: 1, windowStart: now });
     return true;
   }
 
   existing.count += 1;
-  return existing.count <= SUBSCRIPTION_REGISTER_RATE_LIMIT_PER_MINUTE;
+  return existing.count <= SUB_REG_RATE_LIMIT_PER_MIN;
 }

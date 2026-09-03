@@ -3,6 +3,10 @@
 import { randomBytes } from "node:crypto";
 import { hash } from "bcryptjs";
 import { z } from "zod";
+import { checkForgotPasswordRateLimit } from "@/lib/auth/auth-form-rate-limit";
+import { normalizeEmail } from "@/lib/email";
+import { hashEmailForAudit } from "@/lib/email-verification/audit-log";
+import { getRequestMeta } from "@/lib/email-verification/request-meta";
 import { sendPlainTextEmail } from "@/lib/email/smtp";
 import { prisma } from "@/lib/prisma";
 import { ROUTES } from "@/lib/routes";
@@ -47,10 +51,18 @@ export async function forgotPassword(
     return { submitted: true };
   }
 
-  const { email } = parsed.data;
+  const email = normalizeEmail(parsed.data.email);
+  const emailHash = hashEmailForAudit(email);
+  const { ip } = await getRequestMeta();
+  const rate = checkForgotPasswordRateLimit(emailHash, ip);
+
+  // 超過時も成功画面のまま（列挙対策）。メールは送らない
+  if (!rate.allowed) {
+    console.info("[forgot-password] rate limited", { emailHash, ip });
+    return { submitted: true };
+  }
 
   const user = await prisma.user.findUnique({ where: { email } });
-
   if (user) {
     const hasPassword = !!user.passwordHash;
 

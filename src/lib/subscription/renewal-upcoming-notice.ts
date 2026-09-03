@@ -6,7 +6,7 @@ import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
 
 /** 一覧お知らせ・セル強調の閾値（日以内・当日含む） */
 export const UPCOMING_RENEWAL_WITHIN_DAYS = 5;
-export const UPCOMING_RENEWAL_URGENT_WITHIN_DAYS = 3;
+export const UPCOMING_RENEWAL_URGENT_DAYS = 3;
 
 /** 緊急度帯（色分け用）。3日以内が優先 */
 export const UPCOMING_RENEWAL_URGENCY_TIERS = [3, 5] as const;
@@ -72,7 +72,7 @@ export function getUpcomingRenewalUrgencyTier(
   if (daysUntil < 0 || daysUntil > UPCOMING_RENEWAL_WITHIN_DAYS) {
     return null;
   }
-  if (daysUntil <= UPCOMING_RENEWAL_URGENT_WITHIN_DAYS) {
+  if (daysUntil <= UPCOMING_RENEWAL_URGENT_DAYS) {
     return 3;
   }
   return 5;

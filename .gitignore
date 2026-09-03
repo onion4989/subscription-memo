@@ -33,3 +33,8 @@ dev-local.md
 .DS_Store
 *.pem
 .vercel
+
+# DB dumps（Prisma マイグレーションは例外）
+*.sql
+*.dump
+!prisma/migrations/**/*.sql

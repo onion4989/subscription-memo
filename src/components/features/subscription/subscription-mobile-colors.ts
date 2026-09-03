@@ -7,7 +7,7 @@ import {
 /** モバイル詳細・簡易で tier 3（3日以内）に使うアクセント色 */
 export const MOBILE_SUBSCRIPTION_URGENT_COLOR = "#9F193B";
 
-export const MOBILE_SUBSCRIPTION_URGENT_FG_COLOR = "#FFFFFF";
+export const MOBILE_SUB_URGENT_FG_COLOR = "#FFFFFF";
 
 export const MOBILE_NOTIFY_ON_COLOR = "#9F193B";
 
@@ -23,7 +23,7 @@ export function getMobileUpcomingRenewalHighlightColors(
   if (urgencyTier === 3) {
     return {
       backgroundColor: MOBILE_SUBSCRIPTION_URGENT_COLOR,
-      color: MOBILE_SUBSCRIPTION_URGENT_FG_COLOR,
+      color: MOBILE_SUB_URGENT_FG_COLOR,
     };
   }
 

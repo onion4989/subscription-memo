@@ -37,7 +37,7 @@ alwaysApply: false
 # ユーザー・アバター
 
 - ニックネーム: 登録時デフォルト **「ゲスト」**。未設定時の表示も **「ゲスト」**
-- アバター: `User.avatarId`（ID のみ）。`public/avatars/Avatar_1.jpg` 〜 `Avatar_10.jpg` の **固定10種**から1つ選択
+- アバター: `User.avatarId`（ID のみ）。`public/assets/common/img_c_avatar_01.jpg` 〜 `img_c_avatar_09.jpg` の **固定9種**から1つ選択
 - 選択したアバターは **サイドバーのユーザー表示左** にも反映する
 - 電話番号: **国内のみ**。形式は `09011112222`（11桁）。**アカウント画面**で登録
 

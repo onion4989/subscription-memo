@@ -35,6 +35,11 @@ export function LoginForm() {
           メールアドレスとパスワードでログインします。
         </p>
         <form action={formAction} className="space-y-4">
+          {viewState.formError ? (
+            <p className="text-sm text-red-600" role="alert">
+              {viewState.formError}
+            </p>
+          ) : null}
           <div className="space-y-2">
             <Label htmlFor="email">
               メールアドレス

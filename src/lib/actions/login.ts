@@ -2,8 +2,12 @@
 
 import { compare } from "bcryptjs";
 import { signIn } from "@/lib/auth";
+import { checkLoginRateLimit } from "@/lib/auth/auth-form-rate-limit";
+import { LOGIN_RATE_LIMIT_MESSAGE } from "@/lib/auth/rate-limit-constants";
 import { normalizeEmail } from "@/lib/email";
+import { hashEmailForAudit } from "@/lib/email-verification/audit-log";
 import { LOGIN_UNVERIFIED_MESSAGE } from "@/lib/email-verification/constants";
+import { getRequestMeta } from "@/lib/email-verification/request-meta";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_LOGIN_REDIRECT, ROUTES } from "@/lib/routes";
 import {
@@ -20,6 +24,8 @@ export type LoginState = {
   success: boolean;
   /** パスワードは正しいがメール未確認のとき true */
   emailNotVerified?: boolean;
+  /** フォーム上部の共通アラート（レート制限など） */
+  formError?: string;
   fieldErrors?: LoginFormFieldErrors;
   values?: {
     email?: string;
@@ -48,6 +54,16 @@ export async function login(
 
   const email = normalizeEmail(parsed.data.email);
   const { password } = parsed.data;
+
+  const { ip } = await getRequestMeta();
+  const rate = checkLoginRateLimit(hashEmailForAudit(email), ip);
+  if (!rate.allowed) {
+    return {
+      success: false,
+      formError: LOGIN_RATE_LIMIT_MESSAGE,
+      values: { email },
+    };
+  }
 
   const user = await prisma.user.findUnique({
     where: { email },

@@ -3,7 +3,7 @@ import {
   getMobileUpcomingRenewalDotColor,
   getMobileUpcomingRenewalHighlightColors,
   MOBILE_SUBSCRIPTION_URGENT_COLOR,
-  MOBILE_SUBSCRIPTION_URGENT_FG_COLOR,
+  MOBILE_SUB_URGENT_FG_COLOR,
 } from "@/components/features/subscription/subscription-mobile-colors";
 import {
   UPCOMING_RENEWAL_CELL_COLORS,
@@ -14,7 +14,7 @@ describe("subscription-mobile-colors", () => {
   it("tier 3 はモバイル用アクセント色を返す", () => {
     expect(getMobileUpcomingRenewalHighlightColors(3)).toEqual({
       backgroundColor: MOBILE_SUBSCRIPTION_URGENT_COLOR,
-      color: MOBILE_SUBSCRIPTION_URGENT_FG_COLOR,
+      color: MOBILE_SUB_URGENT_FG_COLOR,
     });
     expect(getMobileUpcomingRenewalDotColor(3)).toBe(
       MOBILE_SUBSCRIPTION_URGENT_COLOR

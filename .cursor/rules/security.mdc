@@ -5,7 +5,19 @@ alwaysApply: false
 
 # セキュリティ
 
+横断の最低ラインは `~/.cursor/rules/security-base.mdc` を正とする。以下は本案件の補足。
+
 - XSS・インジェクション攻撃を防ぐため、全ユーザー入力をサニタイズ・エスケープする
-- フォームエンドポイントに CSRF 対策を実装する
+- フォームエンドポイントに CSRF 対策を実装する（本案件は **Next.js Server Actions の Origin チェックに依存**。独自 CSRF トークンは置かない）
 - スパム・乱用を防ぐため、フォーム送信エンドポイントにレートリミットを設ける
-- 本番環境では必ず HTTPS を使用する
+- 本番環境では必ず HTTPS を使用する（Dokploy / Let's Encrypt。詳細は `docs/development.md`）
+
+## レートリミット対象（概要）
+
+| 対象 | 実装の目安 |
+|---|---|
+| login / forgot-password | `src/lib/auth/auth-form-rate-limit.ts`（`AUTH_RATE_LIMIT_ENABLED=false` で無効化可） |
+| メール確認再送 | `src/lib/email-verification/rate-limit.ts` |
+| サブスク登録 | `src/lib/subscription/rate-limit.ts` |
+
+いずれも単一インスタンス向けインメモリ。複数台化時は共有ストアを検討。数値・超過時の挙動は `docs/authentication.md`。
