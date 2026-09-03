@@ -30,7 +30,7 @@ const MOBILE_SIDEBAR_BACKDROP_CLASS =
 const MOBILE_SIDEBAR_DRAWER_CLASS =
   "fixed inset-y-[10px] left-[10px] z-50 w-[250px] transition-transform duration-300 ease-in-out will-change-transform md:hidden";
 /** シェル padding (10px) 分も含めて画面外へ退避 */
-const MOBILE_SIDEBAR_CLOSED_TRANSLATE_CLASS =
+const MOBILE_SIDEBAR_CLOSED_X_CLASS =
   "-translate-x-[calc(100%+10px)]";
 
 function getPageTitle(pathname: string): string {
@@ -90,7 +90,7 @@ export function AppShell({ children, displayName, avatarId }: AppShellProps) {
           MOBILE_SIDEBAR_DRAWER_CLASS,
           expanded
             ? "translate-x-0"
-            : cn("pointer-events-none", MOBILE_SIDEBAR_CLOSED_TRANSLATE_CLASS)
+            : cn("pointer-events-none", MOBILE_SIDEBAR_CLOSED_X_CLASS)
         )}
       >
         <AppSidebar

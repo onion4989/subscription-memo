@@ -12,16 +12,16 @@ export const SUBSCRIPTION_SECTION_FRAME_CLASS =
 
 /**
  * テーブル用外枠。
- * 「更新間近」吹き出し分の上余白はスクロール領域（SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS）側に確保する。
+ * 「更新間近」吹き出し分の上余白はスクロール領域（SUB_TABLE_SCROLL_AREA_CLASS）側に確保する。
  */
-export const SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS =
+export const SUB_TABLE_SECTION_FRAME_CLASS =
   "w-full rounded-[10px] border-2 border-white bg-[var(--app-table-frame)] px-5 pb-9";
 
 /**
  * テーブル横スクロール領域。
  * overflow-x でも吹き出しが切れないよう、ヘッダー上余白（pt-16）をここに置く。
  */
-export const SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS =
+export const SUB_TABLE_SCROLL_AREA_CLASS =
   "max-w-full pt-16";
 
 /** 「更新間近」吹き出しの表示判定用。枠外に出た列のタグを隠す */
@@ -29,11 +29,11 @@ export const SUBSCRIPTION_TABLE_FRAME_DATA_ATTR =
   "data-subscription-table-frame" as const;
 
 /** 削除画面など、テーブル幅に合わせてブロックを縮める場合に使用 */
-export const SUBSCRIPTION_TABLE_WIDTH_CONTAINER_CLASS =
+export const SUB_TABLE_WIDTH_WRAP_CLASS =
   "flex w-max max-w-full flex-col lg:w-full lg:min-w-0";
 
 /** 行をコンテンツ領域内で中央寄せする（追加ボタン等） */
-export const SUBSCRIPTION_TABLE_CENTERED_ROW_CLASS =
+export const SUB_TABLE_CENTERED_ROW_CLASS =
   "flex w-full justify-center";
 
 type SubscriptionTableSectionProps = {

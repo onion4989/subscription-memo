@@ -6,7 +6,7 @@ import {
   MOBILE_NOTIFY_OFF_COLOR,
   MOBILE_NOTIFY_ON_COLOR,
   MOBILE_SUBSCRIPTION_URGENT_COLOR,
-  MOBILE_SUBSCRIPTION_URGENT_FG_COLOR,
+  MOBILE_SUB_URGENT_FG_COLOR,
 } from "@/components/features/subscription/subscription-mobile-colors";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
 import { UPCOMING_RENEWAL_CELL_COLORS } from "@/lib/subscription/renewal-upcoming-notice";
@@ -168,14 +168,14 @@ describe("SubscriptionMobileCard", () => {
     ).toHaveAttribute("data-upcoming-renewal-badge", "3");
     expect(screen.getByText("更新間近")).toHaveStyle({
       backgroundColor: MOBILE_SUBSCRIPTION_URGENT_COLOR,
-      color: MOBILE_SUBSCRIPTION_URGENT_FG_COLOR,
+      color: MOBILE_SUB_URGENT_FG_COLOR,
     });
 
     const date = document.querySelector("[data-upcoming-renewal-date='3']");
     expect(date).toHaveTextContent("2026/07/24");
     expect(date).toHaveStyle({
       backgroundColor: MOBILE_SUBSCRIPTION_URGENT_COLOR,
-      color: MOBILE_SUBSCRIPTION_URGENT_FG_COLOR,
+      color: MOBILE_SUB_URGENT_FG_COLOR,
     });
   });
 

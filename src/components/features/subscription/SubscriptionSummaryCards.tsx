@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const SUMMARY_CARD_LABEL_COLUMN_CLASS = "w-[5.5rem] shrink-0";
 
 /** 旧 120px 正方形カード（md:px-3）時の横線幅を維持 */
-const SUMMARY_CARD_DESKTOP_DIVIDER_WIDTH_CLASS = "md:w-[96px]";
+const SUMMARY_CARD_DESKTOP_DIV_CLASS = "md:w-[96px]";
 
 const SUMMARY_CARDS_DESKTOP_GAP_CLASS = "md:gap-[30px]";
 
@@ -52,7 +52,7 @@ function SummaryCard({
         className={cn(
           "h-5 w-px shrink-0 bg-current/80",
           "md:h-px",
-          SUMMARY_CARD_DESKTOP_DIVIDER_WIDTH_CLASS
+          SUMMARY_CARD_DESKTOP_DIV_CLASS
         )}
         aria-hidden="true"
       />
