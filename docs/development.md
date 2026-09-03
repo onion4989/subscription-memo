@@ -115,4 +115,5 @@ GitHub Actions で Docker イメージをビルドし、GHCR 経由で Dokploy�
 - セキュリティ: `.cursor/rules/security.mdc`
 - フォーム: `.cursor/rules/form-handling.mdc`
 - メール: `.cursor/rules/email-smtp.mdc`
+- 静的アセット命名（案件の場所略語・旧→新）: [asset-naming.md](./asset-naming.md)
 - デプロイ: `.cursor/rules/manual/deployment-ci-cd.md`
