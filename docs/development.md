@@ -35,6 +35,7 @@ npx prisma generate
 - `MY_PASSWORD`
 - `RENEWAL_JOB_SECRET`（更新リマインダー Cron 用）
 - `DEMO_RESET_JOB_SECRET`（デモアカウント日次リセット Cron 用）
+- `AUTH_RATE_LIMIT_ENABLED`（任意。`false` で login / forgot-password のレートリミットを無効化。未設定は有効）
 
 ローカル DB を使う場合:
 
