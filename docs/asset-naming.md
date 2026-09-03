@@ -43,6 +43,10 @@ public/assets/
 | 移行済み | `/assets/no-data-subsc-guide.png`（未参照） | `/assets/pages/guide/img_guide_no-data.png` |
 | 移行済み | `/assets/avater/Avater_images_{1-9}.jpg` | `/assets/common/img_c_avatar_{01-09}.jpg` |
 
+## 移行状況（2026-09-04）
+
+上表の対象はすべて **移行済み**（コード参照も新パス）。`public/assets/` への新規追加は本ドキュメントの略語・形式に従う。未掲載の旧パスを見つけた場合は、触った画面の PR でリネームし、この表に追記する（一括リネームはしない）。
+
 ## 参照コード
 
 | パス種別 | 主な参照 |

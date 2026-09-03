@@ -386,7 +386,7 @@ Server Action を伴う登録フローは扱えないため、`MfaSetupFlow` は
 | V2 | `npm run test:run -- src/schemas/index.test.ts` | **1 file / 6 passed** |
 | V4 | `npm run test:run`（全体） | **45 passed / 1 failed（46 files）** · **208 passed / 2 failed（210 tests）** |
 
-V4 の失敗 2 件は `subscription-section-frame.test.ts`（`bg-black` 期待 vs 実装の `bg-[var(--app-table-frame)]`）。今回の RL 変更とは無関係の既存ずれ。
+V4 時点の失敗 2 件は `subscription-section-frame.test.ts`（`bg-black` 期待 vs 実装の `bg-[var(--app-table-frame)]`）。今回の RL 変更とは無関係の既存ずれ。**その後 P3（識別子短縮）で期待値を CSS 変数側へ合わせ解消済み。**
 
 ### 新規・追加ケース
 
