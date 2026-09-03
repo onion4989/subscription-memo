@@ -45,6 +45,7 @@ export function SubscriptionDeleteForm({
   const [isPending, startTransition] = useTransition();
   const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // 削除フェード用 setTimeout のアンマウント時 cleanup（タイマー保険）
   useEffect(() => {
     return () => {
       if (fadeTimeoutRef.current !== null) {
