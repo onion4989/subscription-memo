@@ -11,6 +11,7 @@ export function useBfcacheRemountKey(): number {
   const router = useRouter();
   const [key, setKey] = useState(0);
 
+  // Browser API（pageshow）購読。マウント中のみ付け、cleanup 必須
   useEffect(() => {
     const onPageShow = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
