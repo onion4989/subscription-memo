@@ -106,9 +106,9 @@ export function NotificationSettingsForm({
   const viewState = hydrated ? state : initialState;
   const isPending = hydrated && pending;
 
-  const showEmailUnverifiedWarning =
+  const showUnverifiedWarn =
     initialValues.notifyChannel === "EMAIL" && !emailVerified;
-  const showSmsChannelInactiveWarning =
+  const showSmsInactiveWarn =
     !SMS_NOTIFICATION_UI_ENABLED && initialValues.notifyChannel === "SMS";
 
   return (
@@ -170,12 +170,12 @@ export function NotificationSettingsForm({
                   {SMS_NOTIFICATION_DISABLED_HINT}
                 </p>
               ) : null}
-              {showEmailUnverifiedWarning ? (
+              {showUnverifiedWarn ? (
                 <p className="text-sm text-amber-200">
                   メール未確認のため送信できません。確認メールのリンクを開いてからご利用ください。
                 </p>
               ) : null}
-              {showSmsChannelInactiveWarning ? (
+              {showSmsInactiveWarn ? (
                 <p className="text-sm text-amber-200">
                   現在ショートメッセージは送信されません。メールへの変更をご検討ください。
                 </p>

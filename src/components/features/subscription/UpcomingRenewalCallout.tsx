@@ -6,7 +6,7 @@ import {
 import { cn } from "@/lib/utils";
 
 /** デスクトップ / モバイル吹き出しで共有する本体スタイル */
-export const UPCOMING_RENEWAL_CALLOUT_CONTENT_CLASS =
+export const UPCOMING_RENEWAL_CALLOUT_CLASS =
   "pointer-events-none border-0 px-2.5 py-1 text-xs font-bold shadow-md rounded-md";
 
 type UpcomingRenewalCalloutPlacement = "card" | "tableHeader";
@@ -44,7 +44,7 @@ export function UpcomingRenewalCallout({
       data-upcoming-renewal-badge={urgencyTier}
     >
       <span
-        className={cn(UPCOMING_RENEWAL_CALLOUT_CONTENT_CLASS, "relative block")}
+        className={cn(UPCOMING_RENEWAL_CALLOUT_CLASS, "relative block")}
         style={{
           backgroundColor,
           color: textColor,
