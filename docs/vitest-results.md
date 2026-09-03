@@ -369,3 +369,30 @@ Server Action を伴う登録フローは扱えないため、`MfaSetupFlow` は
 - アカウント削除 Action は `auth` / Prisma / SMTP / `signOut` / `redirect` をモック。
 - 層 B/C の実行ログや Secret の値はドキュメントに記載しない。
 - 再実行（層 A）: `npm run test:run`
+
+## 追記: 公開認証フォームのレートリミット（2026-09-04）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-09-04 |
+| 対象 | login / forgot-password のインメモリ RL（`AUTH_RATE_LIMIT_ENABLED` で無効化可） |
+| 環境 | Node.js v25.9.0 / Vitest v4.1.10 |
+
+### スコープ別コマンドと結果
+
+| 段階 | コマンド | 結果 |
+|------|---------|------|
+| V1+V3 | `npm run test:run -- src/lib/auth/auth-form-rate-limit.test.ts src/lib/actions/login.rate-limit.test.ts src/lib/actions/forgot-password.rate-limit.test.ts src/components/features/auth/LoginForm.form-error.test.tsx` | **4 files / 14 passed** |
+| V2 | `npm run test:run -- src/schemas/index.test.ts` | **1 file / 6 passed** |
+| V4 | `npm run test:run`（全体） | **45 passed / 1 failed（46 files）** · **208 passed / 2 failed（210 tests）** |
+
+V4 の失敗 2 件は `subscription-section-frame.test.ts`（`bg-black` 期待 vs 実装の `bg-[var(--app-table-frame)]`）。今回の RL 変更とは無関係の既存ずれ。
+
+### 新規・追加ケース
+
+| ID | ファイル | 内容 | 結果 |
+|----|----------|------|------|
+| RL1–RL7 | `src/lib/auth/auth-form-rate-limit.test.ts` | 窓内許可・メール/IP 超過・独立・`AUTH_RATE_LIMIT_ENABLED=false` | Pass |
+| L1–L2 | `src/lib/actions/login.rate-limit.test.ts` | 超過で `formError`・`signIn` 未呼出 / 許可時は認証継続 | Pass |
+| F1–F2 | `src/lib/actions/forgot-password.rate-limit.test.ts` | 超過で `submitted: true`・SMTP 未呼出 / 許可時は user 照会 | Pass |
+| UI1–UI3 | `src/components/features/auth/LoginForm.form-error.test.tsx` | 上部アラート表示・非表示・フィールドエラー併存 | Pass |
