@@ -36,6 +36,7 @@ export function MfaDisableDialog() {
   const [formKey, setFormKey] = useState(0);
   const [state, formAction, pending] = useActionState(disableMfa, initialState);
 
+  // useActionState の成功は submit handler に戻らないため、ここで閉じる
   useEffect(() => {
     if (state.success) {
       setOpen(false);

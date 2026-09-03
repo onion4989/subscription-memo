@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { SubscriptionMobileCard } from "@/components/features/subscription/SubscriptionMobileCard";
 import {
-  SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_HEADER_CLASS,
-  SUBSCRIPTION_MOBILE_SIMPLE_DATE_DOT_SLOT_CLASS,
-  SUBSCRIPTION_MOBILE_SIMPLE_DATE_HEADER_CLASS,
-  SUBSCRIPTION_MOBILE_SIMPLE_DATE_TEXT_CLASS,
-  SUBSCRIPTION_MOBILE_SIMPLE_NAME_HEADER_CELL_CLASS,
-  SUBSCRIPTION_MOBILE_SIMPLE_ROW_CLASS,
-  SUBSCRIPTION_MOBILE_SIMPLE_ROW_PADDING_CLASS,
+  MOBILE_SIMPLE_AMT_HDR_CLASS,
+  MOBILE_SIMPLE_DATE_DOT_CLASS,
+  MOBILE_SIMPLE_DATE_HDR_CLASS,
+  MOBILE_SIMPLE_DATE_TEXT_CLASS,
+  MOBILE_SIMPLE_NAME_HDR_CLASS,
+  MOBILE_SIMPLE_ROW_CLASS,
+  MOBILE_SIMPLE_ROW_PAD_CLASS,
   SubscriptionMobileSimpleCard,
   type SubscriptionMobilePressActionLabel,
 } from "@/components/features/subscription/SubscriptionMobileSimpleCard";
@@ -59,20 +59,20 @@ export function SubscriptionMobileList({
       {viewMode === "simple" ? (
         <div className="w-full">
           <div
-            className={`${SUBSCRIPTION_MOBILE_SIMPLE_ROW_CLASS} ${SUBSCRIPTION_MOBILE_SIMPLE_ROW_PADDING_CLASS} text-[12px] font-bold text-white`}
+            className={`${MOBILE_SIMPLE_ROW_CLASS} ${MOBILE_SIMPLE_ROW_PAD_CLASS} text-[12px] font-bold text-white`}
           >
-            <span className={SUBSCRIPTION_MOBILE_SIMPLE_NAME_HEADER_CELL_CLASS}>
+            <span className={MOBILE_SIMPLE_NAME_HDR_CLASS}>
               {SIMPLE_COLUMN_HEADERS[0]}
             </span>
-            <span className={SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_HEADER_CLASS}>
+            <span className={MOBILE_SIMPLE_AMT_HDR_CLASS}>
               {SIMPLE_COLUMN_HEADERS[1]}
             </span>
-            <span className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_HEADER_CLASS}>
+            <span className={MOBILE_SIMPLE_DATE_HDR_CLASS}>
               <span
-                className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_DOT_SLOT_CLASS}
+                className={MOBILE_SIMPLE_DATE_DOT_CLASS}
                 aria-hidden
               />
-              <span className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_TEXT_CLASS}>
+              <span className={MOBILE_SIMPLE_DATE_TEXT_CLASS}>
                 {SIMPLE_COLUMN_HEADERS[2]}
               </span>
             </span>

@@ -24,8 +24,8 @@ export { subscriptionHeaderColor } from "@/lib/subscription/subscription-header-
 export {
   getSubscriptionTableWidthRem,
   SUBSCRIPTION_TABLE_COLUMN_WIDTH_REM,
-  SUBSCRIPTION_TABLE_DATA_COLUMN_MIN_WIDTH_REM,
-  SUBSCRIPTION_TABLE_LABEL_COLUMN_WIDTH_REM,
+  SUB_TABLE_DATA_COL_MIN_REM,
+  SUB_TABLE_LABEL_COL_WIDTH_REM,
 } from "@/lib/subscription/subscription-table-layout";
 
 const COLUMN_WIDTH_CLASS =
@@ -230,7 +230,7 @@ type SubscriptionTransposeTableProps = {
   onEdit?: (subscriptionId: string) => void;
   onDelete?: (subscriptionId: string) => void;
   /** フェードアウト中の列（削除アニメ用）。未指定時はアニメなし */
-  removingSubscriptionId?: string | null;
+  removingSubId?: string | null;
 };
 
 export function SubscriptionTransposeTable({
@@ -238,7 +238,7 @@ export function SubscriptionTransposeTable({
   action,
   onEdit,
   onDelete,
-  removingSubscriptionId = null,
+  removingSubId = null,
 }: SubscriptionTransposeTableProps) {
   const { theme } = useColorTheme();
 
@@ -250,7 +250,7 @@ export function SubscriptionTransposeTable({
   const actionLabel =
     action === "edit" ? "修正" : action === "delete" ? "削除" : null;
   const actionRowIndex = ATTRIBUTE_LABELS.length;
-  const isRemovalInProgress = removingSubscriptionId !== null;
+  const isRemovalInProgress = removingSubId !== null;
   const tableWidthRem = getSubscriptionTableWidthRem(count);
   const asOfYmd = todayYmdInJst();
 
@@ -276,7 +276,7 @@ export function SubscriptionTransposeTable({
                   COLUMN_WIDTH_CLASS,
                   CELL_TRUNCATE_CLASS,
                   "px-2 py-2 text-center text-sm font-bold text-black",
-                  row.id === removingSubscriptionId && DELETE_COLUMN_FADE_CLASS
+                  row.id === removingSubId && DELETE_COLUMN_FADE_CLASS
                 )}
                 style={{
                   backgroundColor: subscriptionHeaderColor(
@@ -307,7 +307,7 @@ export function SubscriptionTransposeTable({
                 attributeIndex={rowIndex}
                 asOfYmd={asOfYmd}
                 className={
-                  row.id === removingSubscriptionId
+                  row.id === removingSubId
                     ? DELETE_COLUMN_FADE_CLASS
                     : undefined
                 }
@@ -329,7 +329,7 @@ export function SubscriptionTransposeTable({
                 key={`${row.id}-action`}
                 truncate={false}
                 className={
-                  row.id === removingSubscriptionId
+                  row.id === removingSubId
                     ? DELETE_COLUMN_FADE_CLASS
                     : undefined
                 }

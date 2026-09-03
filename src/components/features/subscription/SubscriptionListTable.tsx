@@ -5,8 +5,8 @@ import { SubscriptionSummaryCards } from "@/components/features/subscription/Sub
 import {
   SUBSCRIPTION_TABLE_BLOCK_CLASS,
   SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
-  SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS,
-  SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
+  SUB_TABLE_SCROLL_AREA_CLASS,
+  SUB_TABLE_SECTION_FRAME_CLASS,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
@@ -35,7 +35,7 @@ export function SubscriptionListTable({
 
         <div
           className={cn(
-            SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
+            SUB_TABLE_SECTION_FRAME_CLASS,
             "flex items-center justify-center"
           )}
           {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
@@ -43,7 +43,7 @@ export function SubscriptionListTable({
           <div
             className={cn(
               APP_SCROLLBAR_X_CLASS,
-              SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS
+              SUB_TABLE_SCROLL_AREA_CLASS
             )}
           >
             <SubscriptionTransposeTable subscriptions={subscriptions} />

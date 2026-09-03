@@ -86,7 +86,7 @@
 ### 変更概要（対象機能）
 
 - 一覧のお知らせ・サマリー・テーブル枠デザイン統一（黒背景・白 2px）
-- 登録・削除画面のテーブル枠を一覧と同じ `SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS` に統一
+- 登録・削除画面のテーブル枠を一覧と同じ `SUB_TABLE_SECTION_FRAME_CLASS` に統一
 - 右側シェル領域 `max-w-[1000px]`
 - テーブル枠上余白 `pt-12`（「更新間近」吹き出しの上方向はみ出し対策）
 
@@ -239,6 +239,34 @@ M6 は修正を一時的に無効化した状態で失敗する（`MFA設定` �
 
 Cron エンドポイント `POST /api/cron/demo-reset` は、`.env.local` に `DEMO_RESET_JOB_SECRET` が無い状態でライブ呼び出しすると `500 DEMO_RESET_JOB_SECRET is not configured` を返すことを確認（想定どおり）。認証成功パスは Vitest の route テストでカバー。
 
+## 追記: 公開認証フォームのレートリミット（2026-09-04）
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 | 2026-09-04 |
+| コマンド | 下記「段階別」参照（いずれも `--workers=1`） |
+| 環境 | Node.js v25.9.0 / Playwright 1.61.1 / Chromium / ローカル DB（`.env.local`） |
+| 注意 | RL は webServer プロセス共有のインメモリ。`p0-auth-rate-limit` は専用メール・serial・**単独実行**推奨 |
+
+### 段階別結果
+
+| 段階 | コマンド | 結果 |
+|------|---------|------|
+| P2 回帰 | `npm run test:e2e -- --workers=1 e2e/p0-auth.spec.ts e2e/p0-guards.spec.ts` | **8 passed**（約 12.3s） |
+| P3 RL | `npm run test:e2e -- --workers=1 e2e/p0-auth-rate-limit.spec.ts` | **2 passed**（約 8.8s） |
+| P4 回帰 | `npm run test:e2e -- --workers=1 e2e/p0-subscriptions.spec.ts` | **4 passed**（約 14.1s） |
+
+### P3 新規（`e2e/p0-auth-rate-limit.spec.ts`）
+
+`E2E_USER_*` は使わない（`rl-login@example.invalid` / `rl-forgot@example.invalid`）。
+
+| ID | 内容 | 結果 |
+|----|------|------|
+| RL-A | 誤パスワードをメール上限（10）まで送信後、11 回目で上部に制限メッセージ | Pass |
+| RL-B | forgot-password をメール上限+1（6）回送信し、毎回「メールを確認してください」 | Pass |
+
+SMTP 未送信の厳密検証は Vitest（F1）側。E2E の RL-B は成功画面の維持を確認する。
+
 ## 実行コマンド
 
 ```bash
@@ -254,4 +282,6 @@ npx playwright test e2e/p1-guide.spec.ts --workers=1
 npx playwright test e2e/p2-mfa.spec.ts --workers=1
 # デモアカウント:
 npx playwright test e2e/p2-demo.spec.ts --workers=1
+# 認証フォーム RL（単独実行）:
+npm run test:e2e -- --workers=1 e2e/p0-auth-rate-limit.spec.ts
 ```

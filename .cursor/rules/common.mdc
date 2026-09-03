@@ -13,6 +13,7 @@ alwaysApply: true
 - セキュリティ: `security.mdc`
 - コーディング: `general.mdc`
 - 命名: `naming.mdc`（変数20 / 定数35）
+- 静的アセット命名: `docs/asset-naming.md`（場所略語・移行状況）
 - useEffect: グローバル `use-effect.mdc`
 - パフォーマンス: `.agents/skills/vercel-react-best-practices`
 - バックアップ: `backup-major.mdc`

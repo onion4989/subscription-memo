@@ -16,7 +16,7 @@ describe("avatar helpers (V1)", () => {
   it("validates avatar ids and builds image paths", () => {
     expect(isAvatarId(AVATAR_IDS[0])).toBe(true);
     expect(isAvatarId(0)).toBe(false);
-    expect(avatarImagePath(3)).toBe("/assets/avater/Avater_images_3.jpg");
+    expect(avatarImagePath(3)).toBe("/assets/common/img_c_avatar_03.jpg");
   });
 });
 

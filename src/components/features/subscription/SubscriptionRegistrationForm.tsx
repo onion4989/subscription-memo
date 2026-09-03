@@ -22,8 +22,8 @@ import {
   SUBSCRIPTION_PAGE_CONTENT_CLASS,
   SUBSCRIPTION_SECTION_FRAME_CLASS,
   SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
-  SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS,
-  SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
+  SUB_TABLE_SCROLL_AREA_CLASS,
+  SUB_TABLE_SECTION_FRAME_CLASS,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
 import { cn } from "@/lib/utils";
@@ -40,7 +40,7 @@ export function SubscriptionRegistrationForm({
   const [rows, setRows] = useState<SavedSubscriptionRow[]>(initialSaved);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>("create");
-  const [editingSubscriptionId, setEditingSubscriptionId] = useState<
+  const [editingSubId, setEditingSubId] = useState<
     string | null
   >(null);
   const [formValues, setFormValues] = useState<SubscriptionRegisterFormValues>({
@@ -57,7 +57,7 @@ export function SubscriptionRegistrationForm({
 
   const openCreateModal = () => {
     setModalMode("create");
-    setEditingSubscriptionId(null);
+    setEditingSubId(null);
     setFormValues({ ...EMPTY_SUBSCRIPTION_FORM_VALUES });
     setFieldErrors({});
     setFormMessage(undefined);
@@ -72,7 +72,7 @@ export function SubscriptionRegistrationForm({
     }
 
     setModalMode("edit");
-    setEditingSubscriptionId(subscriptionId);
+    setEditingSubId(subscriptionId);
     setFormValues(subscriptionFormValuesFromSaved(targetRow));
     setFieldErrors({});
     setFormMessage(undefined);
@@ -88,8 +88,8 @@ export function SubscriptionRegistrationForm({
   const handleSubmit = () => {
     startTransition(async () => {
       const result =
-        modalMode === "edit" && editingSubscriptionId
-          ? await updateSubscription(editingSubscriptionId, formValues)
+        modalMode === "edit" && editingSubId
+          ? await updateSubscription(editingSubId, formValues)
           : await registerSubscription(formValues);
 
       if (!result.success) {
@@ -98,10 +98,10 @@ export function SubscriptionRegistrationForm({
         return;
       }
 
-      if (modalMode === "edit" && editingSubscriptionId) {
+      if (modalMode === "edit" && editingSubId) {
         setRows((currentRows) =>
           currentRows.map((row) =>
-            row.id === editingSubscriptionId ? result.subscription : row
+            row.id === editingSubId ? result.subscription : row
           )
         );
       } else {
@@ -112,7 +112,7 @@ export function SubscriptionRegistrationForm({
     });
   };
 
-  const handleModalOpenChange = (open: boolean) => {
+  const onModalOpenChange = (open: boolean) => {
     setModalOpen(open);
 
     if (!open) {
@@ -163,7 +163,7 @@ export function SubscriptionRegistrationForm({
             "hidden w-full items-center justify-center md:flex",
             rows.length === 0
               ? SUBSCRIPTION_SECTION_FRAME_CLASS
-              : SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS
+              : SUB_TABLE_SECTION_FRAME_CLASS
           )}
           {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
         >
@@ -171,7 +171,7 @@ export function SubscriptionRegistrationForm({
             className={cn(
               "max-w-full",
               rows.length > 0 && APP_SCROLLBAR_X_CLASS,
-              rows.length > 0 && SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS
+              rows.length > 0 && SUB_TABLE_SCROLL_AREA_CLASS
             )}
           >
             {/*
@@ -213,7 +213,7 @@ export function SubscriptionRegistrationForm({
         fieldErrors={fieldErrors}
         formMessage={formMessage}
         isSubmitting={isPending}
-        onOpenChange={handleModalOpenChange}
+        onOpenChange={onModalOpenChange}
         onChange={handleFormChange}
         onSubmit={handleSubmit}
       />

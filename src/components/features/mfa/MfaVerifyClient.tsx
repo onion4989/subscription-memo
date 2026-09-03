@@ -57,6 +57,7 @@ export function MfaVerifyClient() {
   const serverError = state.mode === mode ? state.error : undefined;
   const displayError = clientError ?? serverError;
 
+  // useActionState の成功は submit handler に戻らないため、ここで遷移する
   useEffect(() => {
     if (state.success) {
       router.push(ROUTES.subscriptions);

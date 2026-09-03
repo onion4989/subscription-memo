@@ -75,7 +75,7 @@ export const GUIDE_SECTIONS: readonly GuideSection[] = [
       "※パスワード変更欄自体が表示されなくなります。",
     ],
     image: {
-      src: "/assets/guide/Pass_Change_image.webp",
+      src: "/assets/pages/guide/img_guide_pass-change.webp",
       alt: "パスワード変更フォームの説明図",
       width: 600,
       height: 260,
@@ -89,7 +89,7 @@ export const GUIDE_SECTIONS: readonly GuideSection[] = [
       "※ログイン画面に戻るためには、一度ログアウトしてください。",
     ],
     image: {
-      src: "/assets/guide/Pass_Rest_image.webp",
+      src: "/assets/pages/guide/img_guide_pass-reset.webp",
       alt: "ログイン画面のパスワード再設定リンクの説明図",
       width: 600,
       height: 260,
@@ -103,7 +103,7 @@ export const GUIDE_SECTIONS: readonly GuideSection[] = [
       "メールが送信されるためには、データ登録時に「[[□お知らせ]]」にチェックを入れる必要があります。",
     ],
     image: {
-      src: "/assets/guide/Mail_setting_image.webp",
+      src: "/assets/pages/guide/img_guide_mail-setting.webp",
       alt: "お知らせメールの通知日設定の説明図",
       width: 600,
       height: 260,
@@ -119,7 +119,7 @@ export const GUIDE_SECTIONS: readonly GuideSection[] = [
       "※バックアップコードは設定完了時に一度だけ表示されます。コピーまたはテキスト保存で控えておいてください。各コードは1回のみ有効です。",
     ],
     image: {
-      src: "/assets/guide/MFA_image.webp",
+      src: "/assets/pages/guide/img_guide_mfa.webp",
       alt: "二段階認証（MFA）設定の説明図",
       width: 600,
       height: 340,

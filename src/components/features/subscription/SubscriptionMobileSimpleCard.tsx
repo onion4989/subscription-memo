@@ -28,31 +28,31 @@ type SubscriptionMobileSimpleCardProps = {
 const SIMPLE_AMOUNT_TEXT_CLASS = "text-[12px] font-normal leading-tight";
 
 /** 列見出し・簡易カード行で共通の左右 padding */
-export const SUBSCRIPTION_MOBILE_SIMPLE_ROW_PADDING_CLASS = "px-[10px]";
+export const MOBILE_SIMPLE_ROW_PAD_CLASS = "px-[10px]";
 
 /** 列見出し・簡易カード行で共通の3列グリッド（名前やや広め） */
-export const SUBSCRIPTION_MOBILE_SIMPLE_ROW_CLASS =
+export const MOBILE_SIMPLE_ROW_CLASS =
   "grid grid-cols-[minmax(0,1.35fr)_minmax(0,0.75fr)_minmax(0,1fr)] items-center gap-2";
 
-export const SUBSCRIPTION_MOBILE_SIMPLE_NAME_CELL_CLASS =
+export const MOBILE_SIMPLE_NAME_CELL_CLASS =
   "min-w-0 truncate text-left text-[12px] font-normal leading-tight";
 
-export const SUBSCRIPTION_MOBILE_SIMPLE_NAME_HEADER_CELL_CLASS =
+export const MOBILE_SIMPLE_NAME_HDR_CLASS =
   "min-w-0 truncate text-left";
 
-export const SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_CELL_CLASS = "text-left";
+export const MOBILE_SIMPLE_AMT_CELL_CLASS = "text-left";
 
-export const SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_HEADER_CLASS = "text-center";
+export const MOBILE_SIMPLE_AMT_HDR_CLASS = "text-center";
 
-export const SUBSCRIPTION_MOBILE_SIMPLE_DATE_HEADER_CLASS =
+export const MOBILE_SIMPLE_DATE_HDR_CLASS =
   "flex min-w-0 items-center gap-[3px] text-left";
 
-export const SUBSCRIPTION_MOBILE_SIMPLE_DATE_CELL_CLASS =
+export const MOBILE_SIMPLE_DATE_CELL_CLASS =
   "flex min-w-0 items-center gap-[3px] text-left text-[12px] font-normal leading-tight";
 
-export const SUBSCRIPTION_MOBILE_SIMPLE_DATE_TEXT_CLASS = "min-w-0 truncate";
+export const MOBILE_SIMPLE_DATE_TEXT_CLASS = "min-w-0 truncate";
 
-export const SUBSCRIPTION_MOBILE_SIMPLE_DATE_DOT_SLOT_CLASS =
+export const MOBILE_SIMPLE_DATE_DOT_CLASS =
   "inline-flex w-[10px] shrink-0 justify-center";
 
 function SimplePrimaryBillingLine({
@@ -111,8 +111,8 @@ export function SubscriptionMobileSimpleCard({
     subscription.nextRenewalDate
   );
   const cardClassName = cn(
-    SUBSCRIPTION_MOBILE_SIMPLE_ROW_CLASS,
-    SUBSCRIPTION_MOBILE_SIMPLE_ROW_PADDING_CLASS,
+    MOBILE_SIMPLE_ROW_CLASS,
+    MOBILE_SIMPLE_ROW_PAD_CLASS,
     "min-h-[44px] rounded-[10px] bg-white py-2 text-[#111111]",
     onPress && MOBILE_PRESSABLE_CARD_CLASS,
     onPress && disabled && "pointer-events-none opacity-40",
@@ -120,12 +120,12 @@ export function SubscriptionMobileSimpleCard({
   );
   const cardContent = (
     <>
-      <p className={SUBSCRIPTION_MOBILE_SIMPLE_NAME_CELL_CLASS}>{displayName}</p>
-      <p className={SUBSCRIPTION_MOBILE_SIMPLE_AMOUNT_CELL_CLASS}>
+      <p className={MOBILE_SIMPLE_NAME_CELL_CLASS}>{displayName}</p>
+      <p className={MOBILE_SIMPLE_AMT_CELL_CLASS}>
         <SimplePrimaryBillingLine subscription={subscription} />
       </p>
-      <p className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_CELL_CLASS}>
-        <span className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_DOT_SLOT_CLASS} aria-hidden>
+      <p className={MOBILE_SIMPLE_DATE_CELL_CLASS}>
+        <span className={MOBILE_SIMPLE_DATE_DOT_CLASS} aria-hidden>
           {urgencyTier !== null ? (
             <span
               className="size-[10px] rounded-full"
@@ -136,7 +136,7 @@ export function SubscriptionMobileSimpleCard({
             />
           ) : null}
         </span>
-        <span className={SUBSCRIPTION_MOBILE_SIMPLE_DATE_TEXT_CLASS}>
+        <span className={MOBILE_SIMPLE_DATE_TEXT_CLASS}>
           {nextRenewalDateLabel}
         </span>
       </p>

@@ -5,8 +5,8 @@ import { SubscriptionDeleteConfirmModal } from "@/components/features/subscripti
 import { SubscriptionMobileList } from "@/components/features/subscription/SubscriptionMobileList";
 import {
   SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
-  SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS,
-  SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS,
+  SUB_TABLE_SCROLL_AREA_CLASS,
+  SUB_TABLE_SECTION_FRAME_CLASS,
   SubscriptionTableSection,
 } from "@/components/features/subscription/SubscriptionTableSection";
 import {
@@ -38,13 +38,14 @@ export function SubscriptionDeleteForm({
   const [rows, setRows] = useState<SavedSubscriptionRow[]>(initialSaved);
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-  const [removingSubscriptionId, setRemovingSubscriptionId] = useState<
+  const [removingSubId, setRemovingSubId] = useState<
     string | null
   >(null);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
   const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // 削除フェード用 setTimeout のアンマウント時 cleanup（タイマー保険）
   useEffect(() => {
     return () => {
       if (fadeTimeoutRef.current !== null) {
@@ -58,10 +59,10 @@ export function SubscriptionDeleteForm({
       ? null
       : (rows.find((row) => row.id === deleteTargetId) ?? null);
 
-  const isRemovalInProgress = removingSubscriptionId !== null;
+  const isRemovalInProgress = removingSubId !== null;
 
   const openDeleteModal = (subscriptionId: string) => {
-    if (removingSubscriptionId !== null) {
+    if (removingSubId !== null) {
       return;
     }
 
@@ -70,7 +71,7 @@ export function SubscriptionDeleteForm({
     setModalOpen(true);
   };
 
-  const handleModalOpenChange = (open: boolean) => {
+  const onModalOpenChange = (open: boolean) => {
     setModalOpen(open);
 
     if (!open) {
@@ -83,7 +84,7 @@ export function SubscriptionDeleteForm({
     setRows((currentRows) =>
       currentRows.filter((row) => row.id !== subscriptionId)
     );
-    setRemovingSubscriptionId(null);
+    setRemovingSubId(null);
   };
 
   const handleConfirmDelete = () => {
@@ -113,7 +114,7 @@ export function SubscriptionDeleteForm({
         return;
       }
 
-      setRemovingSubscriptionId(idToRemove);
+      setRemovingSubId(idToRemove);
 
       await new Promise<void>((resolve) => {
         fadeTimeoutRef.current = setTimeout(() => {
@@ -153,7 +154,7 @@ export function SubscriptionDeleteForm({
               pressActionLabel="削除"
               cardDisabled={isRemovalInProgress}
               getCardClassName={(subscriptionId) =>
-                subscriptionId === removingSubscriptionId
+                subscriptionId === removingSubId
                   ? DELETE_COLUMN_FADE_CLASS
                   : undefined
               }
@@ -161,20 +162,20 @@ export function SubscriptionDeleteForm({
           </div>
 
           <div
-            className={`hidden w-full items-center justify-center md:flex ${SUBSCRIPTION_TABLE_SECTION_FRAME_CLASS}`}
+            className={`hidden w-full items-center justify-center md:flex ${SUB_TABLE_SECTION_FRAME_CLASS}`}
             {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
           >
             <div
               className={cn(
                 APP_SCROLLBAR_X_CLASS,
-                SUBSCRIPTION_TABLE_SCROLL_AREA_CLASS
+                SUB_TABLE_SCROLL_AREA_CLASS
               )}
             >
               <SubscriptionTransposeTable
                 subscriptions={rows}
                 action="delete"
                 onDelete={openDeleteModal}
-                removingSubscriptionId={removingSubscriptionId}
+                removingSubId={removingSubId}
               />
             </div>
           </div>
@@ -186,7 +187,7 @@ export function SubscriptionDeleteForm({
         target={deleteTarget}
         errorMessage={errorMessage}
         isDeleting={isPending}
-        onOpenChange={handleModalOpenChange}
+        onOpenChange={onModalOpenChange}
         onConfirm={handleConfirmDelete}
       />
     </>

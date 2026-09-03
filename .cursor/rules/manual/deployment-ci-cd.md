@@ -110,6 +110,7 @@ ghcr.io/onion4989/subscription-memo:<commit-sha>
 | `SMTP_PORT` | 通常 `465` | Dokploy |
 | `MY_EMAIL` | 送信元・SMTP 認証ユーザー | Dokploy のみ |
 | `MY_PASSWORD` | Xserver メールパスワード | Dokploy のみ |
+| `AUTH_RATE_LIMIT_ENABLED` | 任意。`false` で login / forgot の RL 無効（未設定は有効） | Dokploy |
 
 ### ローカル開発
 

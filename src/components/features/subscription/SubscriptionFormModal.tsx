@@ -107,7 +107,7 @@ export function SubscriptionFormModal({
     ? formatContractDateYmd(values.contractDate)
     : "日付を選択";
 
-  const handleContractDateButtonClick = () => {
+  const onContractDateClick = () => {
     const input = contractDateInputRef.current;
     if (!input) {
       return;
@@ -246,7 +246,7 @@ export function SubscriptionFormModal({
               <Button
                 type="button"
                 variant="outline"
-                onClick={handleContractDateButtonClick}
+                onClick={onContractDateClick}
                 aria-invalid={Boolean(fieldErrors.contractDate)}
                 className={cn(
                   "h-9 w-full max-md:w-48 justify-start gap-2 border-input bg-white px-3 font-normal text-slate-900 hover:bg-white",
