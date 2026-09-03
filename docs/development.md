@@ -111,9 +111,10 @@ GitHub Actions で Docker イメージをビルドし、GHCR 経由で Dokploy�
 ## ルール参照
 
 - 共通: `.cursor/rules/common.mdc`
-- 認証: `.cursor/rules/auth-nextjs16.mdc`
+- 認証: `.cursor/rules/auth-nextjs16.mdc` / [authentication.md](./authentication.md)（CSRF・レートリミット一覧）
 - セキュリティ: `.cursor/rules/security.mdc`
 - フォーム: `.cursor/rules/form-handling.mdc`
 - メール: `.cursor/rules/email-smtp.mdc`
-- 静的アセット命名（案件の場所略語・旧→新）: [asset-naming.md](./asset-naming.md)
+- 命名（変数 20 / 定数 35）: `.cursor/rules/naming.mdc`
+- 静的アセット命名（場所略語・旧→新・移行状況）: [asset-naming.md](./asset-naming.md)
 - デプロイ: `.cursor/rules/manual/deployment-ci-cd.md`

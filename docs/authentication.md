@@ -102,9 +102,17 @@ MFA 検証などの試行が成功したかどうかを記録し、短時間に�
 - **パスワードを忘れた**ときは `/forgot-password` から手続きします。**メール未確認の Credentials ユーザー**にはリセットメールは送りません。画面メッセージは登録の有無に関わらず同じにしています。
 - **MFA（二段階認証）** は、ログイン後に `/mfa/setup` で任意設定し、`totpEnabled` 時は `/mfa/verify` で認証アプリの 6 桁コードを確認する流れです。認証アプリが使えない場合は、設定時に控えたバックアップコードでも `/mfa/verify` を通過できます。上の表は「メール／OAuth による本人確認」の段階に焦点を当てています。
 
-## 公開フォームのレートリミット
+## CSRF（Server Actions）
 
-Credentials の乱用対策（実装: `src/lib/auth/auth-form-rate-limit.ts`）。**単一インスタンス向けのインメモリ**です。アプリを複数台にスケールする場合は共有ストア（例: Redis）への移行を検討してください。
+ミューテーションは Server Actions（`'use server'`）経由が主です。**CSRF は Next.js の Origin チェックに依存**し、独自の CSRF トークンは発行しません。クロスオリジンの Action 呼び出しはフレームワーク側で拒否される前提です。詳細な数値・運用は `.cursor/rules/security.mdc` も参照。
+
+## レートリミット一覧
+
+公開・準公開の送信系は **単一インスタンス向けインメモリ**です。複数台にスケールする場合は共有ストア（例: Redis）への移行を検討してください。
+
+### 公開認証フォーム（login / forgot）
+
+実装: `src/lib/auth/auth-form-rate-limit.ts`。
 
 | 対象 | 窓 | メール上限 | IP 上限 | 超過時 |
 |---|---|---|---|---|
@@ -116,7 +124,14 @@ Credentials の乱用対策（実装: `src/lib/auth/auth-form-rate-limit.ts`）�
 - 環境変数 `AUTH_RATE_LIMIT_ENABLED=false` を設定して Redeploy
 - 未設定または `false` 以外は制限が有効
 
-メール確認再送のレートリミット（別実装）は従来どおり `src/lib/email-verification/rate-limit.ts` です。
+### 関連（別実装）
+
+| 対象 | 窓 | 上限 | 実装 |
+|---|---|---|---|
+| メール確認再送（`/resend-verification` 等） | 1 時間 | メール 5 / IP 10 | `src/lib/email-verification/rate-limit.ts` |
+| サブスク登録・更新系 | 1 分 | ユーザー 10 | `src/lib/subscription/rate-limit.ts` |
+
+MFA 検証の失敗ロックアウト（`src/lib/mfa/lockout.ts`）はレートリミットとは別の防護です。
 
 ## 認証要件（現時点）
 
