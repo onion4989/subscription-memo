@@ -9,5 +9,6 @@ export function isAvatarId(value: number): value is AvatarId {
 }
 
 export function avatarImagePath(avatarId: number): string {
-  return `/assets/avater/Avater_images_${avatarId}.jpg`;
+  const paddedId = String(avatarId).padStart(2, "0");
+  return `/assets/common/img_c_avatar_${paddedId}.jpg`;
 }

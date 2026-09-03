@@ -26,7 +26,7 @@ model User {
 
   /// 国内携帯番号（例: 09011112222）。SMS 通知用。アカウント画面で登録。
   phoneNumber            String?
-  /// 固定アバター ID（1〜10）。`public/avatars/Avatar_N.jpg`
+  /// 固定アバター ID（1〜9）。`public/assets/common/img_c_avatar_01.jpg` 〜 `09.jpg`
   avatarId               Int?
   notifyLeadDays         NotifyLeadDays   @default(FIVE_DAYS)
   notifyChannel          NotifyChannel    @default(EMAIL)

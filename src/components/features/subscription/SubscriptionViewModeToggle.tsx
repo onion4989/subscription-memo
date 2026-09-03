@@ -8,12 +8,12 @@ const VIEW_MODE_OPTIONS = [
   {
     mode: "simple" as const,
     label: "簡易表示",
-    iconSrc: "/assets/subscription/view-simple.svg",
+    iconSrc: "/assets/pages/sub/ic_sub_view-simple.svg",
   },
   {
     mode: "detail" as const,
     label: "詳細表示",
-    iconSrc: "/assets/subscription/view-detail.svg",
+    iconSrc: "/assets/pages/sub/ic_sub_view-detail.svg",
   },
 ] as const;
 
