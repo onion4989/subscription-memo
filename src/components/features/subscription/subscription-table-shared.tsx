@@ -17,7 +17,11 @@ import {
   UPCOMING_RENEWAL_CELL_COLORS,
 } from "@/lib/subscription/renewal-upcoming-notice";
 import { subscriptionHeaderColor } from "@/lib/subscription/subscription-header-color";
-import { getSubscriptionTableWidthRem } from "@/lib/subscription/subscription-table-layout";
+import {
+  getSubscriptionTableWidthRem,
+  SUB_TABLE_END_GUTTER_PX,
+  SUB_TABLE_STICKY_EDGE_CLASS,
+} from "@/lib/subscription/subscription-table-layout";
 import { cn } from "@/lib/utils";
 
 export { subscriptionHeaderColor } from "@/lib/subscription/subscription-header-color";
@@ -25,7 +29,9 @@ export {
   getSubscriptionTableWidthRem,
   SUBSCRIPTION_TABLE_COLUMN_WIDTH_REM,
   SUB_TABLE_DATA_COL_MIN_REM,
+  SUB_TABLE_END_GUTTER_PX,
   SUB_TABLE_LABEL_COL_WIDTH_REM,
+  SUB_TABLE_STICKY_EDGE_CLASS,
 } from "@/lib/subscription/subscription-table-layout";
 
 const COLUMN_WIDTH_CLASS =
@@ -68,7 +74,8 @@ function StickyCornerCell() {
       scope="col"
       className={cn(
         COLUMN_WIDTH_CLASS,
-        "sticky left-0 z-30 border-r border-b border-white p-0"
+        // 右線のみ（左 inset は付けない。空セルに左線が突き抜けるのを防ぐ）
+        "sticky left-0 z-30 border-r border-b border-white p-0 shadow-[1px_0_0_0_#fff]"
       )}
       aria-hidden="true"
     />
@@ -90,10 +97,11 @@ function StickyLabelCell({
     <th
       scope="row"
       className={cn(
-        CELL_BORDER_CLASS,
         COLUMN_WIDTH_CLASS,
         CELL_TRUNCATE_CLASS,
-        "sticky left-0 z-20 px-2 py-2 text-left text-sm font-bold text-black"
+        SUB_TABLE_STICKY_EDGE_CLASS,
+        // 左線は inset shadow。border-l は付けない（二重線・すき間防止）
+        "sticky left-0 z-20 border-t border-r border-b border-white px-2 py-2 text-left text-sm font-bold text-black"
       )}
       style={{
         backgroundColor:
@@ -257,7 +265,9 @@ export function SubscriptionTransposeTable({
   return (
     <table
       className="table-fixed border-collapse"
-      style={{ width: `${tableWidthRem}rem` }}
+      style={{
+        width: `calc(${tableWidthRem}rem + ${SUB_TABLE_END_GUTTER_PX}px)`,
+      }}
     >
       <thead>
         <tr>

@@ -25,6 +25,7 @@ import {
   SUB_TABLE_SCROLL_AREA_CLASS,
   SUB_TABLE_SECTION_FRAME_CLASS,
 } from "@/components/features/subscription/SubscriptionTableSection";
+import { SubscriptionTableScrollArea } from "@/components/features/subscription/SubscriptionTableScrollArea";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
 import { cn } from "@/lib/utils";
 
@@ -167,7 +168,7 @@ export function SubscriptionRegistrationForm({
           )}
           {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
         >
-          <div
+          <SubscriptionTableScrollArea
             className={cn(
               "max-w-full",
               rows.length > 0 && APP_SCROLLBAR_X_CLASS,
@@ -202,7 +203,7 @@ export function SubscriptionRegistrationForm({
               {/* 外側 relative（pr 含む）に置き、テーブル幅+60px まで線が届くようにする */}
               {showAddColumnGuide ? <AddColumnGuideArrow /> : null}
             </div>
-          </div>
+          </SubscriptionTableScrollArea>
         </div>
       </div>
 

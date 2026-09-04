@@ -2,6 +2,7 @@ import { SubscriptionTransposeTable } from "@/components/features/subscription/s
 import { SubscriptionMobileList } from "@/components/features/subscription/SubscriptionMobileList";
 import { SubscriptionRenewalNotice } from "@/components/features/subscription/SubscriptionRenewalNotice";
 import { SubscriptionSummaryCards } from "@/components/features/subscription/SubscriptionSummaryCards";
+import { SubscriptionTableScrollArea } from "@/components/features/subscription/SubscriptionTableScrollArea";
 import {
   SUBSCRIPTION_TABLE_BLOCK_CLASS,
   SUBSCRIPTION_TABLE_FRAME_DATA_ATTR,
@@ -40,14 +41,14 @@ export function SubscriptionListTable({
           )}
           {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
         >
-          <div
+          <SubscriptionTableScrollArea
             className={cn(
               APP_SCROLLBAR_X_CLASS,
               SUB_TABLE_SCROLL_AREA_CLASS
             )}
           >
             <SubscriptionTransposeTable subscriptions={subscriptions} />
-          </div>
+          </SubscriptionTableScrollArea>
         </div>
       </div>
     </div>
