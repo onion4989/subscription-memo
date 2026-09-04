@@ -15,6 +15,7 @@ import {
   ENABLE_DELETE_COLUMN_ANIMATION,
   SubscriptionTransposeTable,
 } from "@/components/features/subscription/subscription-table-shared";
+import { SubscriptionTableScrollArea } from "@/components/features/subscription/SubscriptionTableScrollArea";
 import { deleteSubscription } from "@/lib/actions/subscription-delete";
 import type { SavedSubscriptionRow } from "@/lib/subscription/queries";
 import { APP_SCROLLBAR_X_CLASS } from "@/lib/ui-classes";
@@ -165,7 +166,7 @@ export function SubscriptionDeleteForm({
             className={`hidden w-full items-center justify-center md:flex ${SUB_TABLE_SECTION_FRAME_CLASS}`}
             {...{ [SUBSCRIPTION_TABLE_FRAME_DATA_ATTR]: "" }}
           >
-            <div
+            <SubscriptionTableScrollArea
               className={cn(
                 APP_SCROLLBAR_X_CLASS,
                 SUB_TABLE_SCROLL_AREA_CLASS
@@ -177,7 +178,7 @@ export function SubscriptionDeleteForm({
                 onDelete={openDeleteModal}
                 removingSubId={removingSubId}
               />
-            </div>
+            </SubscriptionTableScrollArea>
           </div>
         </SubscriptionTableSection>
       )}
