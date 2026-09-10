@@ -70,10 +70,10 @@ npm run demo:reset # デモアカウントを初期状態へ（ローカル）
 
 | 項目 | 内容 |
 |---|---|
-| コア処理 | `src/lib/demo/reset-demo-account.ts` |
+| コア処理 | `src/lib/demo/reset-demo-account.ts`（サブスク再投入に加え OAuth `Account` / `Session` も削除） |
 | 手動リセット | `npm run demo:reset`（本番は `--confirm-production` 必須） |
 | 日次 Cron | `POST /api/cron/demo-reset`（`Authorization: Bearer $DEMO_RESET_JOB_SECRET`） |
-| ガード | MFA 設定・アカウント削除・メール／パスワード変更を UI と Server Action の両方で拒否 |
+| ガード | MFA 設定・アカウント削除・メール／パスワード変更を UI と Server Action の両方で拒否。**OAuth（Google / GitHub）も不可** |
 
 Cron は更新リマインダーと同様に Dokploy 等から **1 日 1 回**呼び出してください。任意で `?asOfYmd=YYYY-MM-DD` を付けて基準日を固定できます。
 

@@ -21,7 +21,7 @@ export type ResetDemoAccountResult = {
  * デモユーザーを初期状態に戻す。
  * - ユーザー upsert（確認済み・パスワード固定・通知全停止・MFA オフ）
  * - サブスクを決め打ちデータへ差し替え
- * - バックアップコード / ログイン失敗履歴を削除
+ * - OAuth Account / Session / バックアップコード / ログイン失敗履歴を削除
  *
  * 通常ユーザーの行には触れない。
  */
@@ -67,6 +67,8 @@ export async function resetDemoAccount(
 
   await prisma.$transaction([
     prisma.subscription.deleteMany({ where: { userId: user.id } }),
+    prisma.account.deleteMany({ where: { userId: user.id } }),
+    prisma.session.deleteMany({ where: { userId: user.id } }),
     prisma.backupCode.deleteMany({ where: { userId: user.id } }),
     prisma.loginAttempt.deleteMany({ where: { userId: user.id } }),
   ]);

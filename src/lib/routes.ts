@@ -35,6 +35,10 @@ export const DEFAULT_LOGIN_REDIRECT = ROUTES.subscriptions;
 /** Auth.js signIn コールバックでクエリに載せるエラー値（login/page の ERROR_MESSAGES と一致） */
 export const AUTH_ERROR_QUERY = {
   OAuthAccountNotLinked: "OAuthAccountNotLinked",
+  /** ログイン中に別 OAuth を紐づけようとした */
+  OAuthWhileSignedIn: "OAuthWhileSignedIn",
+  /** デモアカウントでは OAuth 不可 */
+  OAuthDemoForbidden: "OAuthDemoForbidden",
   EmailNotVerified: "EmailNotVerified",
 } as const;
 

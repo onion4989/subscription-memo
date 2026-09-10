@@ -19,6 +19,8 @@ import {
   isOAuthProvider,
   markOAuthEmailVerifiedIfNeeded,
 } from "@/lib/auth/mark-oauth-email-verified";
+import { evaluateOAuthSignInGuard } from "@/lib/auth/oauth-sign-in-guards";
+import { readSessionJwt } from "@/lib/auth/read-session-jwt";
 import { loginSchema } from "@/lib/validations/auth";
 
 export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
@@ -94,11 +96,52 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
       if (!account) return false;
 
       if (account.provider !== "credentials") {
-        const oauthEmail = user.email ? normalizeEmail(user.email) : undefined;
+        const oauthEmail = user.email
+          ? normalizeEmail(user.email)
+          : undefined;
+        if (!oauthEmail) {
+          return false;
+        }
+
+        const sessionJwt = await readSessionJwt();
         const existingUser = await prisma.user.findUnique({
           where: { email: oauthEmail },
           include: { accounts: true },
         });
+
+        const accountRow = account.providerAccountId
+          ? await prisma.account.findUnique({
+              where: {
+                provider_providerAccountId: {
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                },
+              },
+              select: {
+                userId: true,
+                user: { select: { email: true } },
+              },
+            })
+          : null;
+
+        const guard = evaluateOAuthSignInGuard({
+          oauthEmail,
+          sessionUserId: sessionJwt.userId,
+          sessionEmail: sessionJwt.email
+            ? normalizeEmail(sessionJwt.email)
+            : null,
+          existingEmail: existingUser?.email
+            ? normalizeEmail(existingUser.email)
+            : null,
+          accountUserId: accountRow?.userId ?? null,
+          accountEmail: accountRow?.user.email
+            ? normalizeEmail(accountRow.user.email)
+            : null,
+        });
+
+        if (!guard.ok) {
+          return loginUrlWithSearchParams({ error: guard.error });
+        }
 
         if (existingUser) {
           const hasProvider = existingUser.accounts.some(
