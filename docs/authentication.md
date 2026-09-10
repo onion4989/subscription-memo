@@ -142,7 +142,9 @@ MFA 検証の失敗ロックアウト（`src/lib/mfa/lockout.ts`）はレート�
   ドメイン制限なし（誰でもサインイン可能）
 
 - **アカウントリンク**  
-  同一メールでも別プロバイダへの自動リンクは禁止。既存ユーザーに当該 OAuth が紐づいていない場合はログインを拒否し、`/login` に `error=OAuthAccountNotLinked` および補助クエリ（既存の連携プロバイダ・Credentials 登録の有無など）を付与して案内する
+  同一メールでも別プロバイダへの自動リンクは禁止。既存ユーザーに当該 OAuth が紐づいていない場合はログインを拒否し、`/login` に `error=OAuthAccountNotLinked` および補助クエリ（既存の連携プロバイダ・Credentials 登録の有無など）を付与して案内する。  
+  さらに、**既にログイン中の OAuth 追加リンクは拒否**（`OAuthWhileSignedIn`）。Auth.js 既定の「ログイン中に別プロバイダを押すと現ユーザーへ紐づく」挙動を防ぎ、デモアカウント汚染を避ける。  
+  **デモアカウント（`demo@example.com`）では OAuth 不可**（`OAuthDemoForbidden`）。デモは Credentials 専用。日次 `demo-reset` はデモの `Account` / `Session` も削除する。
 
 - **新規登録**  
   `/signup`（認証不要）。登録後に確認メールを送信し、リンククリックで `emailVerified` を設定するまで Credentials ログインは不可。OAuth（Google / GitHub）は確認メール不要

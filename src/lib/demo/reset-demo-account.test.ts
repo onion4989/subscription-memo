@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const {
   upsertUser,
   deleteManySubscriptions,
+  deleteManyAccounts,
+  deleteManySessions,
   deleteManyBackupCodes,
   deleteManyLoginAttempts,
   createManySubscriptions,
@@ -11,6 +13,8 @@ const {
 } = vi.hoisted(() => ({
   upsertUser: vi.fn(),
   deleteManySubscriptions: vi.fn(() => ({ op: "subscription.deleteMany" })),
+  deleteManyAccounts: vi.fn(() => ({ op: "account.deleteMany" })),
+  deleteManySessions: vi.fn(() => ({ op: "session.deleteMany" })),
   deleteManyBackupCodes: vi.fn(() => ({ op: "backupCode.deleteMany" })),
   deleteManyLoginAttempts: vi.fn(() => ({ op: "loginAttempt.deleteMany" })),
   createManySubscriptions: vi.fn(),
@@ -29,6 +33,8 @@ const prisma = {
     deleteMany: deleteManySubscriptions,
     createMany: createManySubscriptions,
   },
+  account: { deleteMany: deleteManyAccounts },
+  session: { deleteMany: deleteManySessions },
   backupCode: { deleteMany: deleteManyBackupCodes },
   loginAttempt: { deleteMany: deleteManyLoginAttempts },
   $transaction: transaction,
@@ -38,7 +44,7 @@ describe("resetDemoAccount", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     upsertUser.mockResolvedValue({ id: "demo-user-id", email: DEMO_USER_EMAIL });
-    transaction.mockResolvedValue([{}, {}, {}]);
+    transaction.mockResolvedValue([{}, {}, {}, {}, {}]);
     createManySubscriptions.mockResolvedValue({ count: 6 });
   });
 
@@ -72,6 +78,12 @@ describe("resetDemoAccount", () => {
 
     expect(transaction).toHaveBeenCalled();
     expect(deleteManySubscriptions).toHaveBeenCalledWith({
+      where: { userId: "demo-user-id" },
+    });
+    expect(deleteManyAccounts).toHaveBeenCalledWith({
+      where: { userId: "demo-user-id" },
+    });
+    expect(deleteManySessions).toHaveBeenCalledWith({
       where: { userId: "demo-user-id" },
     });
     expect(deleteManyBackupCodes).toHaveBeenCalledWith({

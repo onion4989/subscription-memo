@@ -19,6 +19,10 @@ type LoginPageProps = {
 const ERROR_MESSAGES: Record<string, string> = {
   OAuthAccountNotLinked:
     "このメールアドレスは既に別の方法で登録されています。元の方法でログインしてください。",
+  OAuthWhileSignedIn:
+    "別のアカウントでログイン中です。一度ログアウトしてから、Google / GitHub でログインしてください。",
+  OAuthDemoForbidden:
+    "デモアカウントでは Google / GitHub ログインは利用できません。デモはメールとパスワードでログインしてください。",
   CredentialsSignin: "メールアドレスまたはパスワードが正しくありません。",
   Default: "ログイン中にエラーが発生しました。もう一度お試しください。",
 };
