@@ -299,7 +299,140 @@ GitHub Actions タブ → **Build and Push Docker Image** → **Run workflow**�
 | `.cursor/rules/email-smtp.mdc` | Xserver SMTP 送信 |
 | `.cursor/rules/security.mdc` | セキュリティ |
 | `README.md` | セットアップ・認証概要 |
+| Obsidian `_knowledge/30-playbooks/dokploy-vps-recovery.md` | VPS / Dokploy 消失後の**横断**復旧順序 |
+| Obsidian `_knowledge/30-playbooks/dokploy-deploy.md` | 日常デプロイの横断方針 |
 
 ---
 
-*最終更新: 2026-06-22（subscription-memo 向け CI/CD 整備）*
+## 13. VPS / Dokploy 再構築時の復旧
+
+エックスサーバー VPS の OS 再インストールなどにより、Dokploy・コンテナ・本番 DB が消えたあとに、**Subscription MEMO を載せ直す**ときの手順です。
+
+初回セットアップ（§7）の写しではありません。横断の順序は Obsidian の `dokploy-vps-recovery`、MEMO 固有の値と注意は**本節が正**です。日常の push → デプロイ方針は `dokploy-deploy` と本書 §2〜§8 を参照してください。
+
+### 13.1 いつ使うか
+
+- VPS の OS 再インストール後
+- Dokploy を入れ直したあと
+- Works 上の Subscription MEMO サービスや専用 Postgres を作り直すとき
+
+### 13.2 消えるもの / 残るもの（MEMO）
+
+| 区分 | 内容 |
+|---|---|
+| 消える（VPS 上） | Dokploy、アプリコンテナ、**本番 Postgres の行データ**、Let's Encrypt、Deploy Webhook URL、Dokploy にだけ置いていた Env |
+| 残る | GitHub のコード、GHCR のイメージ（あれば）、DNS レコード、手元の `.env` / パスワードマネージャ、GitHub Secrets（中身は**古い Webhook のまま**になりやすい） |
+
+**重要:** 本番 DB のバックアップが無ければ、表構造（スキーマ）は起動時の migrate で戻せても、**ユーザー・サブスク等の行データは戻らない**。
+
+### 13.3 作業前に用意するもの
+
+次が揃うまで、秘密の値を**推測して埋めない**。無い項目はユーザーに確認して止める。
+
+- [ ] 本番用 Env の値（パスワードマネージャや手元 `.env`。キー一覧は §13.5）
+- [ ] GHCR pull 用 GitHub PAT（`read:packages`）。画面では再表示できないため、保管済みの値か新規発行
+- [ ] DNS: `subscmemo.see-u-soon.design` が**いまの VPS IP** を向いていること
+- [ ] （任意）Postgres のバックアップ（`pg_dump` 等）。無ければアプリ再起動までの復旧になる
+
+### 13.4 MEMO 固有の設定値（秘密の実値は書かない）
+
+| 項目 | 値 |
+|---|---|
+| Dokploy Project | **Works** |
+| Application | **Subscription MEMO** |
+| Docker Image | `ghcr.io/onion4989/subscription-memo:latest` |
+| Registry | `ghcr.io` / Username `onion4989` / Password は PAT（`read:packages`） |
+| 本番 URL | https://subscmemo.see-u-soon.design |
+| Container Port | `3000` |
+| Provider | **Docker**（Nixpacks や VPS 上ビルドは使わない） |
+| 本番 DB | Subscription MEMO **専用**の Dokploy Postgres（他アプリと共有しない） |
+
+画面操作の詳細（PAT 発行、Domains、SSL）は §6 を参照。
+
+### 13.5 ランタイム Env（キー一覧）
+
+Dokploy の**アプリサービス**（Postgres サービスではない）に登録する。値の実体は手元保管から復元する。キーの意味は §4。
+
+| キー |
+|---|
+| `DATABASE_URL` |
+| `AUTH_SECRET` |
+| `AUTH_TRUST_HOST`（通常 `true`） |
+| `AUTH_URL`（`https://subscmemo.see-u-soon.design`） |
+| `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`（OAuth 利用時） |
+| `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET`（OAuth 利用時） |
+| `SMTP_HOST` / `SMTP_PORT` |
+| `MY_EMAIL` / `MY_PASSWORD` |
+| `AUTH_RATE_LIMIT_ENABLED`（任意） |
+
+`DATABASE_URL` は Dokploy が表示する **Internal Connection URL** を使う。`localhost` やローカル用ポート（例: `5433`）は使わない。
+
+### 13.6 復旧手順（この順で実施）
+
+失敗しやすい点を各ステップに書いた。横断の「VPS 初期設定 → Dokploy 入れ直し」が済んでいる前提。
+
+1. **GHCR を確認する**  
+   `ghcr.io/onion4989/subscription-memo:latest` があること（§5.3）。無ければ先に GitHub Actions を成功させる。イメージが無い状態で Dokploy を Deploy しない。
+
+2. **先に Postgres を作る**  
+   Works 配下に Subscription MEMO 用 Postgres を作成し、**Running** になるまで待つ。DB が止まっているとアプリ起動時に `Can't reach database` になる。
+
+3. **アプリサービスを作る**  
+   Works > Subscription MEMO を作成し、Provider を Docker、Image / Registry / PAT を §13.4 どおり設定する（§6）。
+
+4. **ドメインとポート**  
+   Host `subscmemo.see-u-soon.design` / Path `/` / Container Port `3000` / HTTPS（Let's Encrypt）を有効にする。
+
+5. **Env を登録する**  
+   §13.5 のキーをアプリサービスに設定する。`DATABASE_URL` は手順 2 の Internal URL。
+
+6. **（バックアップがある場合）データを戻す**  
+   Postgres が Running のあと、バックアップ手順に従ってリストアする。手順・ファイルが無ければスキップし、§13.8 へ進む認識でよい。
+
+7. **手動 Deploy**  
+   Dokploy で Deploy し、状態が Done（緑）になること。起動時に `prisma migrate deploy` → `node server.js` が走る（§2）。
+
+8. **本番 URL で最低限の動作確認**  
+   https://subscmemo.see-u-soon.design を開き、§7「動作確認項目」のうち、データが空でも確認できるもの（トップ表示、新規登録・ログインの導線など）を見る。502 なら Port `3000` とコンテナログ（§9）。
+
+9. **Deploy Webhook を再登録する**  
+   Dokploy で Webhook URL を**再発行**し、GitHub Secret `DOKPLOY_DEPLOY_WEBHOOK_URL` を**新しい URL に更新**する。古い Secret のままだと Actions 成功後も本番が更新されない。Webhook URL はリポジトリやチャットに直書きしない。
+
+10. **自動デプロイを試験する**  
+    Actions の「Run workflow」または空でない `main` への push で、Actions → Webhook → Dokploy まで通ることを確認する。
+
+11. **OAuth を使っている場合**  
+    コールバック URL が §6 のとおりか、各プロバイダ側で再確認する。
+
+### 13.7 AI / 作業者向けの判断ルール
+
+- 秘密の実値（PAT、Webhook、`DATABASE_URL`、SMTP、OAuth、`AUTH_SECRET`）が手元に無い → **推測禁止。ユーザーに確認して停止**
+- GHCR に `:latest` が無い → 先に Actions。Dokploy Deploy を先にしない
+- Postgres が Running でない → アプリを Deploy しない
+- Webhook を再発行したら → GitHub Secret 更新前に自動デプロイ試験を「成功」とみなさない
+- portfolio など**別アプリの Webhook URL を流用しない**
+
+### 13.8 データが消えた場合の扱い
+
+| 状況 | 結果・対応 |
+|---|---|
+| バックアップ無し | スキーマは migrate で作成される。ユーザー・サブスク・MFA 等の**行データは空**。必要ならアプリ上で再登録 |
+| バックアップ有り | §13.6 手順 6 でリストアしてからアプリを使う |
+| `AUTH_SECRET` を新規生成した | 既存セッションは無効になる（意図したローテなら問題なし） |
+| 本番向け seed | **前提にしない**（開発用と混同しない） |
+
+アプリの「起動・デプロイ・ログイン導線」まで戻すのが本節の完了条件。行データまで元どおりにするには、事前バックアップが必要。
+
+### 13.9 完了条件
+
+- [ ] https://subscmemo.see-u-soon.design が応答する（502 でない）
+- [ ] Dokploy のアプリが Done（緑）、Postgres が Running
+- [ ] GitHub Secret `DOKPLOY_DEPLOY_WEBHOOK_URL` が**再発行後の URL**
+- [ ] 自動デプロイ試験が通った（または意図的に手動運用とユーザーが合意）
+- [ ] §7 の動作確認項目のうち、現状のデータ状態で確認可能なものを実施した
+
+トラブル時は §9。
+
+---
+
+*最終更新: 2026-09-11（VPS / Dokploy 再構築時の復旧節を追加）*
