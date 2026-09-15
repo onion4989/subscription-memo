@@ -138,7 +138,7 @@ alwaysApply: false
 | リンク検証 | `src/app/verify-email/page.tsx`, `src/lib/email-verification/verify-token.ts` |
 | 定数・文言 | `src/lib/email-verification/constants.ts` |
 
-DB は `User.emailVerified` と `VerificationToken` テーブルを使う（スキーマ追加は不要）。
+- DB は `User.emailVerified` と `VerificationToken` テーブルを使う。トークン列は SHA-256 hex（平文・bcrypt ではない。詳細は `email-smtp.mdc`）
 
 # ログイン成功・失敗時の挙動
 

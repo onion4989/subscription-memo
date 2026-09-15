@@ -1,8 +1,9 @@
 "use server";
 
-import { hash, compare } from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import { hash } from "bcryptjs";
 import { z } from "zod";
+import { digestToken } from "@/lib/auth/token-digest";
+import { prisma } from "@/lib/prisma";
 
 const resetSchema = z.object({
   token: z.string().min(1),
@@ -28,25 +29,23 @@ export async function resetPassword(
   }
 
   const { token, password } = parsed.data;
+  const tokenHash = digestToken(token.trim());
 
-  const tokens = await prisma.passwordResetToken.findMany({
-    where: {
-      usedAt: null,
-      expires: { gt: new Date() },
+  const matchedToken = await prisma.passwordResetToken.findUnique({
+    where: { tokenHash },
+    select: {
+      id: true,
+      userId: true,
+      expires: true,
+      usedAt: true,
     },
-    include: { user: true },
   });
 
-  let matchedToken: (typeof tokens)[number] | null = null;
-  for (const t of tokens) {
-    const isMatch = await compare(token, t.tokenHash);
-    if (isMatch) {
-      matchedToken = t;
-      break;
-    }
-  }
-
-  if (!matchedToken) {
+  if (
+    !matchedToken ||
+    matchedToken.usedAt !== null ||
+    matchedToken.expires.getTime() <= Date.now()
+  ) {
     return {
       success: false,
       error: "リセットリンクが無効または期限切れです",

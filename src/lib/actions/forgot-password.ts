@@ -1,9 +1,9 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { hash } from "bcryptjs";
 import { z } from "zod";
 import { checkForgotPasswordRateLimit } from "@/lib/auth/auth-form-rate-limit";
+import { digestToken } from "@/lib/auth/token-digest";
 import { normalizeEmail } from "@/lib/email";
 import { hashEmailForAudit } from "@/lib/email-verification/audit-log";
 import { getRequestMeta } from "@/lib/email-verification/request-meta";
@@ -72,7 +72,7 @@ export async function forgotPassword(
       });
     } else if (hasPassword) {
       const rawToken = randomBytes(32).toString("hex");
-      const tokenHash = await hash(rawToken, 10);
+      const tokenHash = digestToken(rawToken);
       const expires = new Date(Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
 
       const createdToken = await prisma.passwordResetToken.create({

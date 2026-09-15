@@ -20,6 +20,17 @@ export async function getUserSubscriptions(
   const subscriptions = await prisma.subscription.findMany({
     where: { userId },
     orderBy: { createdAt: "asc" },
+    select: {
+      id: true,
+      name: true,
+      planName: true,
+      paymentPlan: true,
+      monthlyAmount: true,
+      annualAmount: true,
+      contractDate: true,
+      nextRenewalDate: true,
+      notifyEnabled: true,
+    },
   });
 
   return subscriptions.map((subscription) => ({
@@ -33,8 +44,4 @@ export async function getUserSubscriptions(
     nextRenewalDate: utcDateToYmd(subscription.nextRenewalDate),
     notifyEnabled: subscription.notifyEnabled,
   }));
-}
-
-export async function getUserSubscriptionCount(userId: string): Promise<number> {
-  return prisma.subscription.count({ where: { userId } });
 }

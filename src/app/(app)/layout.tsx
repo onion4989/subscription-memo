@@ -22,7 +22,8 @@ export default async function AppLayout({ children }: AppLayoutProps) {
     redirect(ROUTES.mfaVerify);
   }
 
-  const userId = await getAuthenticatedUserId();
+  // JWT に id があればそれを使う（layout 内の auth 二重呼び出しを避ける）
+  const userId = session.user.id || (await getAuthenticatedUserId());
   const appUserDisplay = userId
     ? await getAppUserDisplay(userId)
     : { displayName: "ゲスト", avatarId: null, themeId: "default" };
