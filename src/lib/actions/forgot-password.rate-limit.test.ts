@@ -43,10 +43,6 @@ vi.mock("@/lib/email-verification/audit-log", () => ({
   hashEmailForAudit,
 }));
 
-vi.mock("bcryptjs", () => ({
-  hash: vi.fn(async () => "token-hash"),
-}));
-
 import { forgotPassword } from "@/lib/actions/forgot-password";
 
 function formDataWithEmail(email: string): FormData {

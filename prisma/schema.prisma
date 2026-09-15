@@ -56,6 +56,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -64,10 +65,13 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
   identifier String
+  /// SHA-256 hex of the raw URL token (not bcrypt). Used for findUnique lookup.
   token      String   @unique
   expires    DateTime
 
@@ -89,6 +93,7 @@ model BackupCode {
 model PasswordResetToken {
   id        String   @id @default(cuid())
   userId    String
+  /// SHA-256 hex of the raw URL token (not bcrypt). Used for findUnique lookup.
   tokenHash String   @unique
   expires   DateTime
   usedAt    DateTime?
@@ -146,6 +151,11 @@ model Subscription {
 
   @@unique([userId, name, planName])
   @@index([userId])
+  /// Daily job Phase2 (overdue) and date-range scans.
+  @@index([nextRenewalDate])
+  // Partial index for Phase1 notify candidates is in migrate SQL only:
+  // Subscription_nextRenewalDate_notifyEnabled_idx
+  //   ON "Subscription" ("nextRenewalDate") WHERE "notifyEnabled" = true
 }
 
 model RenewalNotificationLog {
