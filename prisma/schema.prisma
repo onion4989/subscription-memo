@@ -56,6 +56,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -64,6 +65,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -148,6 +151,8 @@ model Subscription {
 
   @@unique([userId, name, planName])
   @@index([userId])
+  /// Daily job Phase2 (overdue) and date-range scans. Phase1 notify-only partial index is deferred until scale.
+  @@index([nextRenewalDate])
 }
 
 model RenewalNotificationLog {
