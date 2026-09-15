@@ -151,8 +151,11 @@ model Subscription {
 
   @@unique([userId, name, planName])
   @@index([userId])
-  /// Daily job Phase2 (overdue) and date-range scans. Phase1 notify-only partial index is deferred until scale.
+  /// Daily job Phase2 (overdue) and date-range scans.
   @@index([nextRenewalDate])
+  // Partial index for Phase1 notify candidates is in migrate SQL only:
+  // Subscription_nextRenewalDate_notifyEnabled_idx
+  //   ON "Subscription" ("nextRenewalDate") WHERE "notifyEnabled" = true
 }
 
 model RenewalNotificationLog {

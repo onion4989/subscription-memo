@@ -252,6 +252,34 @@ git push origin main
 
 GitHub Actions タブ → **Build and Push Docker Image** → **Run workflow**（`workflow_dispatch` 対応）
 
+### 大きな表への索引追加（本番・試験公開）
+
+通常のデプロイではコンテナ起動時の `prisma migrate deploy` が `CREATE INDEX` を実行する（§2）。**行数が少ないデモ／現状の本番規模ではこのままでよい。**
+
+`Subscription` / `Account` / `Session` など行が増えたあとに **新規の大きな索引** を足す場合は、起動時 migrate のロック待ちを避ける。
+
+| 状況 | 方針 |
+|---|---|
+| 行が少ない（デモ・初期） | 通常どおり `prisma migrate deploy`（entrypoint） |
+| 行が多く、デプロイ中も書き込みがある | メンテ枠でデプロイする、または下記の CONCURRENTLY 手順を検討する |
+
+**`CREATE INDEX CONCURRENTLY` を使う場合（概要）**
+
+1. 本番 DB のバックアップがあることを確認する（§10 / 復旧手順）。
+2. 対象の `CREATE INDEX` を含む migrate を、**起動時の自動 deploy に載せる前に**方針を決める。Prisma の migrate はトランザクション内実行が基本のため、CONCURRENTLY とは相性が悪いことが多い。
+3. メンテ枠または書き込みの少ない時間帯に、DB へ手動で同等の `CREATE INDEX CONCURRENTLY ...` を実行する（索引名・列は当該 migrate SQL を正とする）。
+4. 成功後、Prisma の migration 履歴とスキーマが食い違わないよう、チームで「履歴だけ記録済み／SQL は手動適用済み」の扱いを揃える。不明なら **通常 migrate + メンテ枠** を優先する。
+
+**このリポジトリで既にある索引（参考）**
+
+| 索引 | 用途 |
+|---|---|
+| `Subscription_nextRenewalDate_idx` | 日次 Phase2（期限切れ） |
+| `Subscription_nextRenewalDate_notifyEnabled_idx` | 日次 Phase1（`notifyEnabled = true` の部分索引） |
+| `Account_userId_idx` / `Session_userId_idx` | Cascade・ユーザー単位参照 |
+
+秘密（`DATABASE_URL` 実値）はチャットやこのファイルに書かない。
+
 ---
 
 ## 9. トラブルシューティング
