@@ -68,6 +68,7 @@ model Session {
 
 model VerificationToken {
   identifier String
+  /// SHA-256 hex of the raw URL token (not bcrypt). Used for findUnique lookup.
   token      String   @unique
   expires    DateTime
 
@@ -89,6 +90,7 @@ model BackupCode {
 model PasswordResetToken {
   id        String   @id @default(cuid())
   userId    String
+  /// SHA-256 hex of the raw URL token (not bcrypt). Used for findUnique lookup.
   tokenHash String   @unique
   expires   DateTime
   usedAt    DateTime?
