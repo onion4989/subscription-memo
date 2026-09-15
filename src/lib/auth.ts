@@ -68,14 +68,18 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 
         const user = await prisma.user.findUnique({
           where: { email },
-          include: { accounts: true },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            passwordHash: true,
+            emailVerified: true,
+            totpEnabled: true,
+          },
         });
 
-        if (!user || !user.passwordHash) return null;
-
-        const hasOAuthOnly =
-          user.accounts.length > 0 && !user.passwordHash;
-        if (hasOAuthOnly) return null;
+        if (!user?.passwordHash) return null;
 
         const isValid = await compare(password, user.passwordHash);
         if (!isValid) return null;
@@ -87,6 +91,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
           name: user.name,
           email: user.email,
           image: user.image,
+          totpEnabled: user.totpEnabled,
         };
       },
     }),
@@ -185,12 +190,8 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
         token.sub = user.id;
       }
 
-      if (account?.provider === "credentials" && token.sub) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: { totpEnabled: true },
-        });
-        const totpEnabled = dbUser?.totpEnabled ?? false;
+      if (account?.provider === "credentials" && user) {
+        const totpEnabled = user.totpEnabled === true;
         token.totpEnabled = totpEnabled;
         token.mfaVerified = !totpEnabled;
       } else if (account) {

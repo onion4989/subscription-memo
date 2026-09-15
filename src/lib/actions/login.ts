@@ -65,14 +65,19 @@ export async function login(
     };
   }
 
+  // 本検証は authorize。ここでは未確認 UX と MFA リダイレクト先だけ先読みする。
   const user = await prisma.user.findUnique({
     where: { email },
-    include: { accounts: true },
+    select: {
+      passwordHash: true,
+      emailVerified: true,
+      totpEnabled: true,
+    },
   });
 
-  if (user?.passwordHash) {
+  if (user?.passwordHash && !user.emailVerified) {
     const isValid = await compare(password, user.passwordHash);
-    if (isValid && !user.emailVerified) {
+    if (isValid) {
       return {
         success: false,
         emailNotVerified: true,
