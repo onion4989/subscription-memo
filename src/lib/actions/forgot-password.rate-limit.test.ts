@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { DualKeyRateResult } from "@/lib/auth/rate-limit-window";
+
 const {
   findUniqueUser,
   createResetToken,
@@ -12,7 +14,9 @@ const {
   createResetToken: vi.fn(),
   sendPlainTextEmail: vi.fn(),
   getRequestMeta: vi.fn(async () => ({ ip: "1.2.3.4", userAgent: "test" })),
-  checkForgotPasswordRateLimit: vi.fn(() => ({ allowed: true as const })),
+  checkForgotPasswordRateLimit: vi.fn(
+    (): DualKeyRateResult => ({ allowed: true })
+  ),
   hashEmailForAudit: vi.fn(() => "email-hash"),
 }));
 
