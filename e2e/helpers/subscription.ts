@@ -1,7 +1,10 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import type { E2ESubscriptionPrefix } from "./subscription-names";
 
 /** Unique name per run to avoid colliding with existing local data. */
-export function uniqueSubscriptionName(prefix = "E2E"): string {
+export function uniqueSubscriptionName(
+  prefix: E2ESubscriptionPrefix = "E2E"
+): string {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 }
 
