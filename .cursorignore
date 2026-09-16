@@ -48,3 +48,6 @@ dev-local.md
 /blob-report/
 /playwright/.cache/
 .playwright-sysroot/
+
+# e2e の共有セッション（有効なセッションクッキーを含む）
+/e2e/.auth/
