@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { LOGIN_RATE_LIMIT_MESSAGE } from "@/lib/auth/rate-limit-constants";
 import { generateTotpCode } from "./totp";
 
 export function getE2ECredentials(): { email: string; password: string } {
@@ -92,6 +93,8 @@ export async function loginWithCredentials(
     "メールアドレスまたはパスワードが正しくありません"
   );
   const unverifiedError = page.getByText("メール確認が完了していません");
+  // 上限に当たった場合、待つだけでは 60 秒のタイムアウトになり原因が分からない
+  const rateLimitError = page.getByText(LOGIN_RATE_LIMIT_MESSAGE);
 
   await Promise.race([
     page.waitForURL(
@@ -108,6 +111,12 @@ export async function loginWithCredentials(
     }),
     unverifiedError.waitFor({ state: "visible", timeout: 60_000 }).then(() => {
       throw new Error(`Credentials login failed for ${email} (email not verified)`);
+    }),
+    rateLimitError.waitFor({ state: "visible", timeout: 60_000 }).then(() => {
+      throw new Error(
+        `Login rate limit reached for ${email}. ` +
+          "dev サーバーを再起動すると窓（15 分）がリセットされます"
+      );
     }),
   ]);
 
