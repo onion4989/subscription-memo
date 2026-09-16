@@ -38,6 +38,8 @@ npx prisma generate
 - `AUTH_RATE_LIMIT_ENABLED`（任意。`false` で login / forgot-password のレートリミットを無効化。未設定は有効）
 - `BLOCK_SEARCH_INDEXING`（任意。`true` で `robots.txt` の全拒否・各ページの noindex・`sitemap.xml` の空化。未設定は検索に載る）
 
+`BLOCK_SEARCH_INDEXING` は **`next build` の時点で確定します**。`robots.txt` / `sitemap.xml` と `/signup` などの静的ページは事前生成されるため、**Dokploy の環境変数を後から変えても切り替わりません**。本番は `Dockerfile` の `ARG BLOCK_SEARCH_INDEXING`（既定 `true`）に GitHub のリポジトリ変数を `build-args` で渡す形で決めています。値を変えるときはイメージの再ビルドが必要です。
+
 ローカル DB を使う場合:
 
 ```bash

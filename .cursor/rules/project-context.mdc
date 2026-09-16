@@ -37,7 +37,7 @@ login / forgot-password / メール確認再送 / サブスク登録のレート
 `next.config.ts` で付与します。CSP は `frame-ancestors` のみで、`script-src` などは Next.js のインラインスクリプトと衝突するため未導入です。導入するときは Report-Only で検証してからにします。
 
 【検索エンジンへの露出】
-`BLOCK_SEARCH_INDEXING=true` のとき、`robots.txt` と各ページの noindex で検索を拒否します。`sitemap.xml` に載せるのはトップページ（`/`）だけです。ログイン・登録画面を検索結果に出さないためです。
+`BLOCK_SEARCH_INDEXING=true` のとき、`robots.txt` と各ページの noindex で検索を拒否します。`sitemap.xml` に載せるのはトップページ（`/`）だけです。ログイン・登録画面を検索結果に出さないためです。この値は `next build` の時点で確定し、実行時の環境変数では切り替わりません。本番は `Dockerfile` の `ARG BLOCK_SEARCH_INDEXING`（既定 `true`）へ `deploy.yml` の `build-args` で渡します。変更にはイメージの再ビルドが必要です。
 
 【Cloud Agent】
 認証と SMTP を多用するため、Cloud Agent は使わずローカル Agent のみで作業します。
