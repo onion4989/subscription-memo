@@ -36,6 +36,7 @@ npx prisma generate
 - `RENEWAL_JOB_SECRET`（更新リマインダー Cron 用）
 - `DEMO_RESET_JOB_SECRET`（デモアカウント日次リセット Cron 用）
 - `AUTH_RATE_LIMIT_ENABLED`（任意。`false` で login / forgot-password のレートリミットを無効化。未設定は有効）
+- `BLOCK_SEARCH_INDEXING`（任意。`true` で `robots.txt` の全拒否・各ページの noindex・`sitemap.xml` の空化。未設定は検索に載る）
 
 ローカル DB を使う場合:
 
@@ -56,6 +57,7 @@ npx prisma migrate dev
 ```bash
 npm run dev        # 開発サーバー
 npm run lint       # ESLint
+npm run typecheck  # TypeScript 型チェック
 npm run build      # 本番ビルド
 npm run test:run   # Vitest
 npm run test:e2e   # Playwright

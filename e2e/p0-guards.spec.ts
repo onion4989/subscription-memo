@@ -21,6 +21,15 @@ test.describe("P0-G auth guards", () => {
     }
   });
 
+  test("G4: crawler and monitoring endpoints are reachable without a session", async ({
+    request,
+  }) => {
+    for (const path of ["/robots.txt", "/sitemap.xml", "/api/health"]) {
+      const response = await request.get(path);
+      expect(response.status(), `unexpected status for ${path}`).toBe(200);
+    }
+  });
+
   test("G3: public pages are reachable without a session", async ({ page }) => {
     await page.goto("/login");
     await expect(page.getByRole("heading", { name: "ログイン" })).toBeVisible();
