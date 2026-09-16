@@ -2,6 +2,9 @@ import { expect, test } from "@playwright/test";
 import { getE2ECredentials, loginWithE2EUser, logoutFromApp } from "./helpers/auth";
 
 test.describe("P0-A credentials auth", () => {
+  // ログイン動線そのものを検証するため、共有セッションを使わない
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test("A1: login page shows email, password, and submit", async ({ page }) => {
     await page.goto("/login");
     await expect(page.locator("#email")).toBeVisible();
