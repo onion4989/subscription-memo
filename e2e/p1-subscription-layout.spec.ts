@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { resolveThemeFrameColor } from "./helpers/theme";
 import {
   fillSubscriptionCreateForm,
   openCreateSubscriptionModal,
@@ -26,16 +27,14 @@ async function expectSectionMaxWidth1000(
 async function findVisibleTableFrame(page: import("@playwright/test").Page) {
   const table = page.locator("table").filter({ visible: true }).first();
   await expect(table).toBeVisible();
-  return table.evaluate((node) => {
+  const frameColor = await resolveThemeFrameColor(table);
+  return table.evaluate((node, expectedBg) => {
     let current: HTMLElement | null = node.parentElement;
     while (current) {
       const style = window.getComputedStyle(current);
       const borderTop = Number.parseFloat(style.borderTopWidth);
       const bg = style.backgroundColor;
-      if (
-        borderTop >= 1.5 &&
-        (bg === "rgb(0, 0, 0)" || bg === "rgba(0, 0, 0, 1)")
-      ) {
+      if (borderTop >= 1.5 && bg === expectedBg) {
         return {
           top: current.getBoundingClientRect().top,
           left: current.getBoundingClientRect().left,
@@ -48,7 +47,7 @@ async function findVisibleTableFrame(page: import("@playwright/test").Page) {
       current = current.parentElement;
     }
     return null;
-  });
+  }, frameColor);
 }
 
 test.describe("P1 subscription layout (shell / frames)", () => {
@@ -71,7 +70,7 @@ test.describe("P1 subscription layout (shell / frames)", () => {
     await expectSectionMaxWidth1000(page, "サブスクリプション削除");
   });
 
-  test("L2: 一覧・登録・削除のテーブル枠は黒背景・白2px", async ({ page }) => {
+  test("L2: 一覧・登録・削除のテーブル枠はテーマ枠色・白2px", async ({ page }) => {
     const name = uniqueSubscriptionName("Layout");
 
     await openCreateSubscriptionModal(page);
@@ -96,7 +95,6 @@ test.describe("P1 subscription layout (shell / frames)", () => {
       const frame = await findVisibleTableFrame(page);
       expect(frame, `table frame missing on ${path}`).not.toBeNull();
       expect(frame!.borderTopWidth).toBe("2px");
-      expect(frame!.backgroundColor).toMatch(/rgba?\(0,\s*0,\s*0/);
     }
 
     await page.goto("/subscriptions/manage");
