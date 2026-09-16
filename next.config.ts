@@ -45,6 +45,10 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   ...(allowedDevOrigins ? { allowedDevOrigins } : {}),
+  // 既定の左下だと折りたたみサイドバーのログアウトボタンに重なり、開発時とe2eでクリックを奪う
+  devIndicators: {
+    position: "bottom-right",
+  },
   async headers() {
     return [
       {
