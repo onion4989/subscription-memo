@@ -125,7 +125,25 @@ test.describe("P1 subscription layout (shell / frames)", () => {
     await submitSubscriptionCreate(page);
 
     await page.goto("/subscriptions");
-    await expect(visibleGetByText(page, name).first()).toBeVisible();
+    // お知らせ欄にも同じ名前が出るため、列ヘッダーを直接指す
+    const header = page
+      .getByRole("columnheader", { name })
+      .filter({ visible: true })
+      .first();
+    await expect(header).toBeVisible();
+
+    // 吹き出しは枠内にほぼ全体が見えている列にだけ出る。
+    // 新しい列は右端に増えるので、既存の登録件数に左右されないよう横スクロールを右端まで送る。
+    await header.evaluate((node) => {
+      let current: HTMLElement | null = node.parentElement;
+      while (current) {
+        if (current.scrollWidth > current.clientWidth + 1) {
+          current.scrollLeft = current.scrollWidth;
+          return;
+        }
+        current = current.parentElement;
+      }
+    });
 
     const tooltip = page.getByText("更新間近").filter({ visible: true }).first();
     await expect(tooltip).toBeVisible({ timeout: 15_000 });
