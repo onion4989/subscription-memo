@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { runRenewalNotificationDailyJob } from "@/lib/renewal-notification/daily-job";
 import { isValidYmd } from "@/lib/subscription/renewal-date";
@@ -16,6 +17,18 @@ function readBearerToken(authorization: string | null): string | null {
   return authorization.slice("Bearer ".length).trim();
 }
 
+/** 比較時間からトークンを推測されないよう、長さを揃えたうえで定数時間で比べる */
+function isExpectedToken(token: string, expected: string): boolean {
+  const tokenBytes = Buffer.from(token, "utf8");
+  const expectedBytes = Buffer.from(expected, "utf8");
+
+  if (tokenBytes.length !== expectedBytes.length) {
+    return false;
+  }
+
+  return timingSafeEqual(tokenBytes, expectedBytes);
+}
+
 export async function POST(request: Request) {
   const expectedToken = process.env.RENEWAL_JOB_SECRET;
   if (!expectedToken) {
@@ -26,7 +39,7 @@ export async function POST(request: Request) {
   }
 
   const token = readBearerToken(request.headers.get("authorization"));
-  if (!token || token !== expectedToken) {
+  if (!token || !isExpectedToken(token, expectedToken)) {
     return unauthorizedResponse();
   }
 
