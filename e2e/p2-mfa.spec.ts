@@ -11,6 +11,8 @@ const MFA_ENABLED_DESCRIPTION =
 
 test.describe("P2-M MFA", () => {
   test.describe.configure({ mode: "serial" });
+  // MFA 専用ユーザーで都度ログインするため、共有セッションを使わない
+  test.use({ storageState: { cookies: [], origins: [] } });
 
   let totpSecret = "";
   let backupCodes: string[] = [];

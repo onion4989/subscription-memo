@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { loginWithE2EUser } from "./helpers/auth";
 import {
   fillSubscriptionCreateForm,
   openCreateSubscriptionModal,
@@ -56,8 +55,7 @@ test.describe("P1 subscription layout (shell / frames)", () => {
   test.describe.configure({ mode: "serial" });
 
   test.beforeEach(async ({ page }) => {
-    await page.setViewportSize({ width: 1400, height: 900 });
-    await loginWithE2EUser(page);
+    await page.setViewportSize({ width: 1440, height: 800 });
   });
 
   test("L1: 右側シェル領域は一覧・登録・削除で max 1000px", async ({

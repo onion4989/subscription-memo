@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { loginWithE2EUser } from "./helpers/auth";
 
 const GUIDE_SECTION_TITLES = [
   "データの登録方法",
@@ -20,7 +19,6 @@ const GUIDE_SECTION_IMAGE_ALTS = [
 
 test.describe("P1-G guide", () => {
   test.beforeEach(async ({ page }) => {
-    await loginWithE2EUser(page);
     await page.goto("/guide");
   });
 

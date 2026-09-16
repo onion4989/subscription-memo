@@ -27,8 +27,16 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
+    },
+    {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: path.resolve(__dirname, "e2e/.auth/user.json"),
+      },
+      dependencies: ["setup"],
     },
   ],
   webServer: {

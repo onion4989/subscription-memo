@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { loginWithE2EUser } from "./helpers/auth";
 
 const LEAD_DAY_LABELS = [
   "3日前",
@@ -12,7 +11,6 @@ test.describe("P1-S settings", () => {
   test.describe.configure({ mode: "serial" });
 
   test.beforeEach(async ({ page }) => {
-    await loginWithE2EUser(page);
     await page.goto("/settings");
     await expect(page.getByRole("heading", { name: "一般設定" })).toBeVisible();
   });

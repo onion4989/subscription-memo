@@ -4,6 +4,8 @@ import { loginWithCredentials } from "./helpers/auth";
 
 test.describe("P2-D demo account", () => {
   test.describe.configure({ mode: "serial" });
+  // デモアカウントでログインするため、共有セッションを使わない
+  test.use({ storageState: { cookies: [], origins: [] } });
 
   test("D1: demo credentials can log in and see seeded subscriptions", async ({
     page,
