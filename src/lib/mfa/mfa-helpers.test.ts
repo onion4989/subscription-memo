@@ -34,7 +34,7 @@ describe("isMfaVerificationPending (M1)", () => {
       isMfaVerificationPending(
         sessionUser({
           id: "u1",
-          email: "a@b.com",
+          email: "user@example.com",
           totpEnabled: true,
           mfaVerified: false,
         })
@@ -44,7 +44,7 @@ describe("isMfaVerificationPending (M1)", () => {
       isMfaVerificationPending(
         sessionUser({
           id: "u1",
-          email: "a@b.com",
+          email: "user@example.com",
           totpEnabled: true,
           mfaVerified: true,
         })
@@ -54,7 +54,7 @@ describe("isMfaVerificationPending (M1)", () => {
       isMfaVerificationPending(
         sessionUser({
           id: "u1",
-          email: "a@b.com",
+          email: "user@example.com",
           totpEnabled: false,
           mfaVerified: false,
         })

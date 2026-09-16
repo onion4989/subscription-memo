@@ -88,7 +88,7 @@ describe("profile helpers (P6)", () => {
   it("builds form values and maps Zod errors", () => {
     const values = toProfileFormValues({
       name: "  花子  ",
-      email: "a@b.com",
+      email: "user@example.com",
       phoneNumber: null,
       avatarId: 2,
       emailReadonly: true,
