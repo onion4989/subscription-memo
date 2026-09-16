@@ -64,6 +64,9 @@ jobs:
         with:
           context: .
           push: true
+          # 検索避けはビルド時に焼き付く。変数未設定なら true（検索に載せない）
+          build-args: |
+            BLOCK_SEARCH_INDEXING=${{ vars.BLOCK_SEARCH_INDEXING || 'true' }}
           tags: |
             ghcr.io/onion4989/subscription-memo:latest
             ghcr.io/onion4989/subscription-memo:${{ github.sha }}
