@@ -2,12 +2,7 @@
 
 import { StatusPage } from "@/components/features/error/StatusPage";
 
-type ErrorPageProps = Readonly<{
-  error: Error & { digest?: string };
-  reset: () => void;
-}>;
-
-export default function ErrorPage(_props: ErrorPageProps) {
+export default function ErrorPage() {
   return (
     <StatusPage
       code="500"

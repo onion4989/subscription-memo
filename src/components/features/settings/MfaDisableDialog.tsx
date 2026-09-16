@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import { disableMfa, type MfaDisableState } from "@/lib/actions/mfa-disable";
 import { MFA_SETTINGS_BUTTON_CLASS } from "@/components/features/settings/mfa-settings-shared";
@@ -34,16 +34,20 @@ export function MfaDisableDialog() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
-  const [state, formAction, pending] = useActionState(disableMfa, initialState);
+  const [state, formAction, pending] = useActionState(
+    async (prevState: MfaDisableState, formData: FormData) => {
+      const nextState = await disableMfa(prevState, formData);
 
-  // useActionState の成功は submit handler に戻らないため、ここで閉じる
-  useEffect(() => {
-    if (state.success) {
-      setOpen(false);
-      setFormKey((current) => current + 1);
-      router.refresh();
-    }
-  }, [router, state.success]);
+      if (nextState.success) {
+        setOpen(false);
+        setFormKey((current) => current + 1);
+        router.refresh();
+      }
+
+      return nextState;
+    },
+    initialState
+  );
 
   function handleOpenChange(nextOpen: boolean) {
     setOpen(nextOpen);
