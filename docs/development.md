@@ -85,7 +85,10 @@ MFA 用を共有セッション用と同じアカウントにすると、`p2-mfa
 ```bash
 npm run e2e:create-mfa-user # MFA 専用アカウントを作成（メール確認済み・MFA 無効）
 npm run e2e:reset-mfa       # MFA が有効なまま残ったときの復旧
+npm run e2e:reset-subs      # e2e が残したサブスクを削除
 ```
+
+テストが途中で失敗すると、作成したサブスクが消えずに残ります。アプリの上限（`SUBSCRIPTION_MAX_ROWS`＝10 件）に達すると「追加」が押せなくなり、無関係なテストが失敗します。`npm run test:e2e` は `e2e:reset-subs` を先に実行するため通常は意識不要です。削除するのは e2e 用アカウントの、`e2e/helpers/subscription-names.ts` に登録した接頭辞で始まるサブスクだけで、手で登録したデータは残ります。
 
 ログインが上限に達すると spec は「Login rate limit reached」で即座に止まります。dev サーバーを再起動すると窓がリセットされます（再起動時は `.next` を削除してください）。
 
