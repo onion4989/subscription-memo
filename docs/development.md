@@ -66,6 +66,27 @@ npm run demo:reset # デモアカウントを初期状態へ（ローカル）
 # npm run demo:reset -- --confirm-production
 ```
 
+## e2e のアカウント
+
+`npm run test:e2e` は最初に 1 回だけログインし、その結果（`e2e/.auth/user.json`）を全 spec で使い回します。spec ごとにログインすると同一 IP のレートリミット（15 分に 30 回）へすぐ到達するためです。ログイン動線そのものを見る spec と、MFA・デモ・新規登録の spec は、未ログインから始めます。
+
+`.env.local` には 3 種類のアカウントを設定します。
+
+| 環境変数 | 用途 |
+|---|---|
+| `E2E_USER_EMAIL` / `E2E_USER_PASSWORD` | 共有セッション用。一覧・設定・使い方などの大半の spec が使う |
+| `E2E_MFA_USER_EMAIL` / `E2E_MFA_USER_PASSWORD` | MFA 専用。**共有セッション用とは別のアドレスにする** |
+| `E2E_SIGNUP_EMAIL` / `E2E_SIGNUP_PASSWORD` | 新規登録とメール確認用（IMAP で受信する） |
+
+MFA 用を共有セッション用と同じアカウントにすると、`p2-mfa` が MFA を有効化した瞬間に設定画面の spec が「二段階認証は有効です」を見て失敗します。`.env.local` に別アドレスを書いたうえで、次を実行してアカウントを用意してください。
+
+```bash
+npm run e2e:create-mfa-user # MFA 専用アカウントを作成（メール確認済み・MFA 無効）
+npm run e2e:reset-mfa       # MFA が有効なまま残ったときの復旧
+```
+
+ログインが上限に達すると spec は「Login rate limit reached」で即座に止まります。dev サーバーを再起動すると窓がリセットされます（再起動時は `.next` を削除してください）。
+
 ## デモアカウント
 
 公開デモ用の固定アカウントです（`demo@example.com` / `demo1234`）。通常ユーザーのロジックには影響しません。
