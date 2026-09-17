@@ -33,6 +33,11 @@ describe("routes helpers (V2)", () => {
     expect(PROXY_PUBLIC_PATH_PREFIXES).toContain(ROUTES.signup);
     expect(PROXY_PUBLIC_PATH_PREFIXES).toContain(ROUTES.apiAuth);
   });
+
+  it("exposes the manifest to unauthenticated browsers", () => {
+    // `.webmanifest` は proxy の matcher の除外拡張子に入らないため、公開パスから漏れるとログインへ飛ぶ
+    expect(PROXY_PUBLIC_PATH_PREFIXES).toContain("/manifest.webmanifest");
+  });
 });
 
 describe("shouldBlockSearchIndexing (V3)", () => {

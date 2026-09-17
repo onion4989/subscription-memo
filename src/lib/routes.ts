@@ -29,10 +29,14 @@ export const ROUTES = {
   apiHealth: "/api/health",
 } as const;
 
-/** クローラー・監視が未認証で読む必要のある生成ファイル */
+/**
+ * クローラー・監視・ブラウザが未認証で読む必要のある生成ファイル。
+ * `/manifest.webmanifest` は proxy の `config.matcher` の除外拡張子に該当しないため、ここに含める。
+ */
 export const PUBLIC_METADATA_PATHS: readonly string[] = [
   "/robots.txt",
   "/sitemap.xml",
+  "/manifest.webmanifest",
 ];
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
