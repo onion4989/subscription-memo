@@ -17,16 +17,6 @@ function isPublicPath(pathname: string): boolean {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const host = request.headers.get("host");
-  const authToken = request.cookies.get("authjs.session-token")?.value;
-  const secureAuthToken = request.cookies.get("__Secure-authjs.session-token")?.value;
-
-  console.log("[proxy]", {
-    path: pathname,
-    host,
-    hasAuthjs: Boolean(authToken),
-    hasSecureAuthjs: Boolean(secureAuthToken),
-  });
 
   if (isPublicPath(pathname)) {
     return NextResponse.next();
@@ -37,10 +27,11 @@ export function proxy(request: NextRequest) {
     request.cookies.get("__Secure-authjs.session-token");
 
   if (!sessionToken) {
-    console.log("[proxy] redirect->login (session missing)", {
-      path: pathname,
-      host,
-    });
+    if (process.env.NODE_ENV !== "production") {
+      console.log("[proxy] redirect->login (session missing)", {
+        path: pathname,
+      });
+    }
     const loginUrl = new URL(ROUTES.login, request.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);

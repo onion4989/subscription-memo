@@ -11,7 +11,39 @@ permissions:
   packages: write
 
 jobs:
+  # 本番へ出す前の自動チェック。e2e は DB と SMTP が必要なためローカル実行のままにする
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      # prisma generate は接続せず型を作るだけ。実 DB には使わないダミー値
+      DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test:run
+
   build-and-push:
+    needs: verify
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,6 +64,9 @@ jobs:
         with:
           context: .
           push: true
+          # 検索避けはビルド時に焼き付く。変数未設定なら true（検索に載せない）
+          build-args: |
+            BLOCK_SEARCH_INDEXING=${{ vars.BLOCK_SEARCH_INDEXING || 'true' }}
           tags: |
             ghcr.io/onion4989/subscription-memo:latest
             ghcr.io/onion4989/subscription-memo:${{ github.sha }}

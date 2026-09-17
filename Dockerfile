@@ -18,6 +18,10 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 # next build 時のページデータ収集用（本番接続は不要）
 ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/build_dummy"
+# robots.txt・sitemap.xml と静的ページの noindex はビルド時に確定する。
+# 実行時の環境変数では切り替わらないため、既定を true にして渡し忘れを検索に載らない側へ倒す。
+ARG BLOCK_SEARCH_INDEXING=true
+ENV BLOCK_SEARCH_INDEXING=$BLOCK_SEARCH_INDEXING
 RUN npm run build
 
 # migrate deploy 専用（Prisma CLI と全依存を隔離して保持）

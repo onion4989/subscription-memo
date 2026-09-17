@@ -47,6 +47,25 @@ public/assets/
 
 上表の対象はすべて **移行済み**（コード参照も新パス）。`public/assets/` への新規追加は本ドキュメントの略語・形式に従う。未掲載の旧パスを見つけた場合は、触った画面の PR でリネームし、この表に追記する（一括リネームはしない）。
 
+## アプリアイコン
+
+【manifest から参照するもの】
+`public/assets/` 配下に置くため、本ドキュメントの命名規約に従う。
+
+| ファイル | サイズ | `purpose` | 用途 |
+|---|---|---|---|
+| `/assets/common/ic_c_app_192.png` | 192×192 | `any` | Android ホーム画面・インストール要件 |
+| `/assets/common/ic_c_app-maskable_512.png` | 512×512 | `maskable` | Android のアダプティブアイコン |
+
+【maskable 版を分ける理由】
+・`maskable` は中央 80% の円が安全領域で、その外は端末のマスクで切り落とされる。
+・全面レイアウトのまま `maskable` を宣言すると書類の上下が欠けるため、絵柄を縮小した別ファイルにしている。
+・現在の `ic_c_app-maskable_512.png` は白インクの最大半径が画像幅の 36.8% で、安全領域の 40% に収まっている。
+・差し替えるときは、この 40% を超えないことを確認する。
+
+【命名規約の対象外】
+`src/app/icon.svg` / `src/app/favicon.ico` / `src/app/apple-icon.png` は Next.js のファイル規約でファイル名が固定されるため、本ドキュメントの命名規約は適用しない。`<link>` タグも Next.js が自動生成するので `metadata.icons` には書かない。
+
 ## 参照コード
 
 | パス種別 | 主な参照 |
@@ -55,3 +74,4 @@ public/assets/
 | hero | `src/components/features/landing/HeroSection.tsx` |
 | guide | `src/components/features/guide/constants.ts` |
 | avatar | `src/lib/user/avatar.ts`（テスト: `src/lib/p2-helpers.test.ts`） |
+| app icons | `src/app/manifest.ts`（`src/app/` のファイル規約分はコード参照なし） |

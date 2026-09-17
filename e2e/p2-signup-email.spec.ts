@@ -7,6 +7,9 @@ import {
 import { uniqueSignupEmail, waitForVerificationLink } from "./helpers/imap";
 
 test.describe("P2-E signup email verification (B1 IMAP)", () => {
+  // 新規登録から検証するため、共有セッションを使わない
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test("E1–E3: signup, verify via IMAP link, then login", async ({ page }) => {
     test.setTimeout(180_000);
 

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { loginWithE2EUser } from "./helpers/auth";
+import { resolveThemeFrameColor } from "./helpers/theme";
 
 const GUIDE_SECTION_TITLES = [
   "データの登録方法",
@@ -20,7 +20,6 @@ const GUIDE_SECTION_IMAGE_ALTS = [
 
 test.describe("P1-G guide", () => {
   test.beforeEach(async ({ page }) => {
-    await loginWithE2EUser(page);
     await page.goto("/guide");
   });
 
@@ -36,16 +35,19 @@ test.describe("P1-G guide", () => {
     }
   });
 
-  test("G3: each section body sits in a black frame with a 2px white border", async ({
+  test("G3: each section body sits in a themed frame with a 2px white border", async ({
     page,
   }) => {
+    let frameColor: string | null = null;
+
     for (const title of GUIDE_SECTION_TITLES) {
       const frame = page
         .getByRole("heading", { name: title })
         .locator("xpath=following-sibling::div[1]");
 
       await expect(frame).toBeVisible();
-      await expect(frame).toHaveCSS("background-color", "rgb(0, 0, 0)");
+      frameColor ??= await resolveThemeFrameColor(frame);
+      await expect(frame).toHaveCSS("background-color", frameColor);
       await expect(frame).toHaveCSS("border-top-width", "2px");
       await expect(frame).toHaveCSS("border-top-color", "rgb(255, 255, 255)");
     }

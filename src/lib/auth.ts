@@ -6,6 +6,7 @@ import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { normalizeEmail } from "@/lib/email";
+import { hashEmailForAudit } from "@/lib/email-verification/audit-log";
 import {
   collectKnownLinkedOAuthProviderIds,
   LOGIN_OAUTH_NOT_LINKED_QUERY,
@@ -31,13 +32,6 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
     signIn: ROUTES.login,
   },
   events: {
-    async session({ session, token }) {
-      console.log("[auth:events] session", {
-        email: session.user?.email ?? null,
-        tokenSub: token?.sub ?? null,
-        expires: session.expires ?? null,
-      });
-    },
     async signIn({ user, account, isNewUser }) {
       if (user.id && isOAuthProvider(account?.provider)) {
         await markOAuthEmailVerifiedIfNeeded(user.id);
@@ -45,7 +39,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 
       console.log("[auth:events] signIn", {
         userId: user.id,
-        email: user.email,
+        emailHash: user.email ? hashEmailForAudit(user.email) : null,
         provider: account?.provider,
         isNewUser,
       });

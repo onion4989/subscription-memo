@@ -25,7 +25,19 @@ export const ROUTES = {
   apiAuth: "/api/auth",
   /** 日次ジョブ（更新リマインダー / デモリセット。各エンドポイントで Bearer 保護） */
   apiCron: "/api/cron",
+  /** 死活監視（Dokploy / 外部監視から未認証で叩く） */
+  apiHealth: "/api/health",
 } as const;
+
+/**
+ * クローラー・監視・ブラウザが未認証で読む必要のある生成ファイル。
+ * `/manifest.webmanifest` は proxy の `config.matcher` の除外拡張子に該当しないため、ここに含める。
+ */
+export const PUBLIC_METADATA_PATHS: readonly string[] = [
+  "/robots.txt",
+  "/sitemap.xml",
+  "/manifest.webmanifest",
+];
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
 
@@ -68,6 +80,8 @@ export const PROXY_PUBLIC_PATH_PREFIXES: readonly string[] = [
   ROUTES.mfaVerify,
   ROUTES.apiAuth,
   ROUTES.apiCron,
+  ROUTES.apiHealth,
+  ...PUBLIC_METADATA_PATHS,
 ];
 
 /** `_next`・favicon 等。proxy の `config.matcher` は Next.js の静的解析要件のため `src/proxy.ts` に同一除外パターンをリテラルで記述する */

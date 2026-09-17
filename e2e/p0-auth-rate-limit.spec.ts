@@ -26,6 +26,8 @@ async function submitForgotPassword(page: Page, email: string): Promise<void> {
 
 test.describe("P0 auth rate limit", () => {
   test.describe.configure({ mode: "serial" });
+  // ログイン試行を数えるため、共有セッションを使わない
+  test.use({ storageState: { cookies: [], origins: [] } });
 
   test("RL-A: login shows top alert after email cap is exceeded", async ({
     page,

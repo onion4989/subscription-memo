@@ -20,15 +20,24 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   timeout: 60_000,
-  reporter: "list",
+  // ローカルは成功時ほぼ無出力の dot。失敗時は末尾に詳細が出る
+  reporter: process.env.CI ? "list" : "dot",
   use: {
     baseURL: e2eBaseURL,
     trace: "on-first-retry",
   },
   projects: [
     {
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
+    },
+    {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: path.resolve(__dirname, "e2e/.auth/user.json"),
+      },
+      dependencies: ["setup"],
     },
   ],
   webServer: {

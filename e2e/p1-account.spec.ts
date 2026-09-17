@@ -1,12 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { loginWithE2EUser } from "./helpers/auth";
 
 test.describe("P1-A account", () => {
   // Shared E2E user: avoid racing profile mutations
   test.describe.configure({ mode: "serial" });
 
   test.beforeEach(async ({ page }) => {
-    await loginWithE2EUser(page);
     await page.goto("/account");
     await expect(page.getByRole("heading", { name: "プロフィール" })).toBeVisible();
   });

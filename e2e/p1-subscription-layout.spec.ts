@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { loginWithE2EUser } from "./helpers/auth";
+import { resolveThemeFrameColor } from "./helpers/theme";
 import {
   fillSubscriptionCreateForm,
   openCreateSubscriptionModal,
@@ -27,16 +27,14 @@ async function expectSectionMaxWidth1000(
 async function findVisibleTableFrame(page: import("@playwright/test").Page) {
   const table = page.locator("table").filter({ visible: true }).first();
   await expect(table).toBeVisible();
-  return table.evaluate((node) => {
+  const frameColor = await resolveThemeFrameColor(table);
+  return table.evaluate((node, expectedBg) => {
     let current: HTMLElement | null = node.parentElement;
     while (current) {
       const style = window.getComputedStyle(current);
       const borderTop = Number.parseFloat(style.borderTopWidth);
       const bg = style.backgroundColor;
-      if (
-        borderTop >= 1.5 &&
-        (bg === "rgb(0, 0, 0)" || bg === "rgba(0, 0, 0, 1)")
-      ) {
+      if (borderTop >= 1.5 && bg === expectedBg) {
         return {
           top: current.getBoundingClientRect().top,
           left: current.getBoundingClientRect().left,
@@ -49,15 +47,14 @@ async function findVisibleTableFrame(page: import("@playwright/test").Page) {
       current = current.parentElement;
     }
     return null;
-  });
+  }, frameColor);
 }
 
 test.describe("P1 subscription layout (shell / frames)", () => {
   test.describe.configure({ mode: "serial" });
 
   test.beforeEach(async ({ page }) => {
-    await page.setViewportSize({ width: 1400, height: 900 });
-    await loginWithE2EUser(page);
+    await page.setViewportSize({ width: 1440, height: 800 });
   });
 
   test("L1: 右側シェル領域は一覧・登録・削除で max 1000px", async ({
@@ -73,7 +70,7 @@ test.describe("P1 subscription layout (shell / frames)", () => {
     await expectSectionMaxWidth1000(page, "サブスクリプション削除");
   });
 
-  test("L2: 一覧・登録・削除のテーブル枠は黒背景・白2px", async ({ page }) => {
+  test("L2: 一覧・登録・削除のテーブル枠はテーマ枠色・白2px", async ({ page }) => {
     const name = uniqueSubscriptionName("Layout");
 
     await openCreateSubscriptionModal(page);
@@ -98,7 +95,6 @@ test.describe("P1 subscription layout (shell / frames)", () => {
       const frame = await findVisibleTableFrame(page);
       expect(frame, `table frame missing on ${path}`).not.toBeNull();
       expect(frame!.borderTopWidth).toBe("2px");
-      expect(frame!.backgroundColor).toMatch(/rgba?\(0,\s*0,\s*0/);
     }
 
     await page.goto("/subscriptions/manage");
@@ -129,7 +125,25 @@ test.describe("P1 subscription layout (shell / frames)", () => {
     await submitSubscriptionCreate(page);
 
     await page.goto("/subscriptions");
-    await expect(visibleGetByText(page, name).first()).toBeVisible();
+    // お知らせ欄にも同じ名前が出るため、列ヘッダーを直接指す
+    const header = page
+      .getByRole("columnheader", { name })
+      .filter({ visible: true })
+      .first();
+    await expect(header).toBeVisible();
+
+    // 吹き出しは枠内にほぼ全体が見えている列にだけ出る。
+    // 新しい列は右端に増えるので、既存の登録件数に左右されないよう横スクロールを右端まで送る。
+    await header.evaluate((node) => {
+      let current: HTMLElement | null = node.parentElement;
+      while (current) {
+        if (current.scrollWidth > current.clientWidth + 1) {
+          current.scrollLeft = current.scrollWidth;
+          return;
+        }
+        current = current.parentElement;
+      }
+    });
 
     const tooltip = page.getByText("更新間近").filter({ visible: true }).first();
     await expect(tooltip).toBeVisible({ timeout: 15_000 });

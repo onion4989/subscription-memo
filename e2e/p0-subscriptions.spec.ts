@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { loginWithE2EUser } from "./helpers/auth";
 import {
   deleteSubscriptionByName,
   fillSubscriptionCreateForm,
@@ -10,10 +9,6 @@ import {
 } from "./helpers/subscription";
 
 test.describe("P0-S subscriptions", () => {
-  test.beforeEach(async ({ page }) => {
-    await loginWithE2EUser(page);
-  });
-
   test("S1: subscriptions list page loads (empty or with data)", async ({
     page,
   }) => {
@@ -63,6 +58,8 @@ test.describe("P0-S subscriptions", () => {
   });
 
   test("S6: sidebar navigates between main app pages", async ({ page }) => {
+    await page.goto("/subscriptions");
+
     await page.getByRole("link", { name: "サブスク登録・変更" }).click();
     await expect(page).toHaveURL(/\/subscriptions\/new/);
 

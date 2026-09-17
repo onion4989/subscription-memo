@@ -5,6 +5,7 @@ alwaysApply: true
 
 # 参照マップ
 
+- 段階・スコープ・固有制約: `project-context.mdc`
 - Next.js 共通: グローバル `nextjs-app-router.mdc`
 - 認証: `auth-nextjs16.mdc`
 - フォーム: `form-handling.mdc`

@@ -4,7 +4,7 @@ import { AUTH_ERROR_QUERY } from "@/lib/routes";
 import { evaluateOAuthSignInGuard } from "@/lib/auth/oauth-sign-in-guards";
 
 const base = {
-  oauthEmail: "user@gmail.com",
+  oauthEmail: "user@example.com",
   sessionUserId: null,
   sessionEmail: null,
   existingEmail: null,
@@ -22,9 +22,9 @@ describe("evaluateOAuthSignInGuard", () => {
       evaluateOAuthSignInGuard({
         ...base,
         sessionUserId: "user-1",
-        sessionEmail: "user@gmail.com",
+        sessionEmail: "user@example.com",
         accountUserId: "user-1",
-        accountEmail: "user@gmail.com",
+        accountEmail: "user@example.com",
       })
     ).toEqual({ ok: true });
   });
