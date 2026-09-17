@@ -168,7 +168,7 @@ export function SubscriptionFormModal({
               支払いプラン
             </Label>
             <Select
-              value={values.paymentPlan || undefined}
+              value={values.paymentPlan}
               onValueChange={(value) =>
                 onChange({
                   paymentPlan: value as SubscriptionRegisterFormValues["paymentPlan"],
