@@ -151,4 +151,4 @@ SSL は Let's Encrypt で自動更新します。更新リマインダーとデ�
 
 名前：Takashi Ogawa  
 開発期間：約 1 ヵ月  
-ポートフォリオ：
+ポートフォリオ：https://portfolio.see-u-soon.design/
