@@ -8,8 +8,16 @@ import { compare } from "bcryptjs";
 
 loadEnvConfig(process.cwd());
 
-const TEST_EMAIL = "ev-test@example.com";
-const TEST_PASSWORD = "dummy-password";
+function requireEnv(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(`${name} must be set in .env.local`);
+  }
+  return value;
+}
+
+const TEST_EMAIL = requireEnv("E2E_SIGNUP_EMAIL");
+const TEST_PASSWORD = requireEnv("E2E_SIGNUP_PASSWORD");
 
 type Result = {
   id: string;
