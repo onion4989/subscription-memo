@@ -22,9 +22,16 @@ Password：`demo1234`
 
 デモアカウントでは、二段階認証の設定・アカウント削除・メール／パスワード変更はできません。
 
-![サブスク一覧（デスクトップ）](docs/screenshots/desctop_all_subs_screanshot.png)
-
-![サブスク一覧（モバイル）](docs/screenshots/mobile_all_sbsc_screanshot.png)
+<table>
+  <tr>
+    <td width="70%" valign="top">
+      <img src="docs/screenshots/desctop_all_subs_screanshot.png" alt="デスクトップ" />
+    </td>
+    <td width="30%" valign="top">
+      <img src="docs/screenshots/mobile_all_sbsc_screanshot.png" alt="モバイル" />
+    </td>
+  </tr>
+</table>
 
 
 
