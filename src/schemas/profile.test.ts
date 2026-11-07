@@ -31,14 +31,16 @@ describe("profileUpdateSchema (P1–P5)", () => {
     ).toBe(false);
   });
 
-  it("requires both passwords when changing password", () => {
+  it("ignores currentPassword-only (browser autofill) as no password change", () => {
     const onlyCurrent = profileUpdateSchema.safeParse({
       ...base,
       currentPassword: "oldpass12",
       newPassword: "",
     });
-    expect(onlyCurrent.success).toBe(false);
+    expect(onlyCurrent.success).toBe(true);
+  });
 
+  it("requires currentPassword when newPassword is set", () => {
     const onlyNew = profileUpdateSchema.safeParse({
       ...base,
       currentPassword: "",
