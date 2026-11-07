@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { DEMO_USER_EMAIL, DEMO_USER_PASSWORD } from "../src/lib/demo/constants";
-import { loginWithCredentials } from "./helpers/auth";
+import {
+  loginWithCredentials,
+  loginWithDemoAutoLogin,
+} from "./helpers/auth";
 
 test.describe("P2-D demo account", () => {
   test.describe.configure({ mode: "serial" });
@@ -18,6 +21,22 @@ test.describe("P2-D demo account", () => {
     ).toBeVisible();
 
     // デスクトップ表では名前が span、モバイルでは heading。どちらでも exact で一意に取れる
+    await expect(page.getByText("Netflix", { exact: true })).toBeVisible();
+    await expect(page.getByText("Spotify", { exact: true })).toBeVisible();
+    await expect(page.getByText("ChatGPT", { exact: true })).toBeVisible();
+  });
+
+  test("D1b: demo auto-login button reaches subscriptions with seeds", async ({
+    page,
+  }) => {
+    await page.goto("/login");
+    await expect(
+      page.getByRole("button", { name: "デモ試用オートログイン" })
+    ).toBeVisible();
+
+    await loginWithDemoAutoLogin(page);
+
+    await expect(page).toHaveURL(/\/subscriptions/);
     await expect(page.getByText("Netflix", { exact: true })).toBeVisible();
     await expect(page.getByText("Spotify", { exact: true })).toBeVisible();
     await expect(page.getByText("ChatGPT", { exact: true })).toBeVisible();

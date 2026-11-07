@@ -7,6 +7,15 @@ export const LOGIN_RATE_LIMIT_PER_EMAIL = 10;
 /** login: 同一 IP あたり上限 */
 export const LOGIN_RATE_LIMIT_PER_IP = 30;
 
+/** デモオートログイン窓: 15 分（通常 login と同じ） */
+export const DEMO_LOGIN_RATE_WINDOW_MS = 15 * 60 * 1000;
+
+/** デモオートログイン: 同一メールあたり上限（共有デモ向けに緩め） */
+export const DEMO_LOGIN_RATE_LIMIT_PER_EMAIL = 60;
+
+/** デモオートログイン: 同一 IP あたり上限 */
+export const DEMO_LOGIN_RATE_LIMIT_PER_IP = 60;
+
 /** forgot-password 窓: 1 時間 */
 export const FORGOT_RATE_WINDOW_MS = 60 * 60 * 1000;
 

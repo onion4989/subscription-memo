@@ -127,6 +127,39 @@ export async function loginWithCredentials(
   await expectSubscriptionsList(page);
 }
 
+export async function loginWithDemoAutoLogin(page: Page): Promise<void> {
+  await page.goto("/login");
+  await page
+    .getByRole("button", { name: "デモ試用オートログイン" })
+    .click();
+
+  const rateLimitError = page.getByText(LOGIN_RATE_LIMIT_MESSAGE);
+  const demoLoginError = page.getByText("デモログインに失敗しました");
+
+  await Promise.race([
+    page.waitForURL(
+      (url) =>
+        url.pathname === "/subscriptions" ||
+        url.pathname.startsWith("/subscriptions/"),
+      { timeout: 60_000 }
+    ),
+    rateLimitError.waitFor({ state: "visible", timeout: 60_000 }).then(() => {
+      throw new Error(
+        "Demo auto-login rate limit reached. " +
+          "dev サーバーを再起動すると窓（15 分）がリセットされます"
+      );
+    }),
+    demoLoginError.waitFor({ state: "visible", timeout: 60_000 }).then(() => {
+      throw new Error(
+        "Demo auto-login failed (demo user missing or credentials invalid). " +
+          "Run: npm run demo:reset"
+      );
+    }),
+  ]);
+
+  await expectSubscriptionsList(page);
+}
+
 export async function loginWithE2EUser(page: Page): Promise<void> {
   const { email, password } = getE2ECredentials();
   await loginWithCredentials(page, email, password);

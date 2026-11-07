@@ -1,11 +1,19 @@
 import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DemoLoginState } from "@/lib/actions/demo-login";
 import type { LoginState } from "@/lib/actions/login";
 import { LOGIN_RATE_LIMIT_MESSAGE } from "@/lib/auth/rate-limit-constants";
 
 const actionState = vi.hoisted(() => ({
   current: { success: false } as LoginState,
 }));
+
+const demoActionState = vi.hoisted(() => ({
+  current: { success: false } as DemoLoginState,
+}));
+
+const loginMock = vi.hoisted(() => vi.fn());
+const demoLoginMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/hooks/use-hydrated", () => ({
   useHydrated: () => true,
@@ -31,23 +39,33 @@ vi.mock("@/components/features/auth/CardWrapper", () => ({
   ),
 }));
 
+vi.mock("@/lib/actions/login", () => ({
+  login: loginMock,
+}));
+
+vi.mock("@/lib/actions/demo-login", () => ({
+  demoLogin: demoLoginMock,
+}));
+
 vi.mock("react", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react")>();
   return {
     ...actual,
-    useActionState: () => [actionState.current, vi.fn(), false],
+    useActionState: (action: unknown) => {
+      if (action === demoLoginMock) {
+        return [demoActionState.current, vi.fn(), false];
+      }
+      return [actionState.current, vi.fn(), false];
+    },
   };
 });
-
-vi.mock("@/lib/actions/login", () => ({
-  login: vi.fn(),
-}));
 
 import { LoginForm } from "@/components/features/auth/LoginForm";
 
 describe("LoginForm formError (UI1–UI3)", () => {
   beforeEach(() => {
     actionState.current = { success: false };
+    demoActionState.current = { success: false };
   });
 
   it("UI1: shows formError as a top alert", () => {
@@ -92,6 +110,31 @@ describe("LoginForm formError (UI1–UI3)", () => {
     expect(screen.getByText(LOGIN_RATE_LIMIT_MESSAGE)).toBeVisible();
     expect(
       screen.getByText("メールアドレスまたはパスワードが正しくありません")
+    ).toBeVisible();
+  });
+
+  it("shows the demo auto-login button", () => {
+    render(<LoginForm />);
+
+    expect(
+      screen.getByRole("button", { name: "デモ試用オートログイン" })
+    ).toBeVisible();
+  });
+
+  it("shows demo formError near the demo button", () => {
+    demoActionState.current = {
+      success: false,
+      formError: LOGIN_RATE_LIMIT_MESSAGE,
+    };
+
+    render(<LoginForm />);
+
+    const demoForm = screen
+      .getByRole("button", { name: "デモ試用オートログイン" })
+      .closest("form");
+    expect(demoForm).not.toBeNull();
+    expect(
+      within(demoForm as HTMLElement).getByText(LOGIN_RATE_LIMIT_MESSAGE)
     ).toBeVisible();
   });
 });

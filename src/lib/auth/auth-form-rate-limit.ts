@@ -1,5 +1,8 @@
 import {
   AUTH_RATE_LIMIT_ENV_KEY,
+  DEMO_LOGIN_RATE_LIMIT_PER_EMAIL,
+  DEMO_LOGIN_RATE_LIMIT_PER_IP,
+  DEMO_LOGIN_RATE_WINDOW_MS,
   FORGOT_RATE_LIMIT_PER_EMAIL,
   FORGOT_RATE_LIMIT_PER_IP,
   FORGOT_RATE_WINDOW_MS,
@@ -16,6 +19,12 @@ const loginLimiter = createDualKeyRateLimiter({
   windowMs: LOGIN_RATE_WINDOW_MS,
   emailMax: LOGIN_RATE_LIMIT_PER_EMAIL,
   ipMax: LOGIN_RATE_LIMIT_PER_IP,
+});
+
+const demoLoginLimiter = createDualKeyRateLimiter({
+  windowMs: DEMO_LOGIN_RATE_WINDOW_MS,
+  emailMax: DEMO_LOGIN_RATE_LIMIT_PER_EMAIL,
+  ipMax: DEMO_LOGIN_RATE_LIMIT_PER_IP,
 });
 
 const forgotLimiter = createDualKeyRateLimiter({
@@ -40,6 +49,17 @@ export function checkLoginRateLimit(
   return loginLimiter.check(emailKey, ip);
 }
 
+export function checkDemoLoginRateLimit(
+  emailKey: string,
+  ip: string
+): DualKeyRateResult {
+  if (!isAuthFormRateLimitEnabled()) {
+    return { allowed: true };
+  }
+
+  return demoLoginLimiter.check(emailKey, ip);
+}
+
 export function checkForgotPasswordRateLimit(
   emailKey: string,
   ip: string
@@ -54,5 +74,6 @@ export function checkForgotPasswordRateLimit(
 /** vitest 用。本番コードから呼ばない */
 export function resetAuthFormRateLimitsForTests(): void {
   loginLimiter.resetForTests();
+  demoLoginLimiter.resetForTests();
   forgotLimiter.resetForTests();
 }

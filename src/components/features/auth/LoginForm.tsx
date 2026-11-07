@@ -3,6 +3,10 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { useHydrated } from "@/hooks/use-hydrated";
+import {
+  demoLogin,
+  type DemoLoginState,
+} from "@/lib/actions/demo-login";
 import { login, type LoginState } from "@/lib/actions/login";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,12 +16,23 @@ import { CardWrapper } from "./CardWrapper";
 import { RequiredFieldMark } from "./RequiredFieldMark";
 
 const initialState: LoginState = { success: false };
+const demoInitialState: DemoLoginState = { success: false };
+
+const DEMO_LOGIN_BUTTON_CLASS =
+  "w-full bg-emerald-600 text-white hover:bg-emerald-600/90";
 
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(login, initialState);
+  const [demoState, demoAction, demoPending] = useActionState(
+    demoLogin,
+    demoInitialState
+  );
   const hydrated = useHydrated();
   const viewState = hydrated ? state : initialState;
+  const demoView = hydrated ? demoState : demoInitialState;
   const isPending = hydrated && pending;
+  const isDemoPending = hydrated && demoPending;
+  const anyPending = isPending || isDemoPending;
   const showResendVerificationLink = viewState.emailNotVerified === true;
 
   return (
@@ -50,7 +65,7 @@ export function LoginForm() {
               name="email"
               type="email"
               autoComplete="email"
-              disabled={isPending}
+              disabled={anyPending}
               placeholder="example@mail.com"
               defaultValue={viewState.values?.email ?? ""}
               aria-invalid={viewState.fieldErrors?.email ? true : undefined}
@@ -72,7 +87,7 @@ export function LoginForm() {
               name="password"
               type="password"
               autoComplete="current-password"
-              disabled={isPending}
+              disabled={anyPending}
               placeholder="••••••••"
               aria-invalid={viewState.fieldErrors?.password ? true : undefined}
             />
@@ -105,8 +120,23 @@ export function LoginForm() {
             ) : null}
           </div>
 
-          <Button type="submit" disabled={isPending} className="w-full">
+          <Button type="submit" disabled={anyPending} className="w-full">
             {isPending ? "ログイン中..." : "ログイン"}
+          </Button>
+        </form>
+
+        <form action={demoAction} className="space-y-2">
+          {demoView.formError ? (
+            <p className="text-sm text-red-600" role="alert">
+              {demoView.formError}
+            </p>
+          ) : null}
+          <Button
+            type="submit"
+            disabled={anyPending}
+            className={DEMO_LOGIN_BUTTON_CLASS}
+          >
+            {isDemoPending ? "ログイン中..." : "デモ試用オートログイン"}
           </Button>
         </form>
       </div>
