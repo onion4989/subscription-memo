@@ -6,7 +6,8 @@ import { ROUTES } from "@/lib/routes";
 export default async function HomePage() {
   const session = await auth();
 
-  if (session) {
+  // 設定エラー時の truthy error オブジェクトをログイン扱いしない（GHSA-8fpg）
+  if (session?.user) {
     redirect(ROUTES.subscriptions);
   }
 
