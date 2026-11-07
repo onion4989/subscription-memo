@@ -26,7 +26,6 @@ pnpm-debug.log*
 
 # === 依存 ===
 **/node_modules/
-package-lock.json
 pnpm-lock.yaml
 
 # === Agent 成果物 ===
