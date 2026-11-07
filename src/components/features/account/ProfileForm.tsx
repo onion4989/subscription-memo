@@ -155,7 +155,7 @@ export function ProfileForm({ initialValues }: ProfileFormProps) {
                   id="currentPassword"
                   name="currentPassword"
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="off"
                   aria-invalid={
                     viewState.fieldErrors?.currentPassword ? true : undefined
                   }
@@ -172,7 +172,7 @@ export function ProfileForm({ initialValues }: ProfileFormProps) {
                   id="newPassword"
                   name="newPassword"
                   type="password"
-                  autoComplete="new-password"
+                  autoComplete="off"
                   aria-invalid={
                     viewState.fieldErrors?.newPassword ? true : undefined
                   }

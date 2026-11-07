@@ -36,8 +36,8 @@ export const profileUpdateSchema = z
     hasPassword: z.boolean(),
   })
   .superRefine((data, ctx) => {
-    const wantsPasswordChange =
-      data.currentPassword.length > 0 || data.newPassword.length > 0;
+    // newPassword があるときだけ変更扱い（current のみはブラウザ自動入力を無視）
+    const wantsPasswordChange = data.newPassword.length > 0;
 
     if (!data.hasPassword && wantsPasswordChange) {
       ctx.addIssue({
@@ -57,13 +57,7 @@ export const profileUpdateSchema = z
         });
       }
 
-      if (!data.newPassword) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["newPassword"],
-          message: "新しいパスワードを入力してください",
-        });
-      } else if (data.newPassword.length < 8) {
+      if (data.newPassword.length < 8) {
         ctx.addIssue({
           code: "custom",
           path: ["newPassword"],
