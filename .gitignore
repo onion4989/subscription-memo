@@ -38,3 +38,12 @@ dev-local.md
 *.sql
 *.dump
 !prisma/migrations/**/*.sql
+
+# workspace
+subscription-memo.code-workspace
+
+#hooks
+.githooks
+
+#不要
+AGENTS.md
