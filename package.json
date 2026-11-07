@@ -59,7 +59,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "autoprefixer": "^10.5.0",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.9",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.4",
     "imapflow": "^1.4.7",
